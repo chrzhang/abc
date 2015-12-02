@@ -11,7 +11,7 @@ void swap(char * l, char * r) {
     *r = temp;
 }
 
-void reverse(char * s) {
+void reverse0(char * s) {
     size_t len = 0;
     char * p = s;
     while (*p) {
@@ -27,11 +27,37 @@ void reverse(char * s) {
     }
 }
 
+void reverse1(char * s) { // Doesn't need to store length
+    char * p, * q;
+    p = q = s;
+    while (*p) {
+        ++p;
+    }
+    --p; // Last character
+    if (p <= s) {
+        return;
+    }
+    while (q < p) {
+        swap(q, p);
+        --p;
+        ++q;
+    }
+}
+
 int main() {
-    char str[] = TEST_STR;
-    reverse(str);
-    printf("%s\n", str);
-    reverse(str);
-    assert(0 == strcmp(str, TEST_STR));
+    { // reverse1 test
+        char str[] = TEST_STR;
+        reverse1(str);
+        printf("%s\n", str);
+        reverse1(str);
+        assert(0 == strcmp(str, TEST_STR)); // Does not test case of palindromes
+    }
+    { // reverse0 test
+        char str[] = TEST_STR;
+        reverse0(str);
+        printf("%s\n", str);
+        reverse0(str);
+        assert(0 == strcmp(str, TEST_STR)); // Does not test case of palindromes
+    }
     return 0;
 }
