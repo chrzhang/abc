@@ -20,10 +20,11 @@ int main() {
     while (true) {
         std::cout << "Enter a string (Ctrl + C to quit): ";
         std::getline (std::cin, inputLine);
-        if (hasUniqueChars(inputLine)) {
-            std::cout << "unique" << std::endl;
-        } else {
+        if (inputLine.size() > CHAR_MAX - CHAR_MIN + 1 ||
+            !hasUniqueChars(inputLine)) {
             std::cout << "not unique" << std::endl;
+        } else {
+            std::cout << "unique" << std::endl;
         }
         std::cout << std::endl;
     }
