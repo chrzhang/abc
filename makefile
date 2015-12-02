@@ -9,7 +9,7 @@ LDFLAGS=
 
 # Change filenames accordingly per project
 SOURCES=$(wildcard *.cpp)
-EXECUTABLE=hello
+EXECUTABLE=p
 
 OBJECTS=$(SOURCES:.cpp=.o)
 

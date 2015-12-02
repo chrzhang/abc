@@ -19,7 +19,7 @@ int main() {
     std::string inputLine;
     while (true) {
         std::cout << "Enter a string (Ctrl + C to quit): ";
-        std::getline (std::cin, inputLine);
+        std::getline(std::cin, inputLine);
         if (inputLine.size() > CHAR_MAX - CHAR_MIN + 1 ||
             !hasUniqueChars(inputLine)) {
             std::cout << "not unique" << std::endl;
