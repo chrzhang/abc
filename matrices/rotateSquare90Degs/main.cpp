@@ -2,7 +2,7 @@
 
 #define N 3
 
-// Rotate a NxN matrix 90 degrees where each pixel is 4 bytes
+// Rotate a N x N matrix 90 degrees where each pixel is 4 bytes
 
 struct Pixel {
     int i;
@@ -23,7 +23,7 @@ void printMatrix(Pixel matrix[N][N]) {
 }
 
 void rotateMatrix(Pixel matrix[N][N]) {
-    // Start off on the outmost layer and descend in, recursively
+    // Start off on the outmost layer and descend in
     for (int depth = 0; depth < (N + 1) / 2; ++depth) {
         Pixel * nw, * ne, * sw, * se;
         nw = &matrix[depth][depth];
