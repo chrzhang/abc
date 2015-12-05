@@ -2,8 +2,9 @@
 #include <ctime>
 #include <cstdlib>
 #include <unordered_map>
+#include <assert.h>
 
-#define NUM_NODES 10
+#define NUM_NODES 50
 
 // Remove duplicates from an unsorted linked list.
 
@@ -75,20 +76,47 @@ void removeDuplicates(LinkedList & l) {
             nptr = nptr->next;
             prev = (prev == nullptr ? l.root : prev->next);
         }
+        l.tail = nptr;
+    }
+}
+
+void slowRemoveDuplicates(LinkedList & l) {
+    // No auxiliary storage
+    Node * prev1 = l.root;
+    Node * nptr1 = (l.root)->next;
+    while (prev1 && nptr1) {
+        Node * prev2 = prev1;
+        Node * nptr2 = nptr1;
+        while (prev2 && nptr2) {
+            if (nptr2->value == prev1->value) {
+                prev2->next = nptr2->next;
+                delete nptr2;
+                nptr2 = prev2;
+            } else {
+                prev2 = prev2->next;
+            }
+            nptr2 = nptr2->next;
+        }
+        if (prev1->next) {
+            prev1 = prev1->next;
+            nptr1 = prev1->next;
+        } else {
+            l.tail = prev1;
+            break;
+        }
     }
 }
 
 int main() {
     srand(time(0));
-    LinkedList * l = new LinkedList;
+    LinkedList l;
     for (int i = 0; i < NUM_NODES; ++i) {
         Node * n = new Node(rand() % 5);
-        l->append(n);
+        l.append(n);
     }
-    std::cout << *l;
+    std::cout << l;
     std::cout << "Removing duplicates." << std::endl;
-    removeDuplicates(*l);
-    std::cout << *l;
-    delete l;
+    slowRemoveDuplicates(l);
+    std::cout << l;
     return 0;
 }
