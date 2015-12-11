@@ -49,9 +49,11 @@ struct Stack {
     bool isEmpty() {
         return (top == nullptr);
     }
+    // By only using pushSorted, the stack will always be in a sorted state
     void pushSorted(Node * n, Stack & s) {
-        // Use s as a buffer to help maintain sorting of current stack
-        Node * oldTop = s.top;
+        if (!n) { return; }
+        // Push to s as a buffer to help maintain sorting of current stack
+        Node * oldTop = s.top; // Do not make any lasting changes to s
         if ((!top) || (n->val <= top->val)) {
             push(n);
             return;
@@ -102,8 +104,10 @@ int main() {
         std::cout << "-> sorted -> ";
         // Begin sorting
         while (!s.isEmpty()) {
+            // Fill the extra stack with stack 1 so the extra stack is sorted
             aux.pushSorted(s.pop(), s);
         }
+        // aux was filled in the opposite order desired to allow easy refilling
         while (!aux.isEmpty()) {
             s.push(aux.pop());
         }
