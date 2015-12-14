@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <assert.h>
 
-#define NUM_NODES 5
+#define NUM_NODES 100
 #define NUM_ITERATIONS 100
 
 // Check if there is a route from one node to another in a directed graph
@@ -27,7 +27,6 @@ struct Queue { // For BFS
     ~Queue() {
         Node * nptr = head;
         while (nptr) {
-            assert(false);
             Node * temp = nptr->next;
             delete nptr;
             nptr = temp;
@@ -72,6 +71,53 @@ std::ostream & operator<<(std::ostream & os, const Queue & q) {
     return os;
 }
 
+struct Stack { // For DFS
+    Node * top;
+    Stack() {
+        top = nullptr;
+    }
+    ~Stack() {
+        Node * nptr = top;
+        while (nptr) {
+            Node * temp = nptr->next;
+            delete nptr;
+            nptr = temp;
+        }
+    }
+    void push(Node * n) {
+        if (!n) { return; }
+        n->next = n->prev = nullptr;
+        if (!top) {
+            top = n;
+        } else {
+            top->prev = n;
+            n->next = top;
+            top = n;
+        }
+    }
+    Node * pop() {
+        if (!top) { return nullptr; }
+        Node * temp = top;
+        top = top->next;
+        if (top) { top->prev = nullptr; }
+        temp->prev = temp->next = nullptr;
+        return temp;
+    }
+    bool isEmpty() const {
+        return (top == nullptr);
+    }
+};
+
+std::ostream & operator<<(std::ostream & os, const Stack & s) {
+    Node * nptr = s.top;
+    std::cout << "top -> ";
+    while (nptr) {
+        os << nptr->val << " ";
+        nptr = nptr->next;
+    }
+    return os;
+}
+
 struct Graph {
     bool adjMatrix[NUM_NODES][NUM_NODES];
     std::unordered_map<int, Node *> allNodes;
@@ -105,13 +151,10 @@ struct Graph {
         visited[srcIndex] = true;
         q.enqueue(allNodes[srcIndex]);
         while (!q.isEmpty()) {
-            std::cout << "Queue: " << q << std::endl;
             // Dequeue, check if it's destination, and enqueue neighbors
             Node * n = q.dequeue();
-            std::cout << "Looking at node " << n->val << " and marking as visited." << std::endl;
             assert(n);
             if (n->val == destIndex) {
-                std::cout << "\t\t\t\tFound destination!" << std::endl;
                 while (!q.isEmpty()) {
                     q.dequeue();
                 }
@@ -120,14 +163,43 @@ struct Graph {
             for (int j = 0; j < NUM_NODES; ++j) {
                 if (adjMatrix[n->val][j]) {
                     if (!visited[j]) {
-                        std::cout << "Enqueueing neighbor node " << allNodes[j]->val << std::endl;
                         visited[j] = true;
                         q.enqueue(allNodes[j]);
                     }
                 }
             }
         }
-        std::cout << "\t\t\t\tCould not reach destination." << std::endl;
+        return false;
+    }
+    bool hasRouteDFS(int srcIndex, int destIndex) {
+        if (allNodes.find(srcIndex) == allNodes.end() ||
+            allNodes.find(destIndex) == allNodes.end()) {
+            std::cout << "Source or destination is not in the graph."
+                      << std::endl;
+            return false;
+        }
+        bool visited[NUM_NODES] = { false };
+        Stack s;
+        visited[srcIndex] = true;
+        s.push(allNodes[srcIndex]);
+        while (!s.isEmpty()) {
+            Node * n = s.pop();
+            assert(n);
+            if (n->val == destIndex) {
+                while (!s.isEmpty()) {
+                    s.pop();
+                }
+                return true;
+            }
+            for (int j = 0; j < NUM_NODES; ++j) {
+                if (adjMatrix[n->val][j]) {
+                    if (!visited[j]) {
+                        visited[j] = true;
+                        s.push(allNodes[j]);
+                    }
+                }
+            }
+        }
         return false;
     }
 };
@@ -152,8 +224,8 @@ int main() {
     srand(time(0));
     for (int iteration = 0; iteration < NUM_ITERATIONS; ++iteration) {
         Graph g;
-        std::cout << g << std::endl;
-        g.hasRouteBFS(0, NUM_NODES - 1);
-        std::cout << std::endl;
+        int randNodeIndex = rand() % NUM_NODES;
+        assert(g.hasRouteBFS(0, randNodeIndex) ==
+               g.hasRouteDFS(0, randNodeIndex));
     }
 }
