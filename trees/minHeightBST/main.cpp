@@ -77,6 +77,30 @@ struct BinarySearchTree {
     void fromSortedArray(const std::vector<int> & arr) {
         fromSortedArrayAux(arr, 0, arr.size() - 1);
     }
+    Node * fromSortedArrayOptAux(Node * parent, const std::vector<int> & arr,
+                                 int startIndex, int endIndex) {
+        if (startIndex > endIndex || !parent) {
+            return nullptr;
+        }
+        int midpt = startIndex + (endIndex - startIndex) / 2;
+        Node * n = new Node(arr[midpt]);
+        ++size;
+        n->leftChild = fromSortedArrayOptAux(n, arr, startIndex, midpt - 1);
+        if (n->leftChild) {
+
+        }
+        n->rightChild = fromSortedArrayOptAux(n, arr, midpt + 1, endIndex);
+        return n;
+    }
+    void fromSortedArrayOpt(const std::vector<int> & arr) {
+        if (arr.empty()) return;
+        int midpt = (arr.size() - 1) / 2;
+        root = new Node(arr[midpt]);
+        ++size;
+        root->leftChild = fromSortedArrayOptAux(root, arr, 0, midpt - 1);
+        root->rightChild = fromSortedArrayOptAux(root, arr, midpt + 1,
+                                                 arr.size() - 1);
+    }
     int getHeightAux(Node * n) const {
         if (!n) { return 0; }
         return 1 + max(getHeightAux(n->leftChild), getHeightAux(n->rightChild));
@@ -110,15 +134,23 @@ int heightNeededForNodes(int numNodes) {
 }
 
 int main() {
+    srand(time(0));
     for (int iteration = 0; iteration < NUM_ITERATIONS; ++iteration) {
         std::vector<int> sortedArr;
         int randNumNodes = rand() % NUM_NODES;
         for (int i = 0; i < randNumNodes; ++i) {
             sortedArr.push_back(i);
         }
-        BinarySearchTree b;
-        b.fromSortedArray(sortedArr);
-        assert(b.getHeight() == heightNeededForNodes(b.size));
+        {
+            BinarySearchTree b;
+            b.fromSortedArrayOpt(sortedArr);
+            assert(b.getHeight() == heightNeededForNodes(b.size));
+        }
+        {
+            BinarySearchTree b;
+            b.fromSortedArray(sortedArr);
+            assert(b.getHeight() == heightNeededForNodes(b.size));
+        }
     }
     return 0;
 }
