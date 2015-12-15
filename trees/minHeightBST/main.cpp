@@ -86,9 +86,6 @@ struct BinarySearchTree {
         Node * n = new Node(arr[midpt]);
         ++size;
         n->leftChild = fromSortedArrayOptAux(n, arr, startIndex, midpt - 1);
-        if (n->leftChild) {
-
-        }
         n->rightChild = fromSortedArrayOptAux(n, arr, midpt + 1, endIndex);
         return n;
     }
