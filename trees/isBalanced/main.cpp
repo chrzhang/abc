@@ -65,7 +65,7 @@ struct Tree {
         if (node) {
             printHelper(indent + 5, node->rchild);
             std::cout << std::setw(indent) << " " << node->val << std::endl;
-            printHelper(indent + 8, node->lchild);
+            printHelper(indent + 5, node->lchild);
         }
     }
     void inOrderPrint(Node * n) const {
