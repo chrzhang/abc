@@ -77,6 +77,9 @@ struct BinarySearchTree {
     void fromSortedArray(const std::vector<int> & arr) {
         fromSortedArrayAux(arr, 0, arr.size() - 1);
     }
+    // Optimize by avoiding the O(h) traversal in usual node insertion
+    // Since we insert the median of our current sub-array and build the tree
+    // by recursively descending, create and bind the nodes on the fly
     Node * fromSortedArrayOptAux(Node * parent, const std::vector<int> & arr,
                                  int startIndex, int endIndex) {
         if (startIndex > endIndex || !parent) {
