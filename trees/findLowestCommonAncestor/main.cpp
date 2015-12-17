@@ -1,0 +1,131 @@
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <ctime>
+#include <assert.h>
+#include <unordered_map>
+
+#define NUM_NODES 10
+
+// Given two nodes in a binary tree, find their lowest common ancestor
+
+struct TreeNode {
+    TreeNode * leftChild, * rightChild;
+    int val;
+    TreeNode(int val) {
+        this->val = val;
+        leftChild = rightChild = nullptr;
+    }
+};
+
+struct Tree {
+    TreeNode * root;
+    std::unordered_map<int, TreeNode *> valToAddr; // For testing
+    Tree() {
+        root = nullptr;
+    }
+    void destroyHelper(TreeNode * n) {
+        if (!n) { return; }
+        destroyHelper(n->leftChild);
+        destroyHelper(n->rightChild);
+        delete n;
+    }
+    ~Tree() {
+        destroyHelper(root);
+    }
+    void insertRandomlyAux(TreeNode * parent, TreeNode * n) {
+        assert(parent && n);
+        switch(rand() % 2) {
+            case 0: {
+                if (!parent->leftChild) {
+                    parent->leftChild = n;
+                } else {
+                    insertRandomlyAux(parent->leftChild, n);
+                }
+                break;
+            }
+            case 1: {
+                if (!parent->rightChild) {
+                    parent->rightChild = n;
+                } else {
+                    insertRandomlyAux(parent->rightChild, n);
+                }
+                break;
+            }
+        }
+    }
+    void insertRandomly(TreeNode * n) {
+        if (!n) { return; }
+        valToAddr[n->val] = n;
+        if (!root) {
+            root = n;
+        } else {
+            insertRandomlyAux(root, n);
+        }
+    }
+    bool contains(TreeNode * parent, TreeNode * n) const {
+        if (!parent || !n) { return false; }
+        if (parent == n) { return true; }
+        return (contains(parent->leftChild, n) ||
+                contains(parent->rightChild, n));
+
+    }
+    TreeNode * findLCAAux(TreeNode * parent,
+                          TreeNode * n1,
+                          TreeNode * n2) const {
+        if (!parent) { return nullptr; }
+        if (n1 == parent || n2 == parent) { return parent; }
+        bool leftHasN1 = contains(parent->leftChild, n1);
+        bool rightHasN2 = contains(parent->rightChild, n2);
+        if (leftHasN1 && rightHasN2) {
+            return parent;
+        }
+        bool leftHasN2 = contains(parent->leftChild, n2);
+        bool rightHasN1 = contains(parent->rightChild, n1);
+        if (leftHasN2 && rightHasN1) {
+            return parent;
+        }
+        if (leftHasN1 && leftHasN2) {
+            return findLCAAux(parent->leftChild, n1, n2);
+        }
+        if (rightHasN2 && rightHasN1) {
+            return findLCAAux(parent->rightChild, n1, n2);
+        }
+        return nullptr;
+    }
+    TreeNode * findLCA(TreeNode * n1, TreeNode * n2) const {
+        return findLCAAux(root, n1, n2);
+    }
+    void printAux(std::ostream & os, int indent, TreeNode * n) const {
+        if (!n) { return; }
+        printAux(os, indent + 5, n->rightChild);
+        os << std::setw(indent) << n->val << std::endl;
+        printAux(os, indent + 5, n->leftChild);
+    }
+    void print(std::ostream & os) const {
+        printAux(os, 0, root);
+    }
+};
+
+std::ostream & operator<<(std::ostream & os, const Tree & t) {
+    t.print(os);
+    return os;
+}
+
+int main() {
+    srand(time(0));
+    Tree t;
+    for (int i = 0; i < NUM_NODES; ++i) {
+        t.insertRandomly(new TreeNode(i));
+    }
+    std::cout << t << std::endl;
+    for (auto it1 = t.valToAddr.begin(); it1 != t.valToAddr.end(); ++it1) {
+        for (auto it2 = t.valToAddr.begin(); it2 != t.valToAddr.end(); ++it2) {
+            std::cout << "LCA of " << it1->first << " and " << it2->first
+                      << " is " << t.findLCA(it1->second, it2->second)->val
+                      << "\t";
+        }
+    }
+    std::cout << std::endl;
+    return 0;
+}
