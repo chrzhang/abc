@@ -138,6 +138,25 @@ struct Tree {
     TreeNode * findLCA(TreeNode * n1, TreeNode * n2) const {
         return findLCAAux(root, n1, n2);
     }
+    // Return n1 if n1 is in the subtree but not n2 (same for n2)
+    // A returned node that is neither n1 or n2 is a valid common ancestor
+    TreeNode * findLCAOptimizedAux(TreeNode * parent,
+                                   TreeNode * n1,
+                                   TreeNode * n2) const {
+        if (!parent) { return nullptr; }
+        if (n1 == parent && n2 == parent) { return parent; }
+        TreeNode * t1 = findLCAOptimizedAux(parent->leftChild, n1, n2);
+        if (t1 && t1 != n1 && t1 != n2) { return t1; } // Found already
+        TreeNode * t2 = findLCAOptimizedAux(parent->rightChild, n1, n2);
+        if (t2 && t2 != n1 && t2 != n2) { return t2; } // Found already
+        if ((t1 && t2) || (parent == n1 || parent == n2)) {
+            return parent; // First encounter of common ancestor
+        }
+        return t1 ? t1 : t2;
+    }
+    TreeNode * findLCAOptimized(TreeNode * n1, TreeNode * n2) const {
+        return findLCAOptimizedAux(root, n1, n2);
+    }
     void printAux(std::ostream & os, int indent, TreeNode * n) const {
         if (!n) { return; }
         printAux(os, indent + 5, n->rightChild);
@@ -166,6 +185,8 @@ int main() {
             TreeNode * t1 = t.findLCA(it1->second, it2->second);
             TreeNode * t2 = t.findLCAStorage(it1->second, it2->second);
             assert(t1 == t2);
+            TreeNode * t3 = t.findLCAOptimized(it1->second, it2->second);
+            assert(t1 == t3);
             std::cout << "LCA of " << it1->first << " and " << it2->first
                       << " is " << t1->val << "\t";
         }
