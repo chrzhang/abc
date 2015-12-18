@@ -4,6 +4,7 @@
 #include <ctime>
 #include <assert.h>
 #include <unordered_map>
+#include <list>
 
 #define NUM_NODES 10
 
@@ -70,6 +71,47 @@ struct Tree {
                 contains(parent->rightChild, n));
 
     }
+    bool findPathToNodeAux(std::list<bool> & leftRightDecisions,
+                           TreeNode * parent, TreeNode * n) const {
+        if (!parent || !n) { return false; }
+        if (parent == n) { return true; }
+        bool leftHasN = findPathToNodeAux(leftRightDecisions, parent->leftChild,
+                                          n);
+        if (leftHasN) {
+            leftRightDecisions.push_front(0);
+            return true;
+        }
+        bool rightHasN = findPathToNodeAux(leftRightDecisions,
+                                           parent->rightChild, n);
+        if (rightHasN) {
+            leftRightDecisions.push_front(1);
+            return true;
+        }
+        return false;
+    }
+    std::list<bool> findPathToNode(TreeNode *n) const {
+        std::list<bool> leftRightDecisions;
+        findPathToNodeAux(leftRightDecisions, root, n);
+        return leftRightDecisions;
+    }
+    TreeNode * findLCAStorage(TreeNode * n1, TreeNode * n2) const {
+        std::list<bool> lod1 = findPathToNode(n1);
+        std::list<bool> lod2 = findPathToNode(n2);
+        TreeNode * currLCA = root;
+        for (auto it1 = lod1.begin(), it2 = lod2.begin();
+             it1 != lod1.end() && it2 != lod2.end(); ++it1, ++it2) {
+            if (*it1 != *it2) {
+                break;
+            } else {
+                currLCA = *it1 ? currLCA->rightChild : currLCA->leftChild;
+            }
+        }
+        if (currLCA) {
+            return currLCA;
+        } else {
+            return n1;
+        }
+    }
     TreeNode * findLCAAux(TreeNode * parent,
                           TreeNode * n1,
                           TreeNode * n2) const {
@@ -121,9 +163,11 @@ int main() {
     std::cout << t << std::endl;
     for (auto it1 = t.valToAddr.begin(); it1 != t.valToAddr.end(); ++it1) {
         for (auto it2 = t.valToAddr.begin(); it2 != t.valToAddr.end(); ++it2) {
+            TreeNode * t1 = t.findLCA(it1->second, it2->second);
+            TreeNode * t2 = t.findLCAStorage(it1->second, it2->second);
+            assert(t1 == t2);
             std::cout << "LCA of " << it1->first << " and " << it2->first
-                      << " is " << t.findLCA(it1->second, it2->second)->val
-                      << "\t";
+                      << " is " << t1->val << "\t";
         }
     }
     std::cout << std::endl;
