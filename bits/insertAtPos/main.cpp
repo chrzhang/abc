@@ -8,8 +8,14 @@
 int main() {
     int N = 1024; // 10000000000
     int M = 19; // 10011
+    // Positions are indexed at 0 on the rightmost digit
     const int i = 2;
     const int j = 6;
+    // These positions mean
+    // 10000000000
+    //     ^^^^^
+    //     10011
+    assert(i < j);
     // Zero positions i through j in N
     int mask = pow(2, ((j - i) + 1)) - 1;
     mask <<= i;
