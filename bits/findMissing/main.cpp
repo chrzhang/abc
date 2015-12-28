@@ -46,9 +46,7 @@ int main() {
     // are in the array and any discrepancy will help form the missing value)
     for (size_t bitPos = 1, currPowOf2 = 2; bitPos <= NUM_BITS; ++bitPos) {
         size_t leftover = (N + 1) % currPowOf2;
-        //std::cout << "\tleftover: " << leftover << std::endl;
         size_t numSets = (N + 1) / currPowOf2;
-        //std::cout << "\tnumSets: " << numSets << std::endl;
         size_t num1s = numSets * (currPowOf2 / 2);
         if (leftover / (currPowOf2 / 2)) {
             num1s += leftover % (currPowOf2 / 2);
