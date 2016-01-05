@@ -64,9 +64,12 @@ size_t countWays(const std::string & expr, const bool result,
         if (expr.compare("1") == 0) {
             table[PriorResult(expr, result)] = result == true;
             return (result == true);
-        } else {
+        } else if (expr.compare("0") == 0) {
             table[PriorResult(expr, result)] = result == false;
             return (result == false);
+        } else {
+            std::cout << "Expression is ill-formed.\n";
+            assert(false);
         }
     }
     size_t ways = 0;
