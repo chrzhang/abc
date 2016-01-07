@@ -19,7 +19,6 @@ bool anagramCompare(const std::string & s1, const std::string & s2) {
     std::sort(copyOfS2.begin(), copyOfS2.end());
     auto cmp = copyOfS1.compare(copyOfS2);
     if (cmp == 0) {
-        std::cout << s1 << " and " << s2 << " are anagrams.\n";
         return false;
     } else {
         return cmp < 0;
