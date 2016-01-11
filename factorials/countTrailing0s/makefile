@@ -5,7 +5,7 @@ CC=g++
 CFLAGS=-c -Wall -g -ggdb -Ofast -pedantic-errors -std=c++11
 
 # Flags for compilers that need invoke the linker (e.g. libraries)
-LDFLAGS=
+LDFLAGS= -lgmpxx -lgmp
 
 # Change filenames accordingly per project
 SOURCES=$(wildcard *.cpp)
