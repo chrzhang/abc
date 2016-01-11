@@ -96,6 +96,7 @@ int main() {
     srand(time(0));
     Ball solution[SLOTS];
     Ball guess[SLOTS];
+    // Display possible configurations of however many matches and pseudomatches
     for (int numMatches = 0; numMatches <= SLOTS; ++numMatches) {
         for (int numPseudoMatches = 0; numPseudoMatches <= SLOTS - numMatches;
              ++numPseudoMatches) {
@@ -115,4 +116,3 @@ int main() {
     }
     return 0;
 }
-
