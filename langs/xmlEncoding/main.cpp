@@ -44,7 +44,7 @@ struct Attribute {
     Value val;
     Attribute(Tag t, Value v) : tag(t), val(v) {}
     std::string getEncoding() {
-        return (tag.getEncoding() + " " + val.getEncoding() + " ");
+        return (tag.getEncoding() + " " + val.getEncoding());
     }
 };
 
@@ -63,14 +63,14 @@ struct Element {
         std::string tagEncoding = t.getEncoding();
         std::string attrsEncoding = "";
         for (auto it = attrs.begin(); it != attrs.end(); ++it) {
-            attrsEncoding += it->getEncoding();
+            attrsEncoding += it->getEncoding() + " ";
         }
         std::string childrenEncoding = "";
         for (auto it = children.begin(); it != children.end(); ++it) {
-            childrenEncoding += " " + it->getEncoding();
+            childrenEncoding += it->getEncoding() + " ";
         }
-        return (tagEncoding + attrsEncoding + e.getEncoding() + " " +
-                childrenEncoding + e.getEncoding() + " ");
+        return (tagEncoding + " " + attrsEncoding + e.getEncoding() + " " +
+                childrenEncoding + e.getEncoding());
     }
 };
 
@@ -82,20 +82,25 @@ int main() {
         {"lastName", 4},
         {"state", 5}
     });
-
-    Element parent;
     Tag tFamily("family", table);
     Tag tPerson("person", table);
     Tag tFirstName("firstName", table);
     Tag tLastName("lastName", table);
     Tag tState("state", table);
-    Value vName("Chris");
+    Element family;
+    Value vLName("Zhang");
     Value vState("NY");
-    Attribute attr1(tFirstName, vName);
+    Attribute attr1(tLastName, vLName);
     Attribute attr2(tState, vState);
-    parent.t = tFamily;
-    parent.attrs.push_back(attr1);
-    parent.attrs.push_back(attr2);
-    std::cout << parent.getEncoding() << std::endl;
+    family.t = tFamily;
+    family.attrs.push_back(attr1);
+    family.attrs.push_back(attr2);
+    Element person;
+    Value vFName("Christopher");
+    Attribute attr3(tFirstName, vFName);
+    person.t = tPerson;
+    person.attrs.push_back(attr3);
+    family.children.push_back(person);
+    std::cout << family.getEncoding() << std::endl;
     return 0;
 }
