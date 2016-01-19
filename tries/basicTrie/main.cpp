@@ -5,6 +5,8 @@
 #include <set>
 #include <cassert>
 
+// Implement basic trie building
+
 struct TrieNode {
     char c;
     std::vector<TrieNode *> children;
@@ -66,19 +68,19 @@ struct Trie {
     }
 };
 
-void printAux(std::ostream & os, std::string strSoFar, TrieNode * n) {
-    if (n->children.empty()) {
-        os << strSoFar + n->c << std::endl;
-    }
+void printAux(std::ostream & os, std::string strSoFar, TrieNode * n,
+              int indent) {
+    os << std::string(indent, ' ') << strSoFar + n->c
+       << (n->children.empty() ? " <--" : "") << std::endl;
     for (auto it = n->children.begin(); it != n->children.end(); ++it) {
-        printAux(os, strSoFar + n->c, *it);
+        printAux(os, strSoFar + n->c, *it, indent + 1);
     }
 }
 
 std::ostream & operator<<(std::ostream & os, const Trie & t) {
     for (auto it = t.root->children.begin(); it != t.root->children.end();
          ++it) {
-        printAux(os, "", *it);
+        printAux(os, "", *it, 0);
     }
     return os;
 }
@@ -101,5 +103,6 @@ int main() {
             assert(false);
         }
     }
+    std::cout << t << std::endl;
     return 0;
 }
