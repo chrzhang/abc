@@ -56,6 +56,29 @@ struct Trie {
         if (s.empty()) { return; }
         insertStringAux(root, s, s.begin());
     }
+    bool containStringAux(TrieNode * parent, const std::string & s,
+                          const std::string::const_iterator sit) {
+        if (sit == s.end()) {
+            for (auto it = parent->children.begin();
+                 it != parent->children.end(); ++it) {
+                if ((*it)->c == '\0') {
+                    return true;
+                }
+            }
+            return false;
+        }
+        for (auto it = parent->children.begin(); it != parent->children.end();
+             ++it) {
+            if ((*it)->c == *sit) {
+                return containStringAux(*it, s, std::next(sit, 1));
+            }
+        }
+        return false;
+    }
+    bool contains(const std::string & s) {
+        if (s.empty()) { return false; }
+        return containStringAux(root, s, s.begin());
+    }
     void getAllStringsAux(std::set<std::string> & dict, std::string strSoFar,
                           TrieNode * n) const {
         if (n->children.empty()) {
@@ -109,6 +132,7 @@ int main() {
             std::cout << *it << " could not be found.\n";
             assert(false);
         }
+        assert(t.contains(*it));
     }
     std::cout << t << std::endl;
     return 0;
