@@ -30,6 +30,13 @@ struct Trie {
     void insertStringAux(TrieNode * parent, const std::string & s,
                          const std::string::const_iterator sit) {
         if (sit == s.end()) {
+            // Handle dupes
+            for (auto it = parent->children.begin();
+                 it != parent->children.end(); ++it) {
+                if ((*it)->c == '\0') {
+                    return;
+                }
+            }
             auto end = new TrieNode('\0'); // To separate subwords 'hi' vs 'hit'
             parent->children.push_back(end);
             return;
