@@ -79,6 +79,38 @@ struct Trie {
         if (s.empty()) { return false; }
         return containStringAux(root, s, s.begin());
     }
+    void printWithPrefix(const std::string & s, TrieNode * parent) {
+        assert(parent);
+        auto sCopy = s;
+        sCopy += std::string(1, parent->c);
+        if (parent->children.empty()) {
+            std::cout << sCopy << std::endl;
+        } else {
+            for (auto it = parent->children.begin();
+                 it != parent->children.end(); ++it) {
+                printWithPrefix(sCopy, *it);
+            }
+        }
+    }
+    void autocompleteAux(TrieNode * parent, const std::string & s,
+                         const std::string::const_iterator sit) {
+        if (sit == s.end()) {
+            for (auto it = parent->children.begin();
+                 it != parent->children.end(); ++it) {
+                printWithPrefix(s, *it);
+            }
+        }
+        for (auto it = parent->children.begin(); it != parent->children.end();
+             ++it) {
+            if ((*it)->c == *sit) {
+                autocompleteAux(*it, s, std::next(sit, 1));
+            }
+        }
+    }
+    void autocomplete(const std::string & s) { // Print strings with prefix s
+        if (s.empty()) { return; }
+        return autocompleteAux(root, s, s.begin());
+    }
     void getAllStringsAux(std::set<std::string> & dict, std::string strSoFar,
                           TrieNode * n) const {
         if (n->children.empty()) {
@@ -134,6 +166,13 @@ int main() {
         }
         assert(t.contains(*it));
     }
-    std::cout << t << std::endl;
+    //std::cout << t << std::endl;
+    while (true) {
+        std::cout << "Enter prefix of word (Ctrl + C to quit): " << std::endl;
+        std::cin >> currWord;
+        std::cout << "Found:\n======\n";
+        t.autocomplete(currWord);
+        std::cout << std::endl;
+    }
     return 0;
 }
