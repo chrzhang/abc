@@ -93,7 +93,7 @@ int testFindDistanceBetween(const std::string & s1, const std::string & s2,
         if (it->compare(s1) == 0) {
             found = true;
             auto itBack = std::vector<std::string>::const_reverse_iterator(it);
-            --itBack; // When converted, it points to predecessor or it
+            --itBack; // When converted, it points to predecessor of it
             auto beginR = itBack;
             assert(beginR->compare(*it) == 0);
             auto itForth = it;
