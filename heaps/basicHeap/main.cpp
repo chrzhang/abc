@@ -117,6 +117,13 @@ struct Heap {
         }
         assert(isHeap());
     }
+    int peek() const {
+        if (empty()) {
+            std::cout << "Cannot peek into empty heap\n";
+            assert(false);
+        }
+        return nodes[0];
+    }
     // Remove the root, replace it with the last value and percolate down
     int popTop() { // Undefined when empty
         if (empty()) {
@@ -187,7 +194,9 @@ int main() {
         // Test removing values
         std::vector<int> heapSorted;
         while (!h.empty()) {
+            auto top = h.peek();
             heapSorted.push_back(h.popTop());
+            assert(heapSorted.back() == top);
         }
         assert(std::is_sorted(heapSorted.begin(), heapSorted.end()));
     }
