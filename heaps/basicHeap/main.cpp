@@ -65,7 +65,7 @@ struct Heap {
     int getIndexOfParent(int indexOfChildNode) const {
         if (!fallsInBounds(indexOfChildNode, nodes)) { return -1; }
         if (indexOfChildNode == 0) { return -1; }
-        return indexOfChildNode / 2;
+        return (indexOfChildNode - 1) / 2;
     }
     bool isHeapAux(int currNodeIndex) const {
         auto lci = getIndexOfLeftChild(currNodeIndex);
@@ -103,6 +103,7 @@ struct Heap {
         // and percolate upwards
         nodes.push_back(val);
         int currIndex = nodes.size() - 1;
+        assert(val == nodes[currIndex]);
         while (fallsInBounds(currIndex, nodes)) {
             int parentIndex = getIndexOfParent(currIndex);
             if (!fallsInBounds(parentIndex, nodes)) { return; }
@@ -179,7 +180,7 @@ int main() {
                   << 100 * ((double) iteration) / NUM_ITERATIONS << "%\r";
         // Test adding values
         Heap h(MIN);
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < rand() % 100; ++i) {
             auto r = rand() % 100;
             h.add(r);
         }
