@@ -15,6 +15,8 @@ int min(int a, int b) {
 }
 
 struct Maze {
+    // Maze is visualized as a 2D array with padding in between neighbors to
+    // draw walls so {0,0} is at (0,0), {0,1} is at (0,2), {1,0} is at (2,0)
     bool maze[2 * HEIGHT][2 * WIDTH]; // Let us print walls fluidly
     void setIndexTo(int row, int col, bool val) {
         maze[2 * row][2 * col] = val;
@@ -95,8 +97,8 @@ struct Maze {
         }
     }
     Maze() {
-        for (int row = 0; row < 2 * HEIGHT - 1; ++row) {
-            for (int col = 0; col < 2 * WIDTH - 1; ++col) {
+        for (int row = 0; row < 2 * HEIGHT; ++row) {
+            for (int col = 0; col < 2 * WIDTH; ++col) {
                 maze[row][col] = false;
             }
         }
@@ -105,7 +107,13 @@ struct Maze {
 };
 
 std::ostream & operator<<(std::ostream & os, const Maze & m) {
+    // Print with a border
+    for (int col = 0; col < 2 * WIDTH + 1; ++col) {
+        os << "* ";
+    }
+    os << std::endl;
     for (int row = 0; row < 2 * HEIGHT; ++row) {
+        os << "* ";
         for (int col = 0; col < 2 * WIDTH; ++col) {
             os << (m.maze[row][col] ? "  " : "* ");
         }
