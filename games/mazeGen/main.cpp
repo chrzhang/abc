@@ -8,7 +8,7 @@
 #define HEIGHT 20
 #define WIDTH 20
 
-// Generate and print a maze using backtracking DFS (and hence a stack)
+// Generate and print a maze
 
 int min(int a, int b) {
     return a < b ? a : b;
@@ -17,9 +17,16 @@ int min(int a, int b) {
 struct Maze {
     // Maze is visualized as a 2D array with padding in between neighbors to
     // draw walls so {0,0} is at (0,0), {0,1} is at (0,2), {1,0} is at (2,0)
-    bool maze[2 * HEIGHT][2 * WIDTH]; // Let us print walls fluidly
+    bool maze[2 * HEIGHT - 1][2 * WIDTH - 1]; // Let us print walls fluidly
     void setIndexTo(int row, int col, bool val) {
+        if (2 * row < 0 || 2 * row >= 2 * HEIGHT - 1) { return; }
+        if (2 * col < 0 || 2 * col >= 2 * WIDTH - 1) { return; }
         maze[2 * row][2 * col] = val;
+    }
+    int getValAt(int trueRow, int trueCol) const {
+        if (trueRow < 0 || trueRow >= 2 * HEIGHT - 1) { return -1; }
+        if (trueCol < 0 || trueCol >= 2 * WIDTH - 1) { return -1; }
+        return maze[trueRow][trueCol] ? 1 : 0;
     }
     void makePathBetween(const std::pair<int, int> & ij1,
                          const std::pair<int, int> & ij2) {
@@ -73,7 +80,7 @@ struct Maze {
         }
         return r;
     }
-    void makeMaze() {
+    void makeMazeDFSBacktracking() {
         // Starts top left
         std::stack<std::pair<int, int>> s;
         bool visited[HEIGHT][WIDTH];
@@ -97,28 +104,37 @@ struct Maze {
         }
     }
     Maze() {
-        for (int row = 0; row < 2 * HEIGHT; ++row) {
-            for (int col = 0; col < 2 * WIDTH; ++col) {
+        for (int row = 0; row < 2 * HEIGHT - 1; ++row) {
+            for (int col = 0; col < 2 * WIDTH - 1; ++col) {
                 maze[row][col] = false;
             }
         }
-        makeMaze();
+        makeMazeDFSBacktracking();
     }
 };
 
 std::ostream & operator<<(std::ostream & os, const Maze & m) {
-    // Print with a border
-    for (int col = 0; col < 2 * WIDTH + 1; ++col) {
-        os << "* ";
+    os << "+ ";
+    for (int col = 0; col < 2 * WIDTH - 1 ; ++col) {
+        os << "- ";
     }
+    os << "+ ";
     os << std::endl;
-    for (int row = 0; row < 2 * HEIGHT; ++row) {
-        os << "* ";
-        for (int col = 0; col < 2 * WIDTH; ++col) {
-            os << (m.maze[row][col] ? "  " : "* ");
+    for (int row = 0; row < 2 * HEIGHT - 1; ++row) {
+        os << "| ";
+        for (int col = 0; col < 2 * WIDTH - 1; ++col) {
+            os << (m.getValAt(row, col) ? "  " : "* ");
         }
+        os << "| ";
         os << std::endl;
     }
+    os << "+ ";
+    for (int col = 0; col < 2 * WIDTH - 1; ++col) {
+        os << "- ";
+    }
+    os << "+ ";
+    os << std::endl;
+
     return os;
 }
 
