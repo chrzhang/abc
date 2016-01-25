@@ -48,30 +48,28 @@ struct Maze {
         if (ij.second < 0 || ij.second >= WIDTH) { return false; }
         return true;
     }
-    bool isUnvisited(const std::pair<int, int> & ij,
-                     bool visited[HEIGHT][WIDTH]) const {
-        return (false == visited[ij.first][ij.second]);
+    bool isUnvisited(const std::pair<int, int> & ij) const {
+        return (0 == getValAt(ij.first * 2, ij.second * 2));
     }
     std::pair<int, int> getRandomUnvisitedNeighbor(
-                            const std::pair<int, int> & ij,
-                            bool visited[HEIGHT][WIDTH]) const {
+                            const std::pair<int, int> & ij) const {
         std::pair<int, int> r(-1, -1);
         std::vector<std::pair<int, int>> possibleUnvisitedNeighbors;
         // Check north, east, west, and south
         auto north = std::pair<int, int>(ij.first - 1, ij.second);
-        if (isValidIndexing(north) && isUnvisited(north, visited)) {
+        if (isValidIndexing(north) && isUnvisited(north)) {
             possibleUnvisitedNeighbors.push_back(north);
         }
         auto east = std::pair<int, int>(ij.first, ij.second + 1);
-        if (isValidIndexing(east) && isUnvisited(east, visited)) {
+        if (isValidIndexing(east) && isUnvisited(east)) {
             possibleUnvisitedNeighbors.push_back(east);
         }
         auto west = std::pair<int, int>(ij.first, ij.second - 1);
-        if (isValidIndexing(west) && isUnvisited(west, visited)) {
+        if (isValidIndexing(west) && isUnvisited(west)) {
             possibleUnvisitedNeighbors.push_back(west);
         }
         auto south = std::pair<int, int>(ij.first + 1, ij.second);
-        if (isValidIndexing(south) && isUnvisited(south, visited)) {
+        if (isValidIndexing(south) && isUnvisited(south)) {
             possibleUnvisitedNeighbors.push_back(south);
         }
         if (!possibleUnvisitedNeighbors.empty()) {
@@ -83,18 +81,11 @@ struct Maze {
     void makeMazeDFSBacktracking() {
         // Starts top left
         std::stack<std::pair<int, int>> s;
-        bool visited[HEIGHT][WIDTH];
-        for (int i = 0; i < HEIGHT; ++i) {
-            for (int j = 0; j < WIDTH; ++j)  {
-                visited[i][j] = false;
-            }
-        }
         s.push(std::pair<int, int>(0, 0));
         while (!s.empty()) {
             auto top = s.top();
-            visited[top.first][top.second] = true;
-            auto unvisitedNeighbor = getRandomUnvisitedNeighbor(top, visited);
-            if (unvisitedNeighbor.first == -1) {
+            auto unvisitedNeighbor = getRandomUnvisitedNeighbor(top);
+            if (unvisitedNeighbor.first == -1) { // No unvisited neighbors
                 assert(unvisitedNeighbor.second == -1);
                 s.pop();
             } else {
