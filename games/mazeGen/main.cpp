@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
+#include <set>
 
 #define HEIGHT 20
 #define WIDTH 20
@@ -57,18 +58,18 @@ struct Maze {
         std::vector<std::pair<int, int>> possibleUnvisitedNeighbors;
         // Check north, east, west, and south
         auto north = std::pair<int, int>(ij.first - 1, ij.second);
+        auto east = std::pair<int, int>(ij.first, ij.second + 1);
+        auto west = std::pair<int, int>(ij.first, ij.second - 1);
+        auto south = std::pair<int, int>(ij.first + 1, ij.second);
         if (isValidIndexing(north) && isUnvisited(north)) {
             possibleUnvisitedNeighbors.push_back(north);
         }
-        auto east = std::pair<int, int>(ij.first, ij.second + 1);
         if (isValidIndexing(east) && isUnvisited(east)) {
             possibleUnvisitedNeighbors.push_back(east);
         }
-        auto west = std::pair<int, int>(ij.first, ij.second - 1);
         if (isValidIndexing(west) && isUnvisited(west)) {
             possibleUnvisitedNeighbors.push_back(west);
         }
-        auto south = std::pair<int, int>(ij.first + 1, ij.second);
         if (isValidIndexing(south) && isUnvisited(south)) {
             possibleUnvisitedNeighbors.push_back(south);
         }
@@ -94,13 +95,77 @@ struct Maze {
             }
         }
     }
+    void addUnvisitedNeighborsToFrontier(const std::pair<int, int> & ij,
+                                         std::set<std::pair<int, int>> &
+                                            frontier) {
+        auto north = std::pair<int, int>(ij.first - 1, ij.second);
+        auto east = std::pair<int, int>(ij.first, ij.second + 1);
+        auto west = std::pair<int, int>(ij.first, ij.second - 1);
+        auto south = std::pair<int, int>(ij.first + 1, ij.second);
+        if (isValidIndexing(north) && isUnvisited(north)) {
+            frontier.insert(north);
+        }
+        if (isValidIndexing(east) && isUnvisited(east)) {
+            frontier.insert(east);
+        }
+        if (isValidIndexing(west) && isUnvisited(west)) {
+            frontier.insert(west);
+        }
+        if (isValidIndexing(south) && isUnvisited(south)) {
+            frontier.insert(south);
+        }
+    }
+    std::pair<int, int> popRandomFrontierCell(std::set<std::pair<int, int>> &
+                                                frontier) {
+        assert(!frontier.empty());
+        auto it = frontier.begin();
+        std::advance(it, rand() % frontier.size());
+        auto copyOfValue = *it;
+        frontier.erase(it);
+        assert(isUnvisited(copyOfValue));
+        return copyOfValue;
+    }
+    std::pair<int, int> getRandomMazeCellAdjTo(const std::pair<int, int> & ij) {
+        std::vector<std::pair<int, int>> possibleAdjMazeCells;
+        auto north = std::pair<int, int>(ij.first - 1, ij.second);
+        auto east = std::pair<int, int>(ij.first, ij.second + 1);
+        auto west = std::pair<int, int>(ij.first, ij.second - 1);
+        auto south = std::pair<int, int>(ij.first + 1, ij.second);
+        if (isValidIndexing(north) && maze[2 * north.first][2 * north.second]) {
+            possibleAdjMazeCells.push_back(north);
+        }
+        if (isValidIndexing(east) && maze[2 * east.first][2 * east.second]) {
+            possibleAdjMazeCells.push_back(east);
+        }
+        if (isValidIndexing(west) && maze[2 * west.first][2 * west.second]) {
+            possibleAdjMazeCells.push_back(west);
+        }
+        if (isValidIndexing(south) && maze[2 * south.first][2 * south.second]) {
+            possibleAdjMazeCells.push_back(south);
+        }
+        assert(!possibleAdjMazeCells.empty());
+        return possibleAdjMazeCells[rand() % possibleAdjMazeCells.size()];
+    }
+    void makeMazePrimsRandomized() {
+        std::pair<int, int> start(0, 0); // Could be random cell
+        maze[start.first][start.second] = true;
+        std::set<std::pair<int, int>> frontier;
+        addUnvisitedNeighborsToFrontier(start, frontier);
+        while (!frontier.empty()) {
+            auto randomCell = popRandomFrontierCell(frontier);
+            auto cellInMazeAdjacentToRandomCell = getRandomMazeCellAdjTo(randomCell);
+            makePathBetween(randomCell, cellInMazeAdjacentToRandomCell);
+            addUnvisitedNeighborsToFrontier(randomCell, frontier);
+        }
+    }
     Maze() {
         for (int row = 0; row < 2 * HEIGHT - 1; ++row) {
             for (int col = 0; col < 2 * WIDTH - 1; ++col) {
                 maze[row][col] = false;
             }
         }
-        makeMazeDFSBacktracking();
+        //makeMazeDFSBacktracking();
+        makeMazePrimsRandomized();
     }
 };
 
