@@ -6,8 +6,8 @@
 #include <ctime>
 #include <set>
 
-#define HEIGHT 20
-#define WIDTH 20
+#define HEIGHT 13
+#define WIDTH 13
 
 // Generate and print a maze
 
@@ -158,14 +158,35 @@ struct Maze {
             addUnvisitedNeighborsToFrontier(randomCell, frontier);
         }
     }
+    void makeMazeBinaryTree() {
+        // Builds a valid simply connected maze that is a binary tree of nodes
+        // Each cell has passage leading up or left but never both
+        for (int row = 0; row < HEIGHT; ++row) {
+            for (int col = 0; col < WIDTH; ++col) {
+                // For each cell go either north or west but not both
+                std::vector<std::pair<int, int>> possibleDirs;
+                auto north = std::pair<int, int>(row - 1, col);
+                auto west = std::pair<int, int>(row, col - 1);
+                if (isValidIndexing(north) && row > 0) {
+                    possibleDirs.push_back(north);
+                }
+                if (isValidIndexing(west) && col > 0) {
+                    possibleDirs.push_back(west);
+                }
+                if (possibleDirs.empty()) {
+                    continue;
+                }
+                auto randDir = possibleDirs[rand() % possibleDirs.size()];
+                makePathBetween(std::pair<int, int>(row, col), randDir);
+            }
+        }
+    }
     Maze() {
         for (int row = 0; row < 2 * HEIGHT - 1; ++row) {
             for (int col = 0; col < 2 * WIDTH - 1; ++col) {
                 maze[row][col] = false;
             }
         }
-        //makeMazeDFSBacktracking();
-        makeMazePrimsRandomized();
     }
 };
 
@@ -196,7 +217,20 @@ std::ostream & operator<<(std::ostream & os, const Maze & m) {
 
 int main() {
     srand(time(0));
-    Maze m;
-    std::cout << m << std::endl;
+    {
+        Maze m;
+        m.makeMazeDFSBacktracking();
+        std::cout << "Generated with DFS and backtracking:\n" << m << std::endl;
+    }
+    {
+        Maze m;
+        m.makeMazePrimsRandomized();
+        std::cout << "Generated with randomized Prim's:\n" << m << std::endl;
+    }
+    {
+        Maze m;
+        m.makeMazeBinaryTree();
+        std::cout << "Generated with binary tree:\n" << m << std::endl;
+    }
     return 0;
 }
