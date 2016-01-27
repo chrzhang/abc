@@ -1,0 +1,12 @@
+hello
+world
+worldhello
+apple
+orange
+orangeapple
+foobarbazorange
+bar
+foobar
+bazfoo
+foo
+baz
