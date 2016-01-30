@@ -5,6 +5,8 @@
 
 #define N 1000
 
+// Get the median of a set of data (maintain the median as data changes)
+
 enum HeapType { MIN, MAX };
 
 bool compareLess(const int & i1, const int & i2) {
@@ -73,6 +75,8 @@ size_t absDiff(size_t a, size_t b) {
     return a > b ? a - b : b - a;
 }
 
+// Balances (makes heaps same size or as close as possible) and finds median
+// by examining roots of each heap
 double getMedian(Heap & minHeap, Heap & maxHeap) {
     auto totalSize = minHeap.size() + maxHeap.size();
     if (totalSize == 0) {
@@ -104,7 +108,7 @@ int main() {
     std::vector<int> baseline; // For testing
     for (int i = 0, j = rand() % 100; i < N; ++i, j = rand() % 100) {
         // When adding a new element, pick appropriate heap
-        Heap * heapToAddTo = &minHeap;
+        Heap * heapToAddTo = &minHeap; // Default to min-heap
         if (!maxHeap.empty() && j <= maxHeap.v.front()) {
             heapToAddTo = &maxHeap;
         }
