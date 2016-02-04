@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cassert>
+
 // Flip a binary tree
 
 void swap(int & a, int & b) {
@@ -62,20 +63,18 @@ struct Tree {
         print(os, n->leftChild, indent + 5);
     }
     void flipAux(TreeNode * n) {
-        assert(n);
+        if (!n) { return; }
         if (n->rightChild && n->leftChild) {
             swap(n->rightChild->val, n->leftChild->val);
-            flipAux(n->rightChild);
-            flipAux(n->leftChild);
         } else if (n->rightChild) {
             n->leftChild = n->rightChild;
             n->rightChild = nullptr;
-            flipAux(n->leftChild);
         } else if (n->leftChild) {
             n->rightChild = n->leftChild;
             n->leftChild = nullptr;
-            flipAux(n->rightChild);
         }
+        flipAux(n->rightChild);
+        flipAux(n->leftChild);
     }
     void flip() {
         if (!root) { return; }
