@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
+#include <unordered_map>
 #include <cassert>
 #include <set>
 
@@ -60,6 +61,34 @@ void printPairsThatSumTo(int arr[N], int sum) {
     }
 }
 
+std::vector<int> twoSum(const std::vector<int> & nums, int target) {
+    std::unordered_map<int, std::set<int>> numberToIndices;
+    for (auto it = nums.begin(); it != nums.end(); ++it) {
+        numberToIndices[*it].insert(it - nums.begin());
+    }
+    for (auto it = numberToIndices.begin(); it != numberToIndices.end(); ++it) {
+        int number = it->first;
+        auto seek = numberToIndices.find(target - number);
+        if (seek == numberToIndices.end()) { continue; }
+        auto i1 = it->second.begin();
+        auto i2 = seek->second.begin();
+        while (*i1 == *i2) {
+            if (next(i1) != it->second.end()) { ++i1; }
+            else if (next(i2) != seek->second.end()) { ++i2; }
+            else {
+                break;
+            }
+        }
+        if (*i1 == *i2) { continue; }
+        if (*i1 < *i2) {
+            return std::vector<int> {*i1 + 1, *i2 + 1};
+        } else {
+            return std::vector<int> {*i2 + 1, *i1 + 1};
+        }
+    }
+    return std::vector<int>();
+}
+
 int main() {
     srand(time(0));
     for (int iteration = 0; iteration < NUM_ITERATIONS; ++iteration) {
@@ -73,5 +102,8 @@ int main() {
         printPairsThatSumTo(arr, sum);
         std::cout << std::endl;
     }
+    auto result = twoSum(std::vector<int> {1, 2, 3, 4, 5}, 3);
+    assert(result[0] = 1);
+    assert(result[1] = 2);
     return 0;
 }
