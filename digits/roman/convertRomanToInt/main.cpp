@@ -9,8 +9,17 @@ int fromRoman(const std::string & s) {
          {'M', 1000}};
     int currAmt = 0;
     for (auto it = s.begin(); it != s.end(); ++it) {
+        if (romanNums.find(*it) == romanNums.end()) {
+            std::cout << "Could not find " << *it << " as a roman numeral.\n";
+            return -1;
+        }
         auto after = std::next(it);
         if (after != s.end() && romanNums[*after] > romanNums[*it]) {
+            if (romanNums.find(*after) == romanNums.end()) {
+                std::cout << "Could not find " << *after
+                          << " as a roman numeral.\n";
+                return -1;
+            }
             currAmt  -= romanNums[*it];
             currAmt += romanNums[*after];
             ++it; // Must get incremented twice
