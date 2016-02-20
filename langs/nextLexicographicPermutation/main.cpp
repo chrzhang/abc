@@ -23,7 +23,7 @@ void nextPermutation(std::vector<int> & nums) {
                     break;
                 }
             }
-            // Reverse the subvector from right to rbegin
+            // Reverse the subvector [rbegin, right] or [rbegin, left)
             // The number is already bigger because a digit in an order of
             // magnitude has increased (sort the smaller orders to minimize
             // the increase)
