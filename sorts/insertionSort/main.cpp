@@ -10,12 +10,20 @@
 
 // Perform insertion sort
 
+bool lessThan(int a, int b) {
+    return a < b;
+}
+
+bool greaterThan(int a, int b) {
+    return a > b;
+}
+
 template<typename T>
-void isort(std::vector<T> & v) {
+void isort(std::vector<T> & v, bool (*cmp) (int, int)) {
     for (int j = 1; j < v.size(); ++j) {
         auto key = v[j]; // Store value being placed into correct position
         auto i = j - 1; // Re-arrange sorted sublist to make room
-        while (i >= 0 && v[i] > key) {
+        while (i >= 0 && cmp(v[i], key)) {
             v[i + 1] = v[i]; // Shift over to make room
             --i;
         }
@@ -32,8 +40,9 @@ int main() {
             v1.push_back(r);
             v2.push_back(r);
         }
-        isort(v1);
+        isort(v1, lessThan);
         std::sort(v2.begin(), v2.end());
+        std::reverse(v2.begin(), v2.end());
         assert(v1 == v2);
     }
     return 0;
