@@ -29,7 +29,8 @@ struct Graph {
         std::queue<int> needProcessing;
         needProcessing.push(originIndex);
         while (!needProcessing.empty()) {
-            int & e = needProcessing.front();
+            int e = needProcessing.front();
+            needProcessing.pop();
             if (!visited[e]) {
                 visited[e] = true;
                 // Process information here
@@ -41,7 +42,6 @@ struct Graph {
                     }
                 }
             }
-            needProcessing.pop();
         }
         std::cout << "\n";
     }
