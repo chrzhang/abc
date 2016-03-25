@@ -51,6 +51,7 @@ struct Graph {
             auto seek = allVertices.find(id);
             if (seek != allVertices.end()) {
                 std::cout << "Prevented adding a duplicate vertex.\n";
+                return;
             }
             allVertices[id] = new Vertex(id);
         }
@@ -61,6 +62,7 @@ struct Graph {
         if (weight == 0 || seek1 == allVertices.end() ||
             seek2 == allVertices.end()) {
             std::cout << "Invalid arguments to adding an edge.\n";
+            return;
         }
         Vertex * v1 = seek1->second;
         Vertex * v2 = seek2->second;
