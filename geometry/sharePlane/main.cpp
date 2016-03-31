@@ -59,6 +59,8 @@ bool sharePlane(const std::list<Vect3D *> vertices) {
         }
         ++index;
     }
+    std::cout << "Plane: " << d << " = " << a << "x + " << b << "y + "
+                           << c << "z\n";
     return true;
 }
 
