@@ -36,8 +36,8 @@ bool isBalanced(const std::string & s) {
                 }
                 break;
             default:
-                std::cout << "Invalid character " << c << " found.\n";
-                return false;
+                // Ignore other syntax
+                break;
         }
     }
     if (pStack.empty()) { return true; }
@@ -53,5 +53,9 @@ int main() {
     assert(!isBalanced("(()"));
     assert(!isBalanced("([})"));
     assert(!isBalanced("(}{)"));
+    assert(isBalanced("x(y(z{test})abc)"));
+    assert(!isBalanced("([)]"));
+    assert(isBalanced("[[]](()){{{}}}"));
+    assert(!isBalanced("abc(def(ghi)"));
     return 0;
 }
