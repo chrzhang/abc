@@ -7,15 +7,17 @@
 
 int lenOfLongestIncreasingSubarray(const std::vector<int> & v) {
     if (v.empty()) { return 0; }
-    std::vector<int> lensOfLongestIncSubarraysEndingAtEachIndex(v.size(), 1);
+    int longestEverFound = 1;
+    int prev = 1;
     for (size_t i = 1; i < v.size(); ++i) {
         if (v[i] > v[i - 1]) {
-            lensOfLongestIncSubarraysEndingAtEachIndex[i] =
-                lensOfLongestIncSubarraysEndingAtEachIndex[i - 1] + 1;
+            prev += 1;
+            longestEverFound = std::max(longestEverFound, prev);
+        } else {
+            prev = 1;
         }
     }
-    return *std::max_element(lensOfLongestIncSubarraysEndingAtEachIndex.begin(),
-                             lensOfLongestIncSubarraysEndingAtEachIndex.end());
+    return longestEverFound;
 }
 
 int main() {
