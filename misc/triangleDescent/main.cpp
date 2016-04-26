@@ -10,10 +10,12 @@ struct Triangle {
     Triangle(const std::vector<int> & v) {
         auto it = v.begin();
         for (int level = 1; it != v.end(); ++level) {
-            for (int i = 0; i < level && it != v.end(); ++i) {
+            int i;
+            for (i = 0; i < level && it != v.end(); ++i) {
                 vec.push_back(std::make_pair(level, *it));
                 ++it;
             }
+            assert(i == level);
         }
     }
     bool outOfBounds(int i) const {
