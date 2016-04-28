@@ -44,18 +44,22 @@ struct Grid {
                 case 'U':
                     startY += 1;
                     setPoint(startX, startY);
+                    loc[convertY(startY) + 1][convertX(startX)] = '|';
                     break;
                 case 'D':
                     startY -= 1;
                     setPoint(startX, startY);
+                    loc[convertY(startY) - 1][convertX(startX)] = '|';
                     break;
                 case 'L':
                     startX -= 1;
                     setPoint(startX, startY);
+                    loc[convertY(startY)][convertX(startX) + 1] = '-';
                     break;
                 case 'R':
                     startX += 1;
                     setPoint(startX, startY);
+                    loc[convertY(startY)][convertX(startX) - 1] = '-';
                     break;
                 default:
                     assert(false);
