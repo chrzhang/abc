@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cassert>
+#include <cmath>
 
 // After specifying a start point and a series of Up, Down, Left, Right motions,
 // find the area enclosed by the resulting path
@@ -15,7 +16,7 @@
 struct Grid {
     static const int h = HEIGHT + (MAXY - MINY);
     static const int w = WIDTH + (MAXX - MINX);
-    int areaEnclosed;
+    double areaEnclosed;
     // To display coordinates and the cells themselves
     char loc[h][w];
     int convertX(int x) {
@@ -33,66 +34,85 @@ struct Grid {
     void setPoint(int x, int y) { // Map Cartesian coordinate to the arr indices
         loc[convertY(y)][convertX(x)] = '*';
     }
-    Grid(int startX, int startY, const std::string & moves) {
+    Grid(const int startX, const int startY, const std::string & moves) {
         areaEnclosed = 0;
         for (int i = 0; i < h; ++i) {
             for (int j = 0; j < w; ++j) {
                 loc[i][j] = ' ';
             }
         }
-        setPoint(startX, startY);
+        int priorX = startX;
+        int priorY = startY;
+        int currX = startX;
+        int currY = startY;
+        int leftSum, rightSum;
+        leftSum = rightSum = 0;
+        setPoint(currX, currY);
         // Use shoelace formula or Gauss's area formula to figure out area as
         // we go along
         for (auto c : moves) {
             switch (c) {
                 case 'U':
-                    startY += 1;
-                    if (!(inBoundsX(startX) && inBoundsY(startY))) {
+                    currY += 1;
+                    if (!(inBoundsX(currX) && inBoundsY(currY))) {
                         std::cerr << "Invalid movement outside upper edge.\n";
                         return;
                     } else {
-                        std::cout << startX << ", " << startY << std::endl;
+                        leftSum += priorX * currY;
+                        rightSum += priorY * currX;
+                        priorX = currX;
+                        priorY = currY;
                     }
-                    setPoint(startX, startY);
-                    loc[convertY(startY) + 1][convertX(startX)] = '|';
+                    setPoint(currX, currY);
+                    loc[convertY(currY) + 1][convertX(currX)] = '|';
                     break;
                 case 'D':
-                    startY -= 1;
-                    if (!(inBoundsX(startX) && inBoundsY(startY))) {
+                    currY -= 1;
+                    if (!(inBoundsX(currX) && inBoundsY(currY))) {
                         std::cerr << "Invalid movement outside lower edge.\n";
                         return;
                     } else {
-                        std::cout << startX << ", " << startY << std::endl;
+                        leftSum += priorX * currY;
+                        rightSum += priorY * currX;
+                        priorX = currX;
+                        priorY = currY;
                     }
-                    setPoint(startX, startY);
-                    loc[convertY(startY) - 1][convertX(startX)] = '|';
+                    setPoint(currX, currY);
+                    loc[convertY(currY) - 1][convertX(currX)] = '|';
                     break;
                 case 'L':
-                    startX -= 1;
-                    if (!(inBoundsX(startX) && inBoundsY(startY))) {
+                    currX -= 1;
+                    if (!(inBoundsX(currX) && inBoundsY(currY))) {
                         std::cerr << "Invalid movement outside left edge.\n";
                         return;
                     } else {
-                        std::cout << startX << ", " << startY << std::endl;
+                        leftSum += priorX * currY;
+                        rightSum += priorY * currX;
+                        priorX = currX;
+                        priorY = currY;
                     }
-                    setPoint(startX, startY);
-                    loc[convertY(startY)][convertX(startX) + 1] = '-';
+                    setPoint(currX, currY);
+                    loc[convertY(currY)][convertX(currX) + 1] = '-';
                     break;
                 case 'R':
-                    startX += 1;
-                    if (!(inBoundsX(startX) && inBoundsY(startY))) {
+                    currX += 1;
+                    if (!(inBoundsX(currX) && inBoundsY(currY))) {
                         std::cerr << "Invalid movement outside right edge.\n";
                         return;
                     } else {
-                        std::cout << startX << ", " << startY << std::endl;
+                        leftSum += priorX * currY;
+                        rightSum += priorY * currX;
+                        priorX = currX;
+                        priorY = currY;
                     }
-                    setPoint(startX, startY);
-                    loc[convertY(startY)][convertX(startX) - 1] = '-';
+                    setPoint(currX, currY);
+                    loc[convertY(currY)][convertX(currX) - 1] = '-';
                     break;
                 default:
                     assert(false);
             }
         }
+        areaEnclosed = 0.5 * abs(leftSum - rightSum);
     }
 };
 
@@ -107,7 +127,23 @@ std::ostream & operator<<(std::ostream & os, const Grid & g) {
 }
 
 int main() {
-    Grid g(0, 0, "RRRRUUULLD");
-    std::cout << g << std::endl;
+    {
+        Grid g(0, 0, "RRUULLDD");
+        std::cout << g << std::endl;
+        assert(g.areaEnclosed == 4);
+        std::cout << g.areaEnclosed << std::endl;
+    }
+    {
+        Grid g(0, 0, "RRULLD");
+        std::cout << g << std::endl;
+        assert(g.areaEnclosed == 2);
+        std::cout << g.areaEnclosed << std::endl;
+    }
+    {
+        Grid g(0, 0, "RRRRUULDLULDLD");
+        std::cout << g << std::endl;
+        assert(g.areaEnclosed == 6);
+        std::cout << g.areaEnclosed << std::endl;
+    }
     return 0;
 }
