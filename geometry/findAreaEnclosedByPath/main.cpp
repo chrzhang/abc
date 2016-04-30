@@ -49,7 +49,7 @@ struct Grid {
         leftSum = rightSum = 0;
         setPoint(currX, currY);
         // Use shoelace formula or Gauss's area formula to figure out area as
-        // we go along
+        // we go along (only works when steps form a valid polygon)
         for (auto c : moves) {
             switch (c) {
                 case 'U':
@@ -57,11 +57,6 @@ struct Grid {
                     if (!(inBoundsX(currX) && inBoundsY(currY))) {
                         std::cerr << "Invalid movement outside upper edge.\n";
                         return;
-                    } else {
-                        leftSum += priorX * currY;
-                        rightSum += priorY * currX;
-                        priorX = currX;
-                        priorY = currY;
                     }
                     setPoint(currX, currY);
                     loc[convertY(currY) + 1][convertX(currX)] = '|';
@@ -71,11 +66,6 @@ struct Grid {
                     if (!(inBoundsX(currX) && inBoundsY(currY))) {
                         std::cerr << "Invalid movement outside lower edge.\n";
                         return;
-                    } else {
-                        leftSum += priorX * currY;
-                        rightSum += priorY * currX;
-                        priorX = currX;
-                        priorY = currY;
                     }
                     setPoint(currX, currY);
                     loc[convertY(currY) - 1][convertX(currX)] = '|';
@@ -85,11 +75,6 @@ struct Grid {
                     if (!(inBoundsX(currX) && inBoundsY(currY))) {
                         std::cerr << "Invalid movement outside left edge.\n";
                         return;
-                    } else {
-                        leftSum += priorX * currY;
-                        rightSum += priorY * currX;
-                        priorX = currX;
-                        priorY = currY;
                     }
                     setPoint(currX, currY);
                     loc[convertY(currY)][convertX(currX) + 1] = '-';
@@ -99,11 +84,6 @@ struct Grid {
                     if (!(inBoundsX(currX) && inBoundsY(currY))) {
                         std::cerr << "Invalid movement outside right edge.\n";
                         return;
-                    } else {
-                        leftSum += priorX * currY;
-                        rightSum += priorY * currX;
-                        priorX = currX;
-                        priorY = currY;
                     }
                     setPoint(currX, currY);
                     loc[convertY(currY)][convertX(currX) - 1] = '-';
@@ -111,6 +91,10 @@ struct Grid {
                 default:
                     assert(false);
             }
+            leftSum += priorX * currY;
+            rightSum += priorY * currX;
+            priorX = currX;
+            priorY = currY;
         }
         areaEnclosed = 0.5 * abs(leftSum - rightSum);
     }
