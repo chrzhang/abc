@@ -10,18 +10,19 @@ struct Item {
     Item(int w, int v) : weight(w), value(v) {}
 };
 
-int main() {
-    // Store weights and values of items
-    std::vector<Item> items = {Item(10, 60), Item(20, 100), Item(30, 120)};
-    int capacityOfKnapsack = 50;
+std::ostream & operator<<(std::ostream & os, const Item & i) {
+    os << "(" << i.weight << ", " << i.value << ")";
+    return os;
+}
+
+void solve(const std::vector<Item> & items, const int & c) {
+    int n = items.size();
     // An entry in table[i, j] is the maximum total value attained for the
     // items up to index i using total weight less than or equal to j
     auto table =
-        std::vector<std::vector<int>>(items.size() + 1,
-                                      std::vector<int>(capacityOfKnapsack + 1,
-                                                       0));
-    for (int itemIndex = 1; itemIndex <= (int) items.size(); ++itemIndex) {
-        for (int weight = 0; weight <= capacityOfKnapsack; ++weight) {
+        std::vector<std::vector<int>>(n + 1, std::vector<int>(c + 1, 0));
+    for (int itemIndex = 1; itemIndex <= n; ++itemIndex) {
+        for (int weight = 0; weight <= c; ++weight) {
             if (items[itemIndex - 1].weight > weight) { // Item alone too heavy
                 table[itemIndex][weight] = table[itemIndex - 1][weight];
             } else {
@@ -36,6 +37,19 @@ int main() {
         }
     }
     std::cout << "Maximum value possible: "
-              << table[items.size()][capacityOfKnapsack] << std::endl;
+              << table[n][c] << std::endl;
+    // Backtrace upwards in the table to find the choices made along the way
+    int weight = c;
+    for (int itemIndex = n; itemIndex > 0; --itemIndex) {
+        if (table[itemIndex][weight] != table[itemIndex - 1][weight]) { // Pick
+            std::cout << items[itemIndex - 1] << std::endl;
+            weight -= items[itemIndex - 1].weight;
+        }
+    }
+}
+
+int main() {
+    solve({Item(10, 60), Item(20, 100), Item(30, 120)}, 50);
+    solve({Item(1, 1), Item(2, 6), Item(4, 8), Item(5, 9)}, 8);
     return 0;
 }
