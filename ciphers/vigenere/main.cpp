@@ -69,5 +69,7 @@ std::string decode(const std::string & str, const std::string & key) {
 int main() {
     assert("VCSGQRHVKGJVGOW" == encode("TOPCODERISGREAT", "CODE"));
     assert("TOPCODERISGREAT" == decode("VCSGQRHVKGJVGOW", "CODE"));
+    assert("THISCODEDMESSAGE" == decode("HRWCQYRORWSCGKUO", "OK"));
+    assert("" == encode("HowAreYou", "GO"));
     return 0;
 }
