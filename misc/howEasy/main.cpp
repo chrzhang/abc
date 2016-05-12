@@ -9,35 +9,43 @@
 //        1 letter
 // word length - number of letters in a word
 
-bool isWord(const std::string & str) {
+int wordLen(const std::string & str) {
     // May start with as many spaces
     auto begin_it = str.begin();
     while (begin_it != str.end() && isspace(*begin_it)) { ++begin_it; }
-    if (begin_it == str.end()) { return false; }
+    if (begin_it == str.end()) { return 0; }
     auto end_it = begin_it;
     while ((end_it != str.end()) && !isspace(*end_it)) { ++end_it; }
     bool foundLetter = false;
     for (auto it = begin_it; it != end_it; ++it) {
         if (*it == '.') { // May end with a single period
-            return (std::next(it) == end_it) && foundLetter;
+            if ((std::next(it) == end_it) && foundLetter) {
+                return std::distance(begin_it, end_it) - 1;
+            } else {
+                return 0;
+            }
         }
         if (!isalpha(*it)) {
-            return false;
+            return 0;
         } else {
             foundLetter = true;
         }
     }
-    return foundLetter;
+    if (foundLetter) {
+        return std::distance(begin_it, end_it);
+    } else {
+        return 0;
+    }
 }
 
 int main() {
-    assert(isWord("ab"));
-    assert(isWord("ab."));
-    assert(!isWord("ab..")); // Ends in more than one '.'
-    assert(!isWord("a.b")); // Can only end with a '.'
-    assert(!isWord(".ab"));
-    assert(!isWord("a.b.")); // More than one '.'
-    assert(!isWord("a2b.")); // Only letters are okay
-    assert(!isWord(".")); // Needs one letter at the least
+    assert(wordLen("ab") == 2);
+    assert(wordLen("ab.") == 2);
+    assert(!wordLen("ab..")); // Ends in more than one '.'
+    assert(!wordLen("a.b")); // Can only end with a '.'
+    assert(!wordLen(".ab"));
+    assert(!wordLen("a.b.")); // More than one '.'
+    assert(!wordLen("a2b.")); // Only letters are okay
+    assert(!wordLen(".")); // Needs one letter at the least
     return 0;
 }
