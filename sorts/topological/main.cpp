@@ -104,7 +104,6 @@ struct Graph {
         }
         while (!classItsWithNoPrereqs.empty()) {
             // Find a class with no pre-reqs (resolve ties by # then dept)
-            // Resolve ties instead of picking the first
             std::sort(classItsWithNoPrereqs.begin(),
                       classItsWithNoPrereqs.end(),
                       [](std::set<Class>::iterator c1,
@@ -269,7 +268,6 @@ std::vector<std::string> reorder(const std::vector<std::string> &
     // Kahn's algorithm for topological sort assumes graph is acyclic, which
     // is logical since a circular dependency for class requirements makes no
     // sense
-    // TODO Check for cycles
     return g.toposort();
 }
 
@@ -285,9 +283,12 @@ int main() {
     assert(!isValidInputLine("MATH211: MAM22"));
     assert(!isValidInputLine("ENGIN517: MATH211"));
     {
-        std::vector<std::string> classSchedule = { "CSE121: CSE110",
-                                                   "CSE110:",
-                                                   "MATH122:" };
+        std::vector<std::string> classSchedule =
+            {
+                "CSE121: CSE110",
+                "CSE110:",
+                "MATH122:"
+            };
         auto result = reorder(classSchedule);
         std::cout << "ORDER: ";
         for (auto c : result) {
@@ -309,6 +310,21 @@ int main() {
                 "ECE111: INTR100",
                 "CSE243: CSE254",
                 "INTR100:"
+            };
+        auto result = reorder(classSchedule);
+        std::cout << "ORDER: ";
+        for (auto c : result) {
+            std::cout << c << " ";
+        }
+        std::cout << std::endl;
+    }
+    {
+        // Topological sort will "fail" when there's a cycle, which is the
+        // intended behavior
+        std::vector<std::string> classSchedule =
+            {
+                "ENGL111: ENGL110",
+                "ENGL110: ENGL111"
             };
         auto result = reorder(classSchedule);
         std::cout << "ORDER: ";
