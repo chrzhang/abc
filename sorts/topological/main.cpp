@@ -18,6 +18,9 @@ struct Class {
         dept = std::string(s.begin(), it);
         num = std::stoi(std::string(it, s.end()));
     }
+    operator std::string() const {
+        return dept + std::to_string(num);
+    }
 };
 
 bool operator<(const Class & c1, const Class & c2) {
@@ -35,54 +38,120 @@ std::ostream & operator<<(std::ostream & os, const Class & c) {
 }
 
 struct Graph {
-    private:
-        std::set<Class> classes; // Vertices
-        std::vector<std::vector<bool>> adjMat; // Adjacency matrix
-    public:
-        int numEdges = 0;
-        void expand() {
-            adjMat.resize(classes.size(), std::vector<bool>());
-            for (auto row : adjMat) {
-                row.resize(classes.size(), false);
+    std::set<Class> classes; // Vertices
+    std::vector<std::vector<bool>> adjMat; // Adjacency matrix
+    int numEdges = 0;
+    void expand() {
+        adjMat.resize(classes.size(), std::vector<bool>());
+        for (auto row : adjMat) {
+            row.resize(classes.size(), false);
+        }
+        for (size_t i = 0; i < classes.size(); ++i) {
+            for (size_t j = 0; j < classes.size(); ++j) {
+                adjMat[i][j] = 0;
             }
         }
-        void connect(std::set<Class>::iterator & targetIt,
-                     std::set<Class>::iterator & prereqIt) {
-            int targetIndex = std::distance(classes.begin(), targetIt);
+    }
+    void connect(std::set<Class>::iterator & targetIt,
+                 std::set<Class>::iterator & prereqIt) {
+        int targetIndex = std::distance(classes.begin(), targetIt);
+        int prereqIndex = std::distance(classes.begin(), prereqIt);
+        if (!adjMat[prereqIndex][targetIndex]) {
+            adjMat[prereqIndex][targetIndex] = true;
+            ++numEdges;
+        } else {
+            assert(0);
+        }
+    }
+    std::pair<std::set<Class>::iterator, bool> addNode(const Class & c) {
+        auto r = classes.insert(c);
+        return r;
+    }
+    void print(std::ostream & os) const {
+        for (auto targetIt = classes.begin(); targetIt != classes.end();
+             ++targetIt) {
+            std::cout << *targetIt << ": ";
+            for (auto prereqIt = classes.begin(); prereqIt != classes.end();
+                 ++prereqIt) {
+                int targetIndex = std::distance(classes.begin(), targetIt);
+                int prereqIndex = std::distance(classes.begin(), prereqIt);
+                if (adjMat[prereqIndex][targetIndex]) {
+                    std::cout << *prereqIt << " ";
+                }
+            }
+            std::cout << std::endl;
+        }
+    }
+    std::vector<std::string> toposort() {
+        std::vector<std::string> result;
+        std::vector<std::set<Class>::iterator> classItsWithNoPrereqs;
+        for (auto targetIt = classes.begin(); targetIt != classes.end();
+             ++targetIt) {
+            bool hasPrereq = false;
+            for (auto potentialPrereqIt = classes.begin();
+                 potentialPrereqIt != classes.end(); ++potentialPrereqIt) {
+                int potentialPrereqIndex = std::distance(classes.begin(),
+                                                         potentialPrereqIt);
+                int targetIndex = std::distance(classes.begin(), targetIt);
+                if (adjMat[potentialPrereqIndex][targetIndex]) {
+                    hasPrereq = true;
+                    break;
+                }
+            }
+            if (!hasPrereq) {
+                classItsWithNoPrereqs.push_back(targetIt);
+            }
+        }
+        while (!classItsWithNoPrereqs.empty()) {
+            // Find a class with no pre-reqs (resolve ties by # then dept)
+            // Resolve ties instead of picking the first
+            std::sort(classItsWithNoPrereqs.begin(),
+                      classItsWithNoPrereqs.end(),
+                      [](std::set<Class>::iterator c1,
+                         std::set<Class>::iterator c2) { return *c1 < *c2; });
+            auto firstClassIt = classItsWithNoPrereqs.begin();
+            auto prereqIt = *firstClassIt;
             int prereqIndex = std::distance(classes.begin(), prereqIt);
-            if (!adjMat[prereqIndex][targetIndex]) {
-                adjMat[prereqIndex][targetIndex] = true;
-                ++numEdges;
-            }
-        }
-        std::pair<std::set<Class>::iterator, bool> addNode(const Class & c) {
-            auto r = classes.insert(c);
-            expand();
-            return r;
-        }
-        std::vector<std::string> toposort() {
-            std::vector<std::string> result;
-            std::set<Class> classesWithNoPrereqs;
-            for (auto targetIt = classes.begin(); targetIt != classes.end();
-                 ++targetIt) {
-                bool hasPrereq = false;
-                for (auto potentialPrereqIt = classes.begin();
-                     potentialPrereqIt != classes.end(); ++potentialPrereqIt) {
-                    int potentialPrereqIndex = std::distance(classes.begin(),
-                                                             potentialPrereqIt);
-                    int targetIndex = std::distance(classes.begin(), targetIt);
-                    if (adjMat[potentialPrereqIndex][targetIndex]) {
-                        hasPrereq = true;
-                        break;
+            result.push_back(*prereqIt); // Calls std::string() implicitly
+            classItsWithNoPrereqs.erase(firstClassIt);
+            for (auto potentialTargetIt = classes.begin();
+                 potentialTargetIt != classes.end(); ++potentialTargetIt) {
+                int potentialTargetIndex = std::distance(classes.begin(),
+                                                         potentialTargetIt);
+                if (adjMat[prereqIndex][potentialTargetIndex]) {
+                    adjMat[prereqIndex][potentialTargetIndex] = false;
+                    --numEdges;
+                    // Check for other incoming edges to the target
+                    bool hasOtherIncomingEdges = false;
+                    for (auto potentialPrereqIt = classes.begin();
+                         potentialPrereqIt != classes.end();
+                         ++potentialPrereqIt) {
+                        int potentialPrereqIndex =
+                            std::distance(classes.begin(),
+                                          potentialPrereqIt);
+                        if (adjMat[potentialPrereqIndex]
+                                  [potentialTargetIndex]) {
+                            hasOtherIncomingEdges = true;
+                            break;
+                        }
+                    }
+                    if (!hasOtherIncomingEdges) {
+                        classItsWithNoPrereqs.push_back(potentialTargetIt);
                     }
                 }
-                if (!hasPrereq) {
-                    classesWithNoPrereqs.insert(*targetIt);
-                }
             }
-            return result;
         }
+        if (0 != numEdges) {
+            return {};
+        }
+        return result;
+    }
 };
+
+std::ostream & operator<<(std::ostream & os, const Graph & g) {
+    g.print(os);
+    return os;
+}
 
 // Departments are 3 or 4 characters of capital letters
 bool isValidDept(const std::string & s) {
@@ -113,6 +182,11 @@ bool isValidInputLine(const std::string & s) {
         if (*it == ':') {
             if (!isValidListing(std::string(s.begin(), it))) { return false; }
             colonFound = true;
+            auto sit = std::next(it); // Check for any extraneous colons
+            while (sit != s.end()) {
+                if (*sit == ':') { return false; }
+                ++sit;
+            }
             ++it;
             break;
         }
@@ -150,6 +224,31 @@ void readValidInputLine(const std::string & s, Graph & g) {
         std::string prereq(std::string(it, endit));
         std::set<Class>::iterator prereqIt =
             g.addNode(Class(prereq)).first;
+        it = endit;
+    }
+}
+
+void connectPrereqsToTargets(const std::string & s, Graph & g) {
+    auto it = s.begin();
+    std::set<Class>::iterator targetIt;
+    while (it != s.end()) {
+        if (*it == ':') {
+            std::string target(s.begin(), it);
+            targetIt = g.classes.find(Class(target));
+            assert(targetIt != g.classes.end());
+            ++it;
+            break;
+        }
+        ++it;
+    }
+    while (it != s.end()) {
+        ++it;
+        auto endit = it;
+        while (endit != s.end() && *endit != ' ') { ++endit; }
+        std::string prereq(std::string(it, endit));
+        std::set<Class>::iterator prereqIt =
+            g.classes.find(Class(prereq));
+        assert(prereqIt != g.classes.end());
         g.connect(targetIt, prereqIt);
         it = endit;
     }
@@ -162,9 +261,15 @@ std::vector<std::string> reorder(const std::vector<std::string> &
         if (!isValidInputLine(cl)) { return {}; }
         readValidInputLine(cl, g);
     }
+    g.expand();
+    for (auto cl : classSchedule) {
+        connectPrereqsToTargets(cl, g);
+    }
+    std::cout << "----GRAPH----\n" << g << "---------\n";
     // Kahn's algorithm for topological sort assumes graph is acyclic, which
     // is logical since a circular dependency for class requirements makes no
     // sense
+    // TODO Check for cycles
     return g.toposort();
 }
 
@@ -183,7 +288,34 @@ int main() {
         std::vector<std::string> classSchedule = { "CSE121: CSE110",
                                                    "CSE110:",
                                                    "MATH122:" };
-        reorder(classSchedule);
+        auto result = reorder(classSchedule);
+        std::cout << "ORDER: ";
+        for (auto c : result) {
+            std::cout << c << " ";
+        }
+        std::cout << std::endl;
+    }
+    {
+        std::vector<std::string> classSchedule =
+            {
+                "CSE258: CSE244 CSE243 INTR100",
+                "CSE221: CSE254 INTR100",
+                "CSE254: CSE111 MATH210 INTR100",
+                "CSE244: CSE243 MATH210 INTR100",
+                "MATH210: INTR100",
+                "CSE101: INTR100",
+                "CSE111: INTR100",
+                "ECE201: CSE111 INTR100",
+                "ECE111: INTR100",
+                "CSE243: CSE254",
+                "INTR100:"
+            };
+        auto result = reorder(classSchedule);
+        std::cout << "ORDER: ";
+        for (auto c : result) {
+            std::cout << c << " ";
+        }
+        std::cout << std::endl;
     }
     return 0;
 }
