@@ -3,6 +3,7 @@
 #include <string>
 #include <set>
 #include <algorithm>
+#include <vector>
 
 // Given classes that have pre-requisites, find a valid ordering to take the
 // classes (if there is no strict ordering between two or more classes, use the
@@ -42,15 +43,8 @@ struct Graph {
     std::vector<std::vector<bool>> adjMat; // Adjacency matrix
     int numEdges = 0;
     void expand() {
-        adjMat.resize(classes.size(), std::vector<bool>());
-        for (auto row : adjMat) {
-            row.resize(classes.size(), false);
-        }
-        for (size_t i = 0; i < classes.size(); ++i) {
-            for (size_t j = 0; j < classes.size(); ++j) {
-                adjMat[i][j] = 0;
-            }
-        }
+        adjMat = std::vector<std::vector<bool>>(classes.size(),
+                    std::vector<bool>(classes.size(), false));
     }
     void connect(std::set<Class>::iterator & targetIt,
                  std::set<Class>::iterator & prereqIt) {
@@ -206,11 +200,10 @@ bool isValidInputLine(const std::string & s) {
 
 void readValidInputLine(const std::string & s, Graph & g) {
     auto it = s.begin();
-    std::set<Class>::iterator targetIt;
     while (it != s.end()) {
         if (*it == ':') {
             std::string target(s.begin(), it);
-            targetIt = g.addNode(Class(target)).first;
+            g.addNode(Class(target));
             ++it;
             break;
         }
@@ -221,8 +214,7 @@ void readValidInputLine(const std::string & s, Graph & g) {
         auto endit = it;
         while (endit != s.end() && *endit != ' ') { ++endit; }
         std::string prereq(std::string(it, endit));
-        std::set<Class>::iterator prereqIt =
-            g.addNode(Class(prereq)).first;
+        g.addNode(Class(prereq));
         it = endit;
     }
 }
