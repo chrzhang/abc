@@ -6,7 +6,11 @@ using namespace std;
 
 struct Shape {
     // Since draw() is pure virtual, Shape cannot be created alone
-    virtual void draw() = 0; // Cannot be given a definition (/overloaded)
+    // virtual void draw() = 0; // Cannot be given a definition (/overloaded)
+    // ^ Commented out to test passing base class by value in funcVal, funcRef
+    virtual void draw() {
+        cout << "Shape draw\n";
+    }
     Shape() {
         // Cannot be called since draw()'s behavior is undefined
         // draw();
@@ -43,6 +47,14 @@ struct Triangle : public Shape {
     }
 };
 
+void funcVal(Shape s) { // By value
+    s.draw();
+}
+
+void funcRef(Shape & s) { // By reference
+    s.draw();
+}
+
 int main() {
     Shape * s[3];
     s[0] = new Circle();
@@ -52,5 +64,10 @@ int main() {
         s[i]->draw();
         delete s[i];
     }
+    cout << "Passing Circle to get upcasted in pass-by-value func\n";
+    Circle c;
+    funcVal(c);
+    cout << "Passing Circle to get upcasted in pass-by-ref func\n";
+    funcRef(c);
     return 0;
 }
