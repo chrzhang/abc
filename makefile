@@ -2,7 +2,7 @@
 CC=g++
 
 # Flags for the compiler
-CFLAGS=-c -Wall -g -ggdb -Ofast -pedantic-errors -std=c++11
+CFLAGS=-c -Wall -Wfatal-errors -g -ggdb -Ofast -pedantic-errors -std=c++11
 
 # Flags for compilers that need invoke the linker (e.g. libraries)
 LDFLAGS=
