@@ -9,7 +9,10 @@
 // Add the number to the subsequence if it would result in a series of
 // alternating increases and decreases
 int addIfWiggle(std::vector<int> & subsequence, int num) {
-    if (subsequence.size() < 2) {
+    if (subsequence.empty()) {
+        subsequence.push_back(num);
+        return 0;
+    } else if (subsequence.size() == 1 && num != subsequence[0]) {
         subsequence.push_back(num);
         return 0;
     }
@@ -50,6 +53,7 @@ void test() {
     assert(wiggleMaxLength({1}) == 1);
     assert(wiggleMaxLength({1, 2}) == 2);
     assert(wiggleMaxLength({2, 1}) == 2);
+    assert(wiggleMaxLength({0, 0}) == 1);
     assert(wiggleMaxLength({1, 7, 4, 9, 2, 5}) == 6);
     assert(wiggleMaxLength({1, 17, 5, 10, 13, 15, 10, 5, 16, 8}) == 7);
                          // ^  ^      ^   ^       ^      ^   ^
