@@ -1,1 +1,1 @@
-A compendium of coding exercises and my attempts in C++.
+A compendium of my attempts at coding exercises.
