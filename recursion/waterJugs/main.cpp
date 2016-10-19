@@ -45,21 +45,49 @@ bool exploreFromState(const BucketState currentState,
     }
     exploredStates.insert(currentState);
     if (currentState.sum() == target) {
+        int bucket1_amt, bucket2_amt;
+        bucket1_amt = bucket2_amt = 0;
         for (auto a : actions) {
             if (a == FILL_FIRST_BUCKET) {
+                bucket1_amt = bucket1_capacity;
                 std::cout << "Fill the first bucket.\n";
+                std::cout << "(" << bucket1_amt << "), ("
+                          << bucket2_amt << ")\n";
             } else if (a == FILL_SECOND_BUCKET) {
+                bucket2_amt = bucket2_capacity;
                 std::cout << "Fill the second bucket.\n";
+                std::cout << "(" << bucket1_amt << "), ("
+                          << bucket2_amt << ")\n";
             } else if (a == EMPTY_FIRST_BUCKET) {
+                bucket1_amt = 0;
                 std::cout << "Empty the first bucket.\n";
+                std::cout << "(" << bucket1_amt << "), ("
+                          << bucket2_amt << ")\n";
             } else if (a == EMPTY_SECOND_BUCKET) {
                 std::cout << "Empty the second bucket.\n";
+                bucket2_amt = 0;
+                std::cout << "(" << bucket1_amt << "), ("
+                          << bucket2_amt << ")\n";
             } else if (a == POUR_FIRST_INTO_SECOND_BUCKET) {
+                int temp = bucket1_amt;
+                bucket1_amt -= bucket2_capacity - bucket2_amt;
+                bucket1_amt = std::max(0, bucket1_amt);
+                bucket2_amt = std::min(bucket2_capacity,
+                                       temp + bucket2_amt);
                 std::cout << "Pour the first bucket into the second bucket.\n";
+                std::cout << "(" << bucket1_amt << "), ("
+                          << bucket2_amt << ")\n";
             } else if (a == POUR_SECOND_INTO_FIRST_BUCKET) {
+                int temp = bucket2_amt;
+                bucket2_amt -= bucket1_capacity - bucket1_amt;
+                bucket2_amt = std::max(0, bucket2_amt);
+                bucket1_amt = std::min(bucket1_capacity, temp + bucket1_amt);
                 std::cout << "Pour the second bucket into the first bucket.\n";
+                std::cout << "(" << bucket1_amt << "), ("
+                          << bucket2_amt << ")\n";
             }
         }
+        assert(bucket1_amt + bucket2_amt == target);
         return true;
     }
     // Fill the first bucket
