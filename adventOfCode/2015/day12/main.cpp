@@ -27,8 +27,6 @@ int main(int argc, char * argv[]) {
     std::string line;
     std::getline(f, line);
     std::regex intRegex("([-+]?[0-9]+)");
-    std::smatch result;
-    std::regex_search(line, result, intRegex);
     int sum = 0;
     for (auto it = std::sregex_token_iterator(line.begin(), line.end(),
                                               intRegex);
