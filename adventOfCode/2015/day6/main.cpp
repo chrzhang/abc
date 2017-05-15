@@ -103,8 +103,8 @@ int main(int argc, char * argv[]) {
         std::cerr << "File not opened.\n";
         return 1;
     }
-    bool lights_on[1000][1000];
-    size_t brightness[1000][1000];
+    static bool lights_on[1000][1000];
+    static size_t brightness[1000][1000];
     init(lights_on, brightness);
     std::string line;
     while (std::getline(f, line)) {
