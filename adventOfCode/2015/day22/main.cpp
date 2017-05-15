@@ -142,6 +142,16 @@ You start with 50 hit points and 500 mana points. The boss's actual stats are
 in your puzzle input. What is the least amount of mana you can spend and still
 win the fight? (Do not include mana recharge effects as "spending" negative
 mana.)
+
+--- Part Two ---
+
+On the next run through the game, you increase the difficulty to hard.
+
+At the start of each player turn (before any other effects apply), you lose 1
+hit point. If this brings you to or below 0 hit points, you lose.
+
+With the same starting stats for you and the boss, what is the least amount of
+mana you can spend and still win the fight?
 */
 
 struct PlayerStatus {
@@ -155,9 +165,12 @@ struct PlayerStatus {
     int shield_turns_left;
     int poison_turns_left;
     int recharge_turns_left;
+    // Part 2
+    bool hard_mode_active;
 
-    PlayerStatus(int current_hp, int current_mana)
-    : current_hp(current_hp), current_mana(current_mana) {
+    PlayerStatus(int current_hp, int current_mana, bool hard_mode = false)
+    : current_hp(current_hp), current_mana(current_mana),
+      hard_mode_active(hard_mode) {
         current_armor = 0;
         mana_used = 0;
         shield_turns_left = poison_turns_left = recharge_turns_left = 0;
@@ -224,8 +237,15 @@ bool game_over(const PlayerStatus & player, const BossStatus & boss) {
     return false;
 }
 
-int apply_effects(PlayerStatus & player, BossStatus & boss) {
+int apply_effects(PlayerStatus & player, BossStatus & boss,
+                  const bool is_players_turn) {
     /* Return 1 if game ends after applying effects. */
+    if (is_players_turn && player.hard_mode_active) {
+        player.current_hp -= 1;
+        if (game_over(player, boss)) {
+            return 1;
+        }
+    }
     player.current_armor = 0;
     if (player.shield_active()) {
         player.current_armor = 7;
@@ -251,11 +271,11 @@ int magic_missile(PlayerStatus & player, BossStatus & boss) {
     player.current_mana -= MAGIC_MISSILE_COST;
     player.spell_log.push_back("magic missile");
     player.mana_used += MAGIC_MISSILE_COST;
-    if (apply_effects(player, boss)) { return 1; }
+    if (apply_effects(player, boss, true)) { return 1; }
     boss.take_damage(4);
     if (game_over(player, boss)) { return 1; }
     // Boss attacks!
-    if (apply_effects(player, boss)) { return 1; }
+    if (apply_effects(player, boss, false)) { return 1; }
     player.take_damage(boss.damage);
     if (game_over(player, boss)) { return 1; }
     return 0;
@@ -269,12 +289,12 @@ int drain(PlayerStatus & player, BossStatus & boss) {
     player.current_mana -= DRAIN_COST;
     player.spell_log.push_back("drain");
     player.mana_used += DRAIN_COST;
-    if (apply_effects(player, boss)) { return 1; }
+    if (apply_effects(player, boss, true)) { return 1; }
     boss.take_damage(2);
     if (game_over(player, boss)) { return 1; }
     player.current_hp += 2;
     // Boss attacks!
-    if (apply_effects(player, boss)) { return 1; }
+    if (apply_effects(player, boss, false)) { return 1; }
     player.take_damage(boss.damage);
     if (game_over(player, boss)) { return 1; }
     return 0;
@@ -288,10 +308,10 @@ int shield(PlayerStatus & player, BossStatus & boss) {
     player.current_mana -= SHIELD_COST;
     player.spell_log.push_back("shield");
     player.mana_used += SHIELD_COST;
-    if (apply_effects(player, boss)) { return 1; }
+    if (apply_effects(player, boss, true)) { return 1; }
     player.shield_turns_left = 6;
     // Boss attacks!
-    if (apply_effects(player, boss)) { return 1; }
+    if (apply_effects(player, boss, false)) { return 1; }
     player.take_damage(boss.damage);
     if (game_over(player, boss)) { return 1; }
     return 0;
@@ -305,10 +325,10 @@ int poison(PlayerStatus & player, BossStatus & boss) {
     player.current_mana -= POISON_COST;
     player.spell_log.push_back("poison");
     player.mana_used += POISON_COST;
-    if (apply_effects(player, boss)) { return 1; }
+    if (apply_effects(player, boss, true)) { return 1; }
     player.poison_turns_left = 6;
     // Boss attacks!
-    if (apply_effects(player, boss)) { return 1; }
+    if (apply_effects(player, boss, false)) { return 1; }
     player.take_damage(boss.damage);
     if (game_over(player, boss)) { return 1; }
     return 0;
@@ -322,10 +342,10 @@ int recharge(PlayerStatus & player, BossStatus & boss) {
     player.current_mana -= RECHARGE_COST;
     player.spell_log.push_back("recharge");
     player.mana_used += RECHARGE_COST;
-    if (apply_effects(player, boss)) { return 1; }
+    if (apply_effects(player, boss, true)) { return 1; }
     player.recharge_turns_left = 5;
     // Boss attacks!
-    if (apply_effects(player, boss)) { return 1; }
+    if (apply_effects(player, boss, false)) { return 1; }
     player.take_damage(boss.damage);
     if (game_over(player, boss)) { return 1; }
     return 0;
@@ -389,15 +409,23 @@ int explore(const PlayerStatus & p, const BossStatus & b) {
     exploreAux(p, b, lowest_mana_used_to_win_so_far, spells);
     std::cout << "Mana: " << lowest_mana_used_to_win_so_far << std::endl;
     for (const auto & spell : spells) {
-        std::cout << spell << std::endl;
+        std::cout << "\t --> " << spell << std::endl;
     }
     return lowest_mana_used_to_win_so_far;
 }
 
 int main() {
-    PlayerStatus p(50, 500);
-    BossStatus b(71, 10);
-    std::cout << p << b;
-    assert(1824 == explore(p, b));
+    { // Part 1
+        PlayerStatus p(50, 500);
+        BossStatus b(71, 10);
+        std::cout << p << b;
+        assert(1824 == explore(p, b));
+    }
+    { // Part 2
+        PlayerStatus p(50, 500, true);
+        BossStatus b(71, 10);
+        std::cout << p << b;
+        assert(1937 == explore(p, b));
+    }
     return 0;
 }
