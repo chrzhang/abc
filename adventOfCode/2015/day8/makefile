@@ -1,5 +1,5 @@
 # Compiler of choice
-CC=g++
+CC=g++-4.9
 
 # Flags for the compiler
 CFLAGS=-c -Wall -Wfatal-errors -g -ggdb -Ofast -pedantic-errors -std=c++11
