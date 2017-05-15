@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <algorithm>
+#include <climits>
 
 /*
 From http://adventofcode.com/2015/day/9
@@ -72,14 +73,14 @@ int main(int argc, char * argv[]) {
     std::vector<std::string> indexablePlaces(places.begin(), places.end());
     places.clear();
     std::vector<int> indices;
-    for (auto i = 0; i < indexablePlaces.size(); ++i) {
+    for (size_t i = 0; i < indexablePlaces.size(); ++i) {
         indices.push_back(i);
     }
     int maxDistanceSoFar = INT_MIN;
     int minDistanceSoFar = INT_MAX;
     do {
         int currDistance = 0;
-        for (auto i = 1; i < indices.size(); ++i) {
+        for (size_t i = 1; i < indices.size(); ++i) {
             currDistance += routes[indexablePlaces[indices[i]]]
                                   [indexablePlaces[indices[i - 1]]];
         }
