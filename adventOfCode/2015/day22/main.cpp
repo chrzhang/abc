@@ -179,6 +179,10 @@ struct PlayerStatus {
         return recharge_turns_left > 0;
     }
 
+    void take_damage(int damage) {
+        current_hp -= std::max(1, damage - current_armor);
+    }
+
 };
 
 std::ostream & operator<<(std::ostream & os, const PlayerStatus & ps) {
@@ -215,10 +219,6 @@ std::ostream & operator<<(std::ostream & os, const BossStatus & bs) {
 
 bool game_over(const PlayerStatus & player, const BossStatus & boss) {
     if (!player.alive() || !boss.alive()) {
-        //std::cout << "=========================================== Fight over. ";
-        //std::string winner = player.alive() ? "Player" : "Boss";
-        //std::cout << winner << " wins!" << std::endl;
-        //std::cout << player << boss;
         return true;
     }
     return false;
@@ -251,17 +251,12 @@ int magic_missile(PlayerStatus & player, BossStatus & boss) {
     player.current_mana -= MAGIC_MISSILE_COST;
     player.spell_log.push_back("magic missile");
     player.mana_used += MAGIC_MISSILE_COST;
-    //std::cout << "-- Player turn --" << std::endl;
-    //std::cout << player << boss << std::endl;
-    //std::cout << "Player casts MAGIC MISSILE" << std::endl;
     if (apply_effects(player, boss)) { return 1; }
     boss.take_damage(4);
     if (game_over(player, boss)) { return 1; }
     // Boss attacks!
-    //std::cout << "-- Boss turn --" << std::endl;
-    //std::cout << player << boss << std::endl;
     if (apply_effects(player, boss)) { return 1; }
-    player.current_hp -= std::max(1, boss.damage - player.current_armor);
+    player.take_damage(boss.damage);
     if (game_over(player, boss)) { return 1; }
     return 0;
 }
@@ -274,18 +269,13 @@ int drain(PlayerStatus & player, BossStatus & boss) {
     player.current_mana -= DRAIN_COST;
     player.spell_log.push_back("drain");
     player.mana_used += DRAIN_COST;
-    //std::cout << "-- Player turn --" << std::endl;
-    //std::cout << player << boss << std::endl;
-    //std::cout << "Player casts DRAIN" << std::endl;
     if (apply_effects(player, boss)) { return 1; }
     boss.take_damage(2);
     if (game_over(player, boss)) { return 1; }
     player.current_hp += 2;
     // Boss attacks!
-    //std::cout << "-- Boss turn --" << std::endl;
-    //std::cout << player << boss << std::endl;
     if (apply_effects(player, boss)) { return 1; }
-    player.current_hp -= std::max(1, boss.damage - player.current_armor);
+    player.take_damage(boss.damage);
     if (game_over(player, boss)) { return 1; }
     return 0;
 }
@@ -298,16 +288,11 @@ int shield(PlayerStatus & player, BossStatus & boss) {
     player.current_mana -= SHIELD_COST;
     player.spell_log.push_back("shield");
     player.mana_used += SHIELD_COST;
-    //std::cout << "-- Player turn --" << std::endl;
-    //std::cout << player << boss << std::endl;
-    //std::cout << "Player casts SHIELD" << std::endl;
     if (apply_effects(player, boss)) { return 1; }
     player.shield_turns_left = 6;
     // Boss attacks!
-    //std::cout << "-- Boss turn --" << std::endl;
-    //std::cout << player << boss << std::endl;
     if (apply_effects(player, boss)) { return 1; }
-    player.current_hp -= std::max(1, boss.damage - player.current_armor);
+    player.take_damage(boss.damage);
     if (game_over(player, boss)) { return 1; }
     return 0;
 }
@@ -320,16 +305,11 @@ int poison(PlayerStatus & player, BossStatus & boss) {
     player.current_mana -= POISON_COST;
     player.spell_log.push_back("poison");
     player.mana_used += POISON_COST;
-    //std::cout << "-- Player turn --" << std::endl;
-    //std::cout << player << boss << std::endl;
-    //std::cout << "Player casts POISON" << std::endl;
     if (apply_effects(player, boss)) { return 1; }
     player.poison_turns_left = 6;
     // Boss attacks!
-    //std::cout << "-- Boss turn --" << std::endl;
-    //std::cout << player << boss << std::endl;
     if (apply_effects(player, boss)) { return 1; }
-    player.current_hp -= std::max(1, boss.damage - player.current_armor);
+    player.take_damage(boss.damage);
     if (game_over(player, boss)) { return 1; }
     return 0;
 }
@@ -342,16 +322,11 @@ int recharge(PlayerStatus & player, BossStatus & boss) {
     player.current_mana -= RECHARGE_COST;
     player.spell_log.push_back("recharge");
     player.mana_used += RECHARGE_COST;
-    //std::cout << "-- Player turn --" << std::endl;
-    //std::cout << player << boss << std::endl;
-    //std::cout << "Player casts RECHARGE" << std::endl;
     if (apply_effects(player, boss)) { return 1; }
     player.recharge_turns_left = 5;
     // Boss attacks!
-    //std::cout << "-- Boss turn --" << std::endl;
-    //std::cout << player << boss << std::endl;
     if (apply_effects(player, boss)) { return 1; }
-    player.current_hp -= std::max(1, boss.damage - player.current_armor);
+    player.take_damage(boss.damage);
     if (game_over(player, boss)) { return 1; }
     return 0;
 }
