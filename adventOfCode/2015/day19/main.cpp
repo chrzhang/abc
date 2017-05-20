@@ -8,6 +8,7 @@
 #include <cassert>
 #include <climits>
 #include <algorithm>
+#include <cctype>
 
 /*
 From http://adventofcode.com/2015/day/19
@@ -127,6 +128,37 @@ void part1(const std::string & sequence,
               << results.size() << std::endl;
 }
 
+int count_occ(const std::string & hay, const std::string & haystack) {
+    int count = 0;
+    size_t pos = haystack.find(hay, 0);
+    while (pos != std::string::npos) {
+        count += 1;
+        pos = haystack.find(hay, pos + 1);
+    }
+    return count;
+}
+
+void part2(const std::string & molecule,
+           const std::multimap<std::string, std::string> & transforms) {
+    std::string starting_sequence = "e";
+    int molecule_count = 0;
+    for (const auto & c : molecule) {
+        if (std::isupper(c)) {
+            molecule_count += 1;
+        }
+    }
+    // The symbols Rn, Ar, and Y appear only on the right side of the rules
+    // Y is always followed by another element that also only appears on the
+    // right side
+    // To find the unique steps taken to transform from 'e', subtract these
+    // "filler" symbols to filter them out and get only actual steps taken
+    // to generate or alter the original sequence from e
+    std::cout << "Steps to transform from e: ";
+    std::cout << molecule_count - count_occ("Rn", molecule) -
+                 count_occ("Ar", molecule) - 2 * count_occ("Y", molecule) - 1
+              << std::endl;
+}
+
 int main(int argc, char * argv[]) {
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <filename>\n";
@@ -155,6 +187,8 @@ int main(int argc, char * argv[]) {
                 assert(result.size() == 2);
                 const std::string & sequence = result[1];
                 part1(sequence, transforms);
+                part2(sequence, transforms);
+                return 0;
             }
         }
     }
