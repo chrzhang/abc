@@ -110,26 +110,11 @@ char toCodePart2(const int currentX, const int currentY) {
 }
 
 bool validPositionPart1(const int currentX, const int currentY) {
-    return currentX >= 0 && currentX <= 2 && currentY >= 0 && currentY <= 2;
+    return -1 != toCodePart1(currentX, currentY);
 }
 
 bool validPositionPart2(const int currentX, const int currentY) {
-    if ((currentX == 0 && currentY == 2) ||
-        (currentX == 1 && currentY == 1) ||
-        (currentX == 1 && currentY == 2) ||
-        (currentX == 1 && currentY == 3) ||
-        (currentX == 2 && currentY == 0) ||
-        (currentX == 2 && currentY == 1) ||
-        (currentX == 2 && currentY == 2) ||
-        (currentX == 2 && currentY == 3) ||
-        (currentX == 2 && currentY == 4) ||
-        (currentX == 3 && currentY == 1) ||
-        (currentX == 3 && currentY == 2) ||
-        (currentX == 3 && currentY == 3) ||
-        (currentX == 4 && currentY == 2)) {
-        return true;
-    }
-    return false;
+    return -1 != toCodePart2(currentX, currentY);
 }
 
 int part1(const char * filename) {
