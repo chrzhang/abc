@@ -2,111 +2,312 @@
 #include <string>
 #include <sstream>
 #include <cassert>
-#include <map>
 #include <set>
 #include <algorithm>
 
+/*
+From http://adventofcode.com/2016/day/11
+
+--- Day 11: Radioisotope Thermoelectric Generators ---
+
+You come upon a column of four floors that have been entirely sealed off from
+the rest of the building except for a small dedicated lobby. There are some
+radiation warnings and a big sign which reads "Radioisotope Testing Facility".
+
+According to the project status board, this facility is currently being used to
+experiment with Radioisotope Thermoelectric Generators (RTGs, or simply
+"generators") that are designed to be paired with specially-constructed
+microchips. Basically, an RTG is a highly radioactive rock that generates
+electricity through heat.
+
+The experimental RTGs have poor radiation containment, so they're dangerously
+radioactive. The chips are prototypes and don't have normal radiation
+shielding, but they do have the ability to generate an electromagnetic
+radiation shield when powered. Unfortunately, they can only be powered by their
+corresponding RTG. An RTG powering a microchip is still dangerous to other
+microchips.
+
+In other words, if a chip is ever left in the same area as another RTG, and
+it's not connected to its own RTG, the chip will be fried. Therefore, it is
+assumed that you will follow procedure and keep chips connected to their
+corresponding RTG when they're in the same room, and away from other RTGs
+otherwise.
+
+These microchips sound very interesting and useful to your current activities,
+and you'd like to try to retrieve them. The fourth floor of the facility has an
+assembling machine which can make a self-contained, shielded computer for you
+to take with you - that is, if you can bring it all of the RTGs and microchips.
+
+Within the radiation-shielded part of the facility (in which it's safe to have
+these pre-assembly RTGs), there is an elevator that can move between the four
+floors. Its capacity rating means it can carry at most yourself and two RTGs or
+microchips in any combination. (They're rigged to some heavy diagnostic
+equipment - the assembling machine will detach it for you.) As a security
+measure, the elevator will only function if it contains at least one RTG or
+microchip. The elevator always stops on each floor to recharge, and this takes
+long enough that the items within it and the items on that floor can irradiate
+each other. (You can prevent this if a Microchip and its Generator end up on
+the same floor in this way, as they can be connected while the elevator is
+recharging.)
+
+You make some notes of the locations of each component of interest (your puzzle
+input). Before you don a hazmat suit and start moving things around, you'd like
+to have an idea of what you need to do.
+
+When you enter the containment area, you and the elevator will start on the
+first floor.
+
+For example, suppose the isolated area has the following arrangement:
+
+The first floor contains a hydrogen-compatible microchip and a
+lithium-compatible microchip.
+The second floor contains a hydrogen generator.
+The third floor contains a lithium generator.
+The fourth floor contains nothing relevant.
+
+As a diagram (F# for a Floor number, E for Elevator, H for Hydrogen, L for
+Lithium, M for Microchip, and G for Generator), the initial state looks like
+this:
+
+F4 .  .  .  .  .
+F3 .  .  .  LG .
+F2 .  HG .  .  .
+F1 E  .  HM .  LM
+
+Then, to get everything up to the assembling machine on the fourth floor, the
+following steps could be taken:
+
+Bring the Hydrogen-compatible Microchip to the second floor, which is safe
+because it can get power from the Hydrogen Generator:
+
+F4 .  .  .  .  .
+F3 .  .  .  LG .
+F2 E  HG HM .  .
+F1 .  .  .  .  LM
+
+Bring both Hydrogen-related items to the third floor, which is safe because the
+Hydrogen-compatible microchip is getting power from its generator:
+
+F4 .  .  .  .  .
+F3 E  HG HM LG .
+F2 .  .  .  .  .
+F1 .  .  .  .  LM
+
+Leave the Hydrogen Generator on floor three, but bring the Hydrogen-compatible
+Microchip back down with you so you can still use the elevator:
+
+F4 .  .  .  .  .
+F3 .  HG .  LG .
+F2 E  .  HM .  .
+F1 .  .  .  .  LM
+
+At the first floor, grab the Lithium-compatible Microchip, which is safe
+because Microchips don't affect each other:
+
+F4 .  .  .  .  .
+F3 .  HG .  LG .
+F2 .  .  .  .  .
+F1 E  .  HM .  LM
+
+Bring both Microchips up one floor, where there is nothing to fry them:
+
+F4 .  .  .  .  .
+F3 .  HG .  LG .
+F2 E  .  HM .  LM
+F1 .  .  .  .  .
+
+Bring both Microchips up again to floor three, where they can be temporarily
+connected to their corresponding generators while the elevator recharges,
+preventing either of them from being fried:
+
+F4 .  .  .  .  .
+F3 E  HG HM LG LM
+F2 .  .  .  .  .
+F1 .  .  .  .  .
+
+Bring both Microchips to the fourth floor:
+
+F4 E  .  HM .  LM
+F3 .  HG .  LG .
+F2 .  .  .  .  .
+F1 .  .  .  .  .
+
+Leave the Lithium-compatible microchip on the fourth floor, but bring the
+Hydrogen-compatible one so you can still use the elevator; this is safe because
+although the Lithium Generator is on the destination floor, you can connect
+Hydrogen-compatible microchip to the Hydrogen Generator there:
+
+F4 .  .  .  .  LM
+F3 E  HG HM LG .
+F2 .  .  .  .  .
+F1 .  .  .  .  .
+
+Bring both Generators up to the fourth floor, which is safe because you can
+connect the Lithium-compatible Microchip to the Lithium Generator upon arrival:
+
+F4 E  HG .  LG LM
+F3 .  .  HM .  .
+F2 .  .  .  .  .
+F1 .  .  .  .  .
+
+Bring the Lithium Microchip with you to the third floor so you can use the
+elevator:
+
+F4 .  HG .  LG .
+F3 E  .  HM .  LM
+F2 .  .  .  .  .
+F1 .  .  .  .  .
+
+Bring both Microchips to the fourth floor:
+
+F4 E  HG HM LG LM
+F3 .  .  .  .  .
+F2 .  .  .  .  .
+F1 .  .  .  .  .
+
+In this arrangement, it takes 11 steps to collect all of the objects at the
+fourth floor for assembly. (Each elevator stop counts as one step, even if
+nothing is added to or removed from it.)
+
+In your situation, what is the minimum number of steps required to bring all of
+the objects to the fourth floor?
+
+--- Part Two ---
+
+You step into the cleanroom separating the lobby from the isolated area and put
+on the hazmat suit.
+
+Upon entering the isolated containment area, however, you notice some extra
+parts on the first floor that weren't listed on the record outside:
+
+An elerium generator.
+An elerium-compatible microchip.
+A dilithium generator.
+A dilithium-compatible microchip.
+
+These work just like the other generators and microchips. You'll have to get
+them up to assembly as well.
+
+What is the minimum number of steps required to bring all of the objects,
+including these four new ones, to the fourth floor?
+*/
+
 enum Location {
-    ELEVATOR,
-    FLOOR1,
-    FLOOR2,
-    FLOOR3,
-    FLOOR4
+    ELEVATOR = 0,
+    FLOOR1 = 1,
+    FLOOR2 = 2,
+    FLOOR3 = 3,
+    FLOOR4 = 4
 };
 
-static const auto & floors = { FLOOR1, FLOOR2, FLOOR3, FLOOR4, ELEVATOR };
-
-static const std::map<Location, std::string> & floorNames =
-    { { FLOOR1, "Floor 1" },
-      { FLOOR2, "Floor 2" },
-      { FLOOR3, "Floor 3" },
-      { FLOOR4, "Floor 4" },
-      { ELEVATOR, "Elevator" } };
+static const auto & floors = { ELEVATOR, FLOOR1, FLOOR2, FLOOR3, FLOOR4 };
 
 enum Element {
-    THULIUM,
-    PLUTONIUM,
-    STRONTIUM,
-    PROMETHIUM,
-    RUTHENIUM,
-    ELERIUM,
-    DILITHIUM
+    THULIUM = 0,
+    PLUTONIUM = 1,
+    STRONTIUM = 2,
+    PROMETHIUM = 3,
+    RUTHENIUM = 4,
+    ELERIUM = 5,
+    DILITHIUM = 6
 };
+
+std::string floorToString(const size_t location) {
+    assert(location >= ELEVATOR && location <= FLOOR4);
+    static const std::vector<std::string> floorNames({ "E", "F1", "F2", "F3",
+                                                       "F4" });
+    return floorNames[location];
+}
+
+std::string elementToString(const size_t element) {
+    assert(element >= THULIUM && element <= DILITHIUM);
+    static const std::vector<std::string> elementNames({ "thulium",
+                                                         "plutonium",
+                                                         "strontium",
+                                                         "promethium",
+                                                         "ruthenium",
+                                                         "elerium",
+                                                         "dilithium" });
+    return elementNames[element];
+}
 
 static const int ELEVATOR_CAPACITY = 2;
 
-template <typename T>
-bool contains(const std::set<T> someSet, const T someElement) {
-    return someSet.find(someElement) != someSet.end();
-}
-
-std::string toString(const Element e) {
-    switch (e) {
-        case THULIUM:
-            return "thulium";
-        case PLUTONIUM:
-            return "plutonium";
-        case STRONTIUM:
-            return "strontium";
-        case PROMETHIUM:
-            return "promethium";
-        case RUTHENIUM:
-            return "ruthenium";
-        default:
-            return "unknown";
-    }
-}
-
 struct Subset {
-    std::set<Element> chips;
-    std::set<Element> generators;
+    std::vector<bool> chips;
+    std::vector<bool> generators;
 };
-
-std::vector<std::set<Element>>
-getAllSubsetsOfSize(const size_t amount,
-                    const std::set<Element> & items) {
-    if (amount == 0 || amount > items.size()) {
-        return {};
-    }
-    if (amount == items.size()) {
-        return { std::set<Element>(items.begin(), items.end()) };
-    }
-    std::vector<bool> chosen(items.size(), false);
-    for (size_t i = 0; i < amount; ++i) {
-        chosen[chosen.size() - 1 - i] = true;
-    }
-    std::vector<std::set<Element>> result;
-    do {
-        std::set<Element> subset;
-        for (size_t choiceIndex = 0; choiceIndex < chosen.size(); ++choiceIndex) {
-            if (chosen[choiceIndex]) {
-                subset.insert(*std::next(items.begin(), choiceIndex));
-            }
-        }
-        assert(subset.size() == amount);
-        result.push_back(subset);
-    } while (std::next_permutation(chosen.begin(), chosen.end()));
-    return result;
-}
-
 
 class FacilityStatus {
 
     Location elevatorFloor;
-    std::map<Location, std::set<Element>> locations_to_microchips;
-    std::map<Location, std::set<Element>> locations_to_generators;
+    std::vector<std::vector<bool>> locations_to_microchips;
+    std::vector<std::vector<bool>> locations_to_generators;
 
-    bool chipsDecayFromGenerators(const std::set<Element> & chips,
-                                  const std::set<Element> & generators) const {
-        if (chips.empty() || generators.empty()) {
+    std::vector<std::vector<bool>>
+    getAllSubsetsOfSize(const size_t amount,
+                        const std::vector<bool> & items) const {
+        if (amount == 0 || amount > numberTrueIn(items)) {
+            return {};
+        }
+        if (amount == numberTrueIn(items)) {
+            return { items };
+        }
+        std::vector<Element> elements;
+        for (size_t element = 0; element < items.size(); ++element) {
+            if (items[element]) {
+                elements.push_back((Element) element);
+            }
+        }
+        std::vector<bool> chosen(elements.size(), false);
+        for (size_t i = 0; i < amount; ++i) {
+            chosen[chosen.size() - 1 - i] = true;
+        }
+        std::vector<std::vector<bool>> result;
+        do {
+            std::vector<bool> subset(items.size(), false);
+            for (size_t choiceIndex = 0; choiceIndex < chosen.size();
+                 ++choiceIndex) {
+                if (chosen[choiceIndex]) {
+                    subset[elements[choiceIndex]] = true;
+                }
+            }
+            assert(numberTrueIn(subset) == amount);
+            result.push_back(subset);
+        } while (std::next_permutation(chosen.begin(), chosen.end()));
+        return result;
+    }
+
+    bool chipsDecayFromGenerators(const std::vector<bool> & chips,
+                                  const std::vector<bool> & generators) const {
+        if (allFalse(chips) || allFalse(generators)) {
             return false;
         }
-        for (const auto & chip : chips) {
-            if (!contains(generators, chip)) {
+        for (size_t chip = 0; chip < chips.size(); ++chip) {
+            if (chips[chip] && !generators[chip]) {
                 return true; // Could not find shield, thus decaying
             }
         }
         return false; // Everything was shielded
+    }
+
+    size_t numberTrueIn(const std::vector<bool> & someVector) const {
+        size_t result = 0;
+        for (const auto & b : someVector) {
+            if (b) {
+                ++result;
+            }
+        }
+        return result;
+    }
+
+    bool allFalse(const std::vector<bool> & someVector) const {
+        for (const auto & b : someVector) {
+            if (b) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public:
@@ -133,91 +334,65 @@ class FacilityStatus {
             9 - Ruthenium Generator
             A - Elevator Floor
             */
-            std::string result(1 + 2 * numberOfChipGeneratorPairs(), ' ');
-            for (const auto & floor : floors) {
-                for (const auto & chip : locations_to_microchips.at(floor)) {
-                    if (chip == THULIUM) {
-                        result[0] = '0' + (char) floor;
-                    } else if (chip == PLUTONIUM) {
-                        result[2] = '0' + (char) floor;
-                    } else if (chip == STRONTIUM) {
-                        result[4] = '0' + (char) floor;
-                    } else if (chip == PROMETHIUM) {
-                        result[6] = '0' + (char) floor;
-                    } else if (chip == RUTHENIUM) {
-                        result[8] = '0' + (char) floor;
-                    } else if (chip == ELERIUM) {
-                        result[10] = '0' + (char) floor;
-                    } else if (chip == DILITHIUM) {
-                        result[12] = '0' + (char) floor;
-                    } else {
-                        assert(0);
+            std::string result(1 + 2 * numberOfElements(), ' ');
+            for (size_t loc = ELEVATOR; loc <= FLOOR4; ++loc) {
+                for (size_t element = 0; element < numberOfElements();
+                     ++element) {
+                    if (locations_to_microchips[loc][element]) {
+                        result[element * 2] = '0' + (char) loc;
                     }
-                }
-                for (const auto & generator : locations_to_generators.at(floor)) {
-                    if (generator == THULIUM) {
-                        result[1] = '0' + (char) floor;
-                    } else if (generator == PLUTONIUM) {
-                        result[3] = '0' + (char) floor;
-                    } else if (generator == STRONTIUM) {
-                        result[5] = '0' + (char) floor;
-                    } else if (generator == PROMETHIUM) {
-                        result[7] = '0' + (char) floor;
-                    } else if (generator == RUTHENIUM) {
-                        result[9] = '0' + (char) floor;
-                    } else if (generator == ELERIUM) {
-                        result[11] = '0' + (char) floor;
-                    } else if (generator == DILITHIUM) {
-                        result[13] = '0' + (char) floor;
-                    } else {
-                        assert(0);
+                    if (locations_to_generators[loc][element]) {
+                        result[element * 2 + 1] = '0' + (char) loc;
                     }
                 }
             }
-            std::vector<std::string> pairs(numberOfChipGeneratorPairs(), "  ");
+            std::vector<std::string> pairs(numberOfElements(), "  ");
             for (size_t pairsIndex = 0;
-                 pairsIndex < numberOfChipGeneratorPairs(); ++pairsIndex) {
+                 pairsIndex < numberOfElements(); ++pairsIndex) {
                 pairs[pairsIndex][0] = result[pairsIndex * 2];
                 pairs[pairsIndex][1] = result[pairsIndex * 2 + 1];
             }
             std::sort(pairs.begin(), pairs.end());
             for (size_t index = 0;
-                 index < 2 * numberOfChipGeneratorPairs(); ++index) {
+                 index < 2 * numberOfElements(); ++index) {
                 result[index] = pairs[index / 2][index % 2];
             }
-            result[2 * numberOfChipGeneratorPairs()] =
+            result[2 * numberOfElements()] =
                 '0' + (char) elevatorFloor;
             return result;
         }
 
         bool isSafeConfiguration() const {
             // Check if every chip is safe
-            for (const auto & floor : floors) {
-                std::set<Element> allGenerators;
-                std::set<Element> allChips;
+            for (size_t floor = ELEVATOR; floor <= FLOOR4; ++floor) {
+                std::vector<bool> allChips(numberOfElements(), false);
+                std::vector<bool> allGenerators(numberOfElements(), false);
                 if (elevatorFloor == floor) {
-                    const auto & elevatorChips =
-                        locations_to_microchips.at(ELEVATOR);
-                    allChips.insert(elevatorChips.begin(),
-                                    elevatorChips.end());
-                    const auto & elevatorGenerators =
-                        locations_to_generators.at(ELEVATOR);
-                    allGenerators.insert(elevatorGenerators.begin(),
-                                         elevatorGenerators.end());
-                }
-                const auto & floorChips = locations_to_microchips.at(floor);
-                allChips.insert(floorChips.begin(),
-                                floorChips.end());
-                const auto & floorGenerators = locations_to_generators.at(floor);
-                allGenerators.insert(floorGenerators.begin(),
-                                     floorGenerators.end());
-                for (const auto & chip : allChips) {
-                    bool isShielded = false;
-                    if (contains(allGenerators, chip)) {
-                        isShielded = true;
+                    for (size_t element = 0; element < numberOfElements();
+                         ++element) {
+                        allChips[element] =
+                            locations_to_microchips[ELEVATOR][element];
+                        allGenerators[element] =
+                            locations_to_generators[ELEVATOR][element];
                     }
-                    if (!isShielded && !allGenerators.empty()) {
-                        return false;
+                }
+                for (size_t element = 0; element < numberOfElements();
+                     ++element) {
+                    if (locations_to_microchips[floor][element]) {
+                        allChips[element] = true;
+                    }
+                    if (locations_to_generators[floor][element]) {
+                        allGenerators[element] = true;
+                    }
+                }
+                if (allFalse(allChips) || allFalse(allGenerators)) {
+                    continue;
+                }
+                for (size_t chip = 0; chip < allChips.size(); ++chip) {
+                    if (allChips[chip]) {
+                        if (!allGenerators[chip]) { // Not shielded
+                            return false;
+                        }
                     }
                 }
             }
@@ -229,17 +404,17 @@ class FacilityStatus {
                    numberOfChipsIn(FLOOR1) +
                    numberOfChipsIn(FLOOR2) +
                    numberOfChipsIn(FLOOR3) +
-                   numberOfChipsIn(FLOOR4) == numberOfChipGeneratorPairs());
+                   numberOfChipsIn(FLOOR4) == numberOfElements());
             assert(numberOfGeneratorsIn(ELEVATOR) +
                    numberOfGeneratorsIn(FLOOR1) +
                    numberOfGeneratorsIn(FLOOR2) +
                    numberOfGeneratorsIn(FLOOR3) +
-                   numberOfGeneratorsIn(FLOOR4) == numberOfChipGeneratorPairs());
-            return numberOfItemsIn(FLOOR4) == 2 * numberOfChipGeneratorPairs();
+                   numberOfGeneratorsIn(FLOOR4) == numberOfElements());
+            return numberOfItemsIn(FLOOR4) == 2 * numberOfElements();
         }
 
-        FacilityStatus(const std::map<Location, std::set<Element>> & chips,
-                       const std::map<Location, std::set<Element>> & generators) {
+        FacilityStatus(const std::vector<std::vector<bool>> & chips,
+                       const std::vector<std::vector<bool>> & generators) {
             locations_to_microchips = chips;
             locations_to_generators = generators;
             elevatorFloor = FLOOR1;
@@ -258,18 +433,18 @@ class FacilityStatus {
         }
 
         size_t numberOfChipsIn(const Location location) const {
-            return locations_to_microchips.at(location).size();
+            return numberTrueIn(locations_to_microchips[location]);
         }
 
         size_t numberOfGeneratorsIn(const Location location) const {
-            return locations_to_generators.at(location).size();
+            return numberTrueIn(locations_to_generators[location]);
         }
 
         size_t numberOfItemsIn(const Location location) const {
             return numberOfChipsIn(location) + numberOfGeneratorsIn(location);
         }
 
-        size_t numberOfChipGeneratorPairs() const {
+        size_t numberOfElements() const {
             return numberOfChipsIn(ELEVATOR) +
                    numberOfChipsIn(FLOOR1) +
                    numberOfChipsIn(FLOOR2) +
@@ -286,8 +461,10 @@ class FacilityStatus {
                                 const Location location) const {
             if (amount == 0 || numberOfItemsIn(location) < amount) {
                 Subset emptySubset;
-                emptySubset.chips = {};
-                emptySubset.generators = {};
+                emptySubset.chips =
+                    std::vector<bool>(numberOfElements(), false);
+                emptySubset.generators =
+                    std::vector<bool>(numberOfElements(), false);
                 return { emptySubset };
             }
             std::vector<Subset> result;
@@ -300,16 +477,19 @@ class FacilityStatus {
                     continue;
                 }
                 assert(amountGenerators + amountChips == amount);
+                const auto & chipsAtLocation =
+                    locations_to_microchips[location];
+                const auto & generatorsAtLocation =
+                    locations_to_generators[location];
                 const auto & chipSubsets =
-                    getAllSubsetsOfSize(amountChips,
-                                        locations_to_microchips.at(location));
+                    getAllSubsetsOfSize(amountChips, chipsAtLocation);
                 const auto & generatorSubsets =
-                    getAllSubsetsOfSize(amountGenerators,
-                                        locations_to_generators.at(location));
+                    getAllSubsetsOfSize(amountGenerators, generatorsAtLocation);
                 for (const auto & chipSubset : chipSubsets) {
-                    assert(chipSubset.size() == amountChips);
+                    assert(numberTrueIn(chipSubset) == amountChips);
                     for (const auto & generatorSubset : generatorSubsets) {
-                        assert(generatorSubset.size() == amountGenerators);
+                        assert(numberTrueIn(generatorSubset) ==
+                               amountGenerators);
                         Subset itemSubset;
                         itemSubset.chips = chipSubset;
                         itemSubset.generators = generatorSubset;
@@ -318,19 +498,21 @@ class FacilityStatus {
                 }
                 if (chipSubsets.size() == 0) {
                     for (const auto & generatorSubset : generatorSubsets) {
-                        assert(generatorSubset.size() == amount);
+                        assert(numberTrueIn(generatorSubset) == amount);
                         Subset itemSubset;
-                        itemSubset.chips = {};
+                        itemSubset.chips =
+                            std::vector<bool>(numberOfElements(), false);
                         itemSubset.generators = generatorSubset;
                         result.push_back(itemSubset);
                     }
                 }
                 if (generatorSubsets.size() == 0) {
                     for (const auto & chipSubset : chipSubsets) {
-                        assert(chipSubset.size() == amount);
+                        assert(numberTrueIn(chipSubset) == amount);
                         Subset itemSubset;
                         itemSubset.chips = chipSubset;
-                        itemSubset.generators = {};
+                        itemSubset.generators =
+                            std::vector<bool>(numberOfElements(), false);
                         result.push_back(itemSubset);
                     }
                 }
@@ -338,18 +520,17 @@ class FacilityStatus {
             return result;
         }
 
-        bool wouldDecayIfFloorLost(const std::set<Element> & chips,
-                                   const std::set<Element> & generators) const {
-            for (const auto & chipToConsiderRemoving : chips) {
-                assert(contains(locations_to_microchips.at(elevatorFloor),
-                                chipToConsiderRemoving));
-            }
-            for (const auto & generatorToConsiderRemoving : generators) {
-                assert(contains(locations_to_generators.at(elevatorFloor),
-                                generatorToConsiderRemoving));
-                for (const auto & chip : locations_to_microchips.at(elevatorFloor)) {
-                    if (chip == generatorToConsiderRemoving) {
-                        if (!contains(chips, chip)) { // Chip isn't leaving
+        bool wouldDecayIfFloorLost(const std::vector<bool> & chips,
+                                   const std::vector<bool> & generators) const {
+            assert(chips.size() == numberOfElements());
+            assert(chips.size() == generators.size());
+            for (size_t generator = 0; generator < generators.size();
+                 ++generator) {
+                if (generators[generator]) { // Generator is leaving
+                    if (chips[generator] == true) {
+                        continue; // Chip is also leaving on elevator
+                    } else {
+                        if (locations_to_microchips[elevatorFloor][generator]) {
                             return true;
                         }
                     }
@@ -358,49 +539,42 @@ class FacilityStatus {
             return false;
         }
 
-        void loadIntoElevator(const std::set<Element> & chips,
-                              const std::set<Element> & generators) {
-            assert(chips.size() + generators.size() <= ELEVATOR_CAPACITY);
-            for (const auto & chip : chips) {
-                assert(contains(locations_to_microchips[elevatorFloor], chip));
-                locations_to_microchips[elevatorFloor].erase(chip);
-                locations_to_microchips[ELEVATOR].insert(chip);
+        void loadIntoElevator(const std::vector<bool> & chips,
+                              const std::vector<bool> & generators) {
+            assert(chips.size() == numberOfElements());
+            assert(chips.size() == generators.size());
+            assert(numberTrueIn(chips) + numberTrueIn(generators) <=
+                   ELEVATOR_CAPACITY);
+            for (size_t chip = 0; chip < chips.size(); ++chip) {
+                if (chips[chip]) {
+                    locations_to_microchips[elevatorFloor][chip] = false;
+                    locations_to_microchips[ELEVATOR][chip] = true;
+                }
+                const size_t generator = chip;
+                if (generators[generator]) {
+                    locations_to_generators[elevatorFloor][generator] = false;
+                    locations_to_generators[ELEVATOR][generator] = true;
+                }
             }
-            for (const auto & generator : generators) {
-                assert(contains(locations_to_generators[elevatorFloor], generator));
-                locations_to_generators[elevatorFloor].erase(generator);
-                locations_to_generators[ELEVATOR].insert(generator);
-            }
-            for (const auto & chip : chips) {
-                assert(!contains(locations_to_microchips[elevatorFloor], chip));
-                assert(contains(locations_to_microchips[ELEVATOR], chip));
-            }
-            for (const auto & generator : generators) {
-                assert(!contains(locations_to_generators[elevatorFloor], generator));
-                assert(contains(locations_to_generators[ELEVATOR], generator));
-            }
+
         }
 
-        void unloadFromElevator(const std::set<Element> & chips,
-                                const std::set<Element> & generators) {
-            assert(chips.size() + generators.size() <= ELEVATOR_CAPACITY);
-            for (const auto & chip : chips) {
-                assert(contains(locations_to_microchips[ELEVATOR], chip));
-                locations_to_microchips[ELEVATOR].erase(chip);
-                locations_to_microchips[elevatorFloor].insert(chip);
-            }
-            for (const auto & generator : generators) {
-                assert(contains(locations_to_generators[ELEVATOR], generator));
-                locations_to_generators[ELEVATOR].erase(generator);
-                locations_to_generators[elevatorFloor].insert(generator);
-            }
-            for (const auto & chip : chips) {
-                assert(!contains(locations_to_microchips[ELEVATOR], chip));
-                assert(contains(locations_to_microchips[elevatorFloor], chip));
-            }
-            for (const auto & generator : generators) {
-                assert(!contains(locations_to_generators[ELEVATOR], generator));
-                assert(contains(locations_to_generators[elevatorFloor], generator));
+        void unloadFromElevator(const std::vector<bool> & chips,
+                                const std::vector<bool> & generators) {
+            assert(chips.size() == numberOfElements());
+            assert(chips.size() == generators.size());
+            assert(numberTrueIn(chips) + numberTrueIn(generators)
+                   <= ELEVATOR_CAPACITY);
+            for (size_t chip = 0; chip < chips.size(); ++chip) {
+                if (chips[chip]) {
+                    locations_to_microchips[elevatorFloor][chip] = true;
+                    locations_to_microchips[ELEVATOR][chip] = false;
+                }
+                const size_t generator = chip;
+                if (generators[generator]) {
+                    locations_to_generators[elevatorFloor][generator] = true;
+                    locations_to_generators[ELEVATOR][generator] = false;
+                }
             }
         }
 
@@ -432,39 +606,201 @@ class FacilityStatus {
             }
         }
 
+        friend void test();
+        friend std::ostream & operator<<(std::ostream & os,
+                                         const FacilityStatus & facilityStatus);
 
 };
 
-bool addStatus(const FacilityStatus facilityStatus,
+std::ostream & operator<<(std::ostream & os, const FacilityStatus & fs) {
+    for (size_t floor = 0; floor <= FLOOR4; ++floor) {
+        std::cout << floorToString(floor) << ": ";
+        for (size_t element = 0; element < fs.numberOfElements(); ++element) {
+            if (fs.locations_to_microchips[floor][element]) {
+                os << elementToString(element) << "-chip" << " ";
+            }
+            if (fs.locations_to_generators[floor][element]) {
+                os << elementToString(element) << "-generator" << " ";
+            }
+        }
+        os << std::endl;
+    }
+    os << "elevator on " << floorToString(fs.elevatorFloor) << std::endl;
+
+    return os;
+}
+
+void test() {
+    std::vector<std::vector<bool>>
+        locations_to_microchips(5, std::vector<bool>(2, false));
+    std::vector<std::vector<bool>>
+        locations_to_generators(5, std::vector<bool>(2, false));
+    locations_to_microchips[FLOOR1][THULIUM] = true;
+    locations_to_microchips[FLOOR1][PLUTONIUM] = true;
+    locations_to_generators[FLOOR2][THULIUM] = true;
+    locations_to_generators[FLOOR3][PLUTONIUM] = true;
+    FacilityStatus facilityStatus(locations_to_microchips,
+                                  locations_to_generators);
+    assert(facilityStatus.representation() == "12131");
+    assert(facilityStatus.locations_to_microchips ==
+           std::vector<std::vector<bool>>({ { false, false },
+                                            { true, true },
+                                            { false, false},
+                                            { false, false},
+                                            { false, false} }));
+    assert(facilityStatus.locations_to_generators ==
+           std::vector<std::vector<bool>>({ { false, false },
+                                            { false, false },
+                                            { true, false},
+                                            { false, true},
+                                            { false, false} }));
+    assert(facilityStatus.numberOfChipsIn(ELEVATOR) == 0);
+    assert(facilityStatus.numberOfChipsIn(FLOOR1) == 2);
+    assert(facilityStatus.numberOfChipsIn(FLOOR2) == 0);
+    assert(facilityStatus.numberOfChipsIn(FLOOR3) == 0);
+    assert(facilityStatus.numberOfChipsIn(FLOOR4) == 0);
+    assert(facilityStatus.numberOfGeneratorsIn(ELEVATOR) == 0);
+    assert(facilityStatus.numberOfGeneratorsIn(FLOOR1) == 0);
+    assert(facilityStatus.numberOfGeneratorsIn(FLOOR2) == 1);
+    assert(facilityStatus.numberOfGeneratorsIn(FLOOR3) == 1);
+    assert(facilityStatus.numberOfGeneratorsIn(FLOOR4) == 0);
+    assert(facilityStatus.numberOfItemsIn(ELEVATOR) == 0);
+    assert(facilityStatus.numberOfItemsIn(FLOOR1) == 2);
+    assert(facilityStatus.numberOfItemsIn(FLOOR2) == 1);
+    assert(facilityStatus.numberOfItemsIn(FLOOR3) == 1);
+    assert(facilityStatus.numberOfItemsIn(FLOOR4) == 0);
+    {
+        const auto & allSubsetsOfSize2OnFloor1 =
+            facilityStatus.getAllSubsetsOfSize_On_(2, FLOOR1);
+        assert(allSubsetsOfSize2OnFloor1.size() == 1);
+        assert(allSubsetsOfSize2OnFloor1[0].chips ==
+               std::vector<bool>({ true, true }));
+        assert(allSubsetsOfSize2OnFloor1[0].generators ==
+               std::vector<bool>({ false, false}));
+    }
+    {
+        const auto & allSubsetsOfSize1OnFloor1 =
+            facilityStatus.getAllSubsetsOfSize_On_(1, FLOOR1);
+        assert(allSubsetsOfSize1OnFloor1.size() == 2);
+        assert(allSubsetsOfSize1OnFloor1[0].chips ==
+               std::vector<bool>({ false, true}));
+        assert(allSubsetsOfSize1OnFloor1[1].chips ==
+               std::vector<bool>({ true, false}));
+    }
+    facilityStatus.loadIntoElevator(std::vector<bool>({ true, false }),
+                                    std::vector<bool>({ false, false }));
+    // Loaded in thulium chip
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.sendElevatorUp();
+    // Went up
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.loadIntoElevator(std::vector<bool>({ false, false }),
+                                    std::vector<bool>({ true, false }));
+    // Loaded in thulium generator
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.sendElevatorUp();
+    // Went up
+    facilityStatus.unloadFromElevator(std::vector<bool>({ false, false}),
+                                      std::vector<bool>({ true, false}));
+    // Unloaded thulium generator
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.sendElevatorDown();
+    // Went down
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.sendElevatorDown();
+    // Went down
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.loadIntoElevator(std::vector<bool>({false, true}),
+                                    std::vector<bool>({false, false}));
+    // Loaded in plutonium chip
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.sendElevatorUp();
+    // Went up
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.sendElevatorUp();
+    // Went up
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.sendElevatorUp();
+    // Went up
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.unloadFromElevator(std::vector<bool>({false, true}),
+                                      std::vector<bool>({false, false}));
+    // Unload plutonium chip
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.sendElevatorDown();
+    // Went down
+    facilityStatus.loadIntoElevator(std::vector<bool>({false, false}),
+                                    std::vector<bool>({true, true}));
+    // Loaded in thulium generator and plutonium generator
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.sendElevatorUp();
+    // Went up
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.unloadFromElevator(std::vector<bool>({false, false}),
+                                      std::vector<bool>({false, true}));
+    // Unloaded plutonium generator
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.sendElevatorDown();
+    // Went down
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.loadIntoElevator(std::vector<bool>({true, false}),
+                                    std::vector<bool>({false, false}));
+    // Loaded in thulium chip
+    assert(facilityStatus.isSafeConfiguration());
+    assert(!facilityStatus.isSolvedConfiguration());
+    facilityStatus.sendElevatorUp();
+    // Went up
+    facilityStatus.unloadFromElevator(std::vector<bool>({true, false}),
+                                      std::vector<bool>({true, false}));
+    // Unloaded thulium chip and thulium generator
+    assert(facilityStatus.isSafeConfiguration());
+    assert(facilityStatus.isSolvedConfiguration());
+}
+
+static std::set<std::string> oldStatuses;
+
+void addStatus(const FacilityStatus facilityStatus,
                std::vector<FacilityStatus> & nextStatuses) {
-    static std::set<std::string> oldStatuses;
     const auto statusRepr = facilityStatus.representation();
-    if (!contains(oldStatuses, statusRepr)) {
+    if (oldStatuses.find(statusRepr) == oldStatuses.end()) {
         nextStatuses.push_back(facilityStatus);
         oldStatuses.insert(statusRepr);
     }
-    return false;
 }
 
-bool unloadElevator(const FacilityStatus facilityStatus,
+void unloadElevator(const FacilityStatus facilityStatus,
                     const size_t amountOfThingsToUnloadFromElevator,
                     std::vector<FacilityStatus> & nextStatuses) {
     // Unload 0, 1, or 2 things from the elevator
     const auto & allSubsetsOfTargetSize =
-        facilityStatus.getAllSubsetsOfSize_On_(amountOfThingsToUnloadFromElevator, ELEVATOR);
+        facilityStatus.getAllSubsetsOfSize_On_(amountOfThingsToUnloadFromElevator,
+                                               ELEVATOR);
     for (const auto & chosenSubset : allSubsetsOfTargetSize) {
         const auto & chosenChips = chosenSubset.chips;
         const auto & chosenGenerators = chosenSubset.generators;
         auto unloadedFacilityStatus = facilityStatus;
-        unloadedFacilityStatus.unloadFromElevator(chosenChips, chosenGenerators);
-        if (addStatus(unloadedFacilityStatus, nextStatuses)) {
-            return true;
-        }
+        unloadedFacilityStatus.unloadFromElevator(chosenChips,
+                                                  chosenGenerators);
+        addStatus(unloadedFacilityStatus, nextStatuses);
     }
-    return false;
 }
 
-bool moveElevator(const FacilityStatus facilityStatus,
+void moveElevator(const FacilityStatus facilityStatus,
                   std::vector<FacilityStatus> & nextStatuses) {
     // Move the elevator up or down in a valid direction
     if (facilityStatus.getElevatorFloor() < FLOOR4 &&
@@ -474,13 +810,12 @@ bool moveElevator(const FacilityStatus facilityStatus,
         if (upFacilityStatus.isSafeConfiguration()) {
             // Prune: If moving to new floor would cause decay, stop
             for (size_t amountOfThingsToUnloadFromElevator = 0;
-                 amountOfThingsToUnloadFromElevator <= facilityStatus.numberOfItemsIn(ELEVATOR);
+                 amountOfThingsToUnloadFromElevator <=
+                 facilityStatus.numberOfItemsIn(ELEVATOR);
                  ++amountOfThingsToUnloadFromElevator) {
-                if (unloadElevator(upFacilityStatus,
-                                   amountOfThingsToUnloadFromElevator,
-                                   nextStatuses)) {
-                    return true;
-                }
+                unloadElevator(upFacilityStatus,
+                               amountOfThingsToUnloadFromElevator,
+                               nextStatuses);
             }
         }
     }
@@ -491,44 +826,42 @@ bool moveElevator(const FacilityStatus facilityStatus,
         if (downFacilityStatus.isSafeConfiguration()) {
             // Prune: If moving to new floor would cause decay, stop
             for (size_t amountOfThingsToUnloadFromElevator = 0;
-                 amountOfThingsToUnloadFromElevator <= facilityStatus.numberOfItemsIn(ELEVATOR);
+                 amountOfThingsToUnloadFromElevator <=
+                 facilityStatus.numberOfItemsIn(ELEVATOR);
                  ++amountOfThingsToUnloadFromElevator) {
-                if (unloadElevator(downFacilityStatus,
-                                   amountOfThingsToUnloadFromElevator,
-                                   nextStatuses)) {
-                    return true;
-                }
+                unloadElevator(downFacilityStatus,
+                               amountOfThingsToUnloadFromElevator,
+                               nextStatuses);
             }
         }
     }
-    return false;
 }
 
-bool loadElevator(const FacilityStatus facilityStatus,
+void loadElevator(const FacilityStatus facilityStatus,
                   const size_t amountOfThingsToLoadIntoElevator,
                   std::vector<FacilityStatus> & nextStatuses) {
     const auto & allSubsetsOfTargetSize =
-        facilityStatus.getAllSubsetsOfSize_On_(amountOfThingsToLoadIntoElevator, facilityStatus.getElevatorFloor());
+        facilityStatus.getAllSubsetsOfSize_On_(amountOfThingsToLoadIntoElevator,
+                                               facilityStatus.getElevatorFloor());
     for (const auto & chosenSubset : allSubsetsOfTargetSize) {
         const auto & chosenChips = chosenSubset.chips;
         const auto & chosenGenerators = chosenSubset.generators;
-        if (facilityStatus.wouldDecayIfFloorLost(chosenChips, chosenGenerators)) {
+        if (facilityStatus.wouldDecayIfFloorLost(chosenChips,
+                                                 chosenGenerators)) {
             // Prune: Chips left on the floor must not decay (since the elevator is moving away)
             continue;
         }
         auto loadedFacilityStatus = facilityStatus;
         loadedFacilityStatus.loadIntoElevator(chosenChips, chosenGenerators);
-        if (moveElevator(loadedFacilityStatus, nextStatuses)) {
-            return true;
-        }
+        moveElevator(loadedFacilityStatus, nextStatuses);
     }
-    return false;
 }
 
 int explore(const FacilityStatus facilityStatus) {
     std::vector<FacilityStatus> nextStatuses = { facilityStatus };
     for (int stepCounter = 0; !nextStatuses.empty(); ++stepCounter) {
-        std::cout << "Step: " << stepCounter << ", considering " << nextStatuses.size() << " statuses.\n";
+        std::cout << "\tStep: " << stepCounter << ", considering "
+                  << nextStatuses.size() << " statuses.\n";
         std::vector<FacilityStatus> freshNextStatuses;
         for (const auto & currentStatus : nextStatuses) {
             if (currentStatus.isSolvedConfiguration()) {
@@ -538,19 +871,24 @@ int explore(const FacilityStatus facilityStatus) {
             if (!currentStatus.isSafeConfiguration()) {
                 continue;
             }
-            // Load 0, 1, or 2 things into the elevator (that was not unloaded because that would be redundant)
+            // Load 0, 1, or 2 things into the elevator
             for (size_t amountOfThingsToLoadIntoElevator = 0;
-                (int) amountOfThingsToLoadIntoElevator <= std::max(0, ELEVATOR_CAPACITY - (int) currentStatus.numberOfItemsIn(ELEVATOR));
+                (int) amountOfThingsToLoadIntoElevator <=
+                std::max(0, ELEVATOR_CAPACITY -
+                (int) currentStatus.numberOfItemsIn(ELEVATOR));
                 ++amountOfThingsToLoadIntoElevator) {
-                if (amountOfThingsToLoadIntoElevator == 0 && currentStatus.numberOfItemsIn(ELEVATOR) == 0) {
+                if (amountOfThingsToLoadIntoElevator == 0 &&
+                    currentStatus.numberOfItemsIn(ELEVATOR) == 0) {
                     // Prune: Elevator must have at least 1 chip or generator
                     continue;
                 }
-                if (amountOfThingsToLoadIntoElevator > currentStatus.numberOfItemsIn(currentStatus.getElevatorFloor())) {
+                if (amountOfThingsToLoadIntoElevator >
+                    currentStatus.numberOfItemsIn(currentStatus.getElevatorFloor())) {
                     // Prune: Cannot load more items than there are on the floor
                     continue;
                 }
-                loadElevator(currentStatus, amountOfThingsToLoadIntoElevator, freshNextStatuses);
+                loadElevator(currentStatus, amountOfThingsToLoadIntoElevator,
+                             freshNextStatuses);
             }
         }
         nextStatuses = freshNextStatuses;
@@ -559,77 +897,86 @@ int explore(const FacilityStatus facilityStatus) {
 }
 
 void example() {
-    std::cout << "> EXAMPLE\n";
-    std::map<Location, std::set<Element>> locations_to_microchips =
-        { { FLOOR1, {} },
-          { FLOOR2, {} },
-          { FLOOR3, {} },
-          { FLOOR4, {} },
-          { ELEVATOR, {} } };
-    std::map<Location, std::set<Element>> locations_to_generators = locations_to_microchips;
-    locations_to_microchips[FLOOR1].insert(THULIUM);
-    locations_to_microchips[FLOOR1].insert(PLUTONIUM);
-    locations_to_generators[FLOOR2].insert(THULIUM);
-    locations_to_generators[FLOOR3].insert(PLUTONIUM);
+    oldStatuses.clear();
+    std::vector<std::vector<bool>>
+        locations_to_microchips(5, std::vector<bool>(2, false));
+    std::vector<std::vector<bool>>
+        locations_to_generators(5, std::vector<bool>(2, false));
+    locations_to_microchips[FLOOR1][THULIUM] = true;
+    locations_to_microchips[FLOOR1][PLUTONIUM] = true;
+    locations_to_generators[FLOOR2][THULIUM] = true;
+    locations_to_generators[FLOOR3][PLUTONIUM] = true;
     FacilityStatus facilityStatus(locations_to_microchips,
                                   locations_to_generators);
     assert(11 == explore(facilityStatus));
+    oldStatuses.clear();
 }
 
 void part1() {
-    std::cout << "> PART 1\n";
-    std::map<Location, std::set<Element>> locations_to_microchips =
-        { { FLOOR1, {} },
-          { FLOOR2, {} },
-          { FLOOR3, {} },
-          { FLOOR4, {} },
-          { ELEVATOR, {} } };
-    std::map<Location, std::set<Element>> locations_to_generators = locations_to_microchips;
-    locations_to_microchips[FLOOR1].insert(THULIUM);
-    locations_to_microchips[FLOOR2].insert(PLUTONIUM);
-    locations_to_microchips[FLOOR2].insert(STRONTIUM);
-    locations_to_microchips[FLOOR3].insert(PROMETHIUM);
-    locations_to_microchips[FLOOR3].insert(RUTHENIUM);
-    locations_to_generators[FLOOR1].insert(THULIUM);
-    locations_to_generators[FLOOR1].insert(PLUTONIUM);
-    locations_to_generators[FLOOR1].insert(STRONTIUM);
-    locations_to_generators[FLOOR3].insert(PROMETHIUM);
-    locations_to_generators[FLOOR3].insert(RUTHENIUM);
+    oldStatuses.clear();
+    std::vector<std::vector<bool>>
+        locations_to_microchips(5, std::vector<bool>(5, false));
+    std::vector<std::vector<bool>>
+        locations_to_generators(5, std::vector<bool>(5, false));
+    /* Input
+       =====
+       - The first floor contains a thulium generator, a thulium-compatible
+       microchip, a plutonium generator, and a strontium generator.
+       - The second floor contains a plutonium-compatible microchip and a
+       strontium-compatible microchip.
+       - The third floor contains a promethium generator, a promethium-compatible
+       microchip, a ruthenium generator, and a ruthenium-compatible microchip.
+       - The fourth floor contains nothing relevant.
+    */
+    locations_to_microchips[FLOOR1][THULIUM] = true;
+    locations_to_microchips[FLOOR2][PLUTONIUM] = true;
+    locations_to_microchips[FLOOR2][STRONTIUM] = true;
+    locations_to_microchips[FLOOR3][PROMETHIUM] = true;
+    locations_to_microchips[FLOOR3][RUTHENIUM] = true;
+    locations_to_generators[FLOOR1][THULIUM] = true;
+    locations_to_generators[FLOOR1][PLUTONIUM] = true;
+    locations_to_generators[FLOOR1][STRONTIUM] = true;
+    locations_to_generators[FLOOR3][PROMETHIUM] = true;
+    locations_to_generators[FLOOR3][RUTHENIUM] = true;
     FacilityStatus facilityStatus(locations_to_microchips,
                                   locations_to_generators);
-    assert(31 == explore(facilityStatus));
+    const auto result = explore(facilityStatus);
+    assert(31 == result);
+    std::cout << "Part 1: " << result << std::endl;
+    oldStatuses.clear();
 }
 
 void part2() {
-    std::cout << "> PART 2\n";
-    std::map<Location, std::set<Element>> locations_to_microchips =
-        { { FLOOR1, {} },
-          { FLOOR2, {} },
-          { FLOOR3, {} },
-          { FLOOR4, {} },
-          { ELEVATOR, {} } };
-    std::map<Location, std::set<Element>> locations_to_generators = locations_to_microchips;
-    locations_to_microchips[FLOOR1].insert(THULIUM);
-    locations_to_microchips[FLOOR2].insert(PLUTONIUM);
-    locations_to_microchips[FLOOR2].insert(STRONTIUM);
-    locations_to_microchips[FLOOR3].insert(PROMETHIUM);
-    locations_to_microchips[FLOOR3].insert(RUTHENIUM);
-    locations_to_generators[FLOOR1].insert(THULIUM);
-    locations_to_generators[FLOOR1].insert(PLUTONIUM);
-    locations_to_generators[FLOOR1].insert(STRONTIUM);
-    locations_to_generators[FLOOR3].insert(PROMETHIUM);
-    locations_to_generators[FLOOR3].insert(RUTHENIUM);
-    locations_to_microchips[FLOOR1].insert(ELERIUM);
-    locations_to_microchips[FLOOR1].insert(DILITHIUM);
-    locations_to_generators[FLOOR1].insert(ELERIUM);
-    locations_to_generators[FLOOR1].insert(DILITHIUM);
+    oldStatuses.clear();
+    std::vector<std::vector<bool>>
+        locations_to_microchips(5, std::vector<bool>(7, false));
+    std::vector<std::vector<bool>>
+        locations_to_generators(5, std::vector<bool>(7, false));
+    locations_to_microchips[FLOOR1][THULIUM] = true;
+    locations_to_microchips[FLOOR2][PLUTONIUM] = true;
+    locations_to_microchips[FLOOR2][STRONTIUM] = true;
+    locations_to_microchips[FLOOR3][PROMETHIUM] = true;
+    locations_to_microchips[FLOOR3][RUTHENIUM] = true;
+    locations_to_generators[FLOOR1][THULIUM] = true;
+    locations_to_generators[FLOOR1][PLUTONIUM] = true;
+    locations_to_generators[FLOOR1][STRONTIUM] = true;
+    locations_to_generators[FLOOR3][PROMETHIUM] = true;
+    locations_to_generators[FLOOR3][RUTHENIUM] = true;
+    locations_to_microchips[FLOOR1][ELERIUM] = true;
+    locations_to_microchips[FLOOR1][DILITHIUM] = true;
+    locations_to_generators[FLOOR1][ELERIUM] = true;
+    locations_to_generators[FLOOR1][DILITHIUM] = true;
     FacilityStatus facilityStatus(locations_to_microchips,
                                   locations_to_generators);
-    std::cout <<  explore(facilityStatus) << std::endl;
+    const auto result = explore(facilityStatus);
+    assert(55 == result);
+    std::cout << "Part 2: " << result << std::endl;
+    oldStatuses.clear();
 }
 
 int main() {
+    test();
     example();
     part1();
-//  part2();
+    part2();
 }
