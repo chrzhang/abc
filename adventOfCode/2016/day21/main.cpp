@@ -74,6 +74,14 @@ existing passwords by reversing the scrambling process.
 What is the un-scrambled version of the scrambled password fbgdceah?
 */
 
+static std::regex swapIndicesRegex("^swap position ([0-9]+) with position ([0-9]+)$");
+static std::regex swapLetterRegex("^swap letter ([a-z]) with letter ([a-z])$");
+static std::regex rotateLeftRegex("^rotate left ([0-9]+) step[s]?$");
+static std::regex rotateRightRegex("^rotate right ([0-9]+) step[s]?$");
+static std::regex rotateBasedOnRegex("^rotate based on position of letter ([a-z])$");
+static std::regex reverseIndicesRegex("^reverse positions ([0-9]+) through ([0-9]+)$");
+static std::regex moveRegex("^move position ([0-9]+) to position ([0-9]+)$");
+
 int toInt(const std::string & someString) {
     int result = 0;
     std::stringstream ss(someString);
@@ -201,13 +209,6 @@ std::string part1(const char * filename) {
     }
     Password p("abcdefgh");
     std::string currentLine;
-    std::regex swapIndicesRegex("^swap position ([0-9]+) with position ([0-9]+)$");
-    std::regex swapLetterRegex("^swap letter ([a-z]) with letter ([a-z])$");
-    std::regex rotateLeftRegex("^rotate left ([0-9]+) step[s]?$");
-    std::regex rotateRightRegex("^rotate right ([0-9]+) step[s]?$");
-    std::regex rotateBasedOnRegex("^rotate based on position of letter ([a-z])$");
-    std::regex reverseIndicesRegex("^reverse positions ([0-9]+) through ([0-9]+)$");
-    std::regex moveRegex("^move position ([0-9]+) to position ([0-9]+)$");
     while (std::getline(inputFile, currentLine)) {
         std::smatch result;
         if (std::regex_search(currentLine, result, swapIndicesRegex)) {
@@ -250,13 +251,6 @@ std::string part2(const char * filename) {
         return "";
     }
     Password p("fbgdceah");
-    std::regex swapIndicesRegex("^swap position ([0-9]+) with position ([0-9]+)$");
-    std::regex swapLetterRegex("^swap letter ([a-z]) with letter ([a-z])$");
-    std::regex rotateLeftRegex("^rotate left ([0-9]+) step[s]?$");
-    std::regex rotateRightRegex("^rotate right ([0-9]+) step[s]?$");
-    std::regex rotateBasedOnRegex("^rotate based on position of letter ([a-z])$");
-    std::regex reverseIndicesRegex("^reverse positions ([0-9]+) through ([0-9]+)$");
-    std::regex moveRegex("^move position ([0-9]+) to position ([0-9]+)$");
     std::vector<std::string> instructions;
     {
         std::string currentLine;
