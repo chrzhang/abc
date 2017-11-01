@@ -6,7 +6,7 @@ type Position = (Double, Double, Double) --x, y, z
 type Body = (Mass, Position)
 
 calcMassesOverDists :: [Body] -> [Double]
-calcMassesOverDists bodies = map(\body -> sum (calcMMoD body bodies)) bodies
+calcMassesOverDists bodies = map (\body -> sum (calcMMoD body bodies)) bodies
 
 calcMMoD :: Body -> [Body] -> [Double]
 calcMMoD body bodies = map (mMoDHelper body) bodies
