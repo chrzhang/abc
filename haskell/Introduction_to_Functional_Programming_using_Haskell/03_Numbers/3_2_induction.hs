@@ -1,0 +1,168 @@
+import System.IO
+
+-- 3.2.1 Prove that Succ Zero is a left unit of *.
+-- In other words, prove that (Succ Zero) * p = p for all p.
+-- Recall the definition of *.
+-- m * Zero = Zero
+-- m * Succ n = (m * n) + m
+-- We'll be using induction, so let p = Zero:
+-- (Succ Zero) * Zero = Zero by first rule defining *
+-- Now assume (Succ Zero) * p = p
+-- If p is Zero, then this is already shown to be Zero.
+-- If p is Succ q, then we assume
+-- (Succ Zero) * (Succ q) = (Succ q)
+-- We would like to evaluate
+-- (Succ Zero) * Succ (Succ q)
+-- = (Succ Zero) * (Succ q) + (Succ Zero) by definition of *
+-- = (Succ q)               + (Succ Zero) by replacing with our assumption
+-- = Succ (Succ q) by definition of addition
+-- By induction, Succ Zero is a left unit of * for all n. QED
+
+-- 3.2.2 Prove that if operator op has a left unit a and a right unit b, then
+-- a = b
+-- Assume op has a left unit a and a right unit b. This means
+-- a op c = c
+-- c op b = c
+-- a op b = b by pattern matching the first definition
+-- a op b = a by pattern matching the second definition
+-- By the transitive property, a = b. QED
+
+-- 3.2.3 Does the law x ^ (m + n) = (x ^ m) * (x ^ n) hold for all natural
+-- numbers x, m, and n?
+-- First let's show that * is associative, that is, (a * b) * c = a * (b * c)
+-- Let's do induction on c.
+-- Case c = Zero:
+    -- (a * b) * Zero = Zero by definition of *
+    -- a * (b * Zero) = a * Zero = Zero by definition of *
+-- Case c = c:
+    -- Assume (a * b) * c = a * (b * c)
+    -- We would like to evaluate if (a * b) * Succ c = a * (b * Succ c)
+    -- Start with the left-hand side:
+        -- (a * b) * Succ c
+        -- = ((a * b) * c) + (a * b) by definition of *
+        -- = (a * (b * c))) + (a * b) by replacing with our assumption
+    -- Now for the right-hand side:
+        -- a * (b * Succ c)
+        -- = a * ((b * c) + b) by definition of *
+        -- = (a * (b * c)) + (a * b) by using the distributive property of *.
+-- By induction, we have shown that * is associative.
+-- Now to prove that x ^ (m + n) = (x ^ m) * (x ^ n), we perform induction on n.
+-- Case n = 0:
+    -- x ^ (m + Zero)
+    -- = x ^ m
+    -- (x ^ m) * (x ^ Zero)
+    -- = (x ^ m) * Succ Zero
+    -- = x ^ m
+-- Case n = n:
+    -- Assume x ^ (m + n) = (x ^ m) * (x ^ n)
+    -- We would like to evaluate if x ^ (m + Succ n) = (x ^ m) * (x ^ Succ n)
+    -- Start with the left-hand side:
+        -- x ^ (m + Succ n)
+        -- = x ^ (Succ (m + n))
+        -- = (x ^ (m + n)) * x
+        -- = (x ^ m * x ^ n) * x
+    -- Now for the right hand side:
+        -- (x ^ m) * ((x ^ n) * x)
+-- Since we proved * is associative, QED.
+
+-- 3.2.4 Prove that + is associative, that is, (m + n) + p = m + (n + p) for all
+-- natural numbers x, m, and p.
+-- Perform induction over p.
+-- Case p = Zero:
+    -- (m + n) + Zero = m + n by definition of +
+    -- m + (n + p) = m + (n + Zero) = m + n by definition of +
+-- Case p = p:
+    -- Assume (m + n) + p = m + (n + p)
+    -- We would like to evaluate if (m + n) + Succ p = m + (n + Succ p)
+    -- Start with the left-hand side:
+        -- (m + n) + Succ p
+        -- = Succ (m + n + p)
+    -- Now for the right-hand side:
+        -- m + (n + Succ p)
+        -- = m + (Succ n + p)
+        -- = Succ (m + n + p)
+-- QED
+
+-- 3.2.5 Prove that * distributes over +, that is, 
+-- k * (m + n) = (k * m) + (k * n)
+-- Induct over k.
+-- Case k = Zero:
+    -- k * (m + n) = Zero * (m + n) = Zero by definition of *
+    -- (k * m) + (k * n) = (Zero * m) + (k * n) = Zero + (k * n)
+    -- = Zero + (Zero * n) = Zero + Zero = Zero by definition of + and *
+-- Case k = k:
+    -- Assume k * (m + n) = (k * m) + (k * n)
+    -- Evaluate if Succ k * (m + n) = ((Succ k) * m) + ((Succ k) * n)
+    -- Start with the left-hand side:
+        -- Succ k * (m + n)
+        -- = (k * (m + n)) + (m + n) by the definition of +
+        -- = ((k * m) + (k * n)) + (m + n) by replacing with our assumption
+        -- = (k * m) + (k * n) + (m + n) since + is associative
+    -- Now for the right-hand side:
+        -- ((Succ k) * m) + ((Succ k) * n)
+        -- ((k * m) + m) + ((k * n) + n)
+        -- = (k * m) + (k * n) + (m + n) since + is associative
+-- QED
+
+-- 3.2.6 Define ∩ by
+    -- Zero ∩ n = Zero
+    -- Succ m ∩ Zero = Zero
+    -- Succ m ∩ Succ n = Succ (m ∩ n)
+-- What operation on integers does ∩ correspond to?
+-- min
+-- Prove that m ∩ infinity = m for all elements m of Nat, finite, partial, or
+-- infinite.
+-- For finite elements, induct over m.
+-- Case m = Zero:
+    -- Zero ∩ infinity = Zero by definition of ∩
+-- Case m = m:
+    -- Assume m ∩ infinity = m
+    -- Evaluate if Succ m ∩ infinity = Succ m
+    -- Succ m ∩ infinity
+    -- = Succ m ∩ Succ infinity by definition of infinity
+    -- = Succ (m ∩ infinity) by definition of ∩
+    -- = Succ m by replacing with our assumption
+-- For partial elements, induct over m.
+-- Case m = bottom:
+    -- Zero ∩ bottom = Zero by definition of ∩
+-- Case m = m:
+    -- Same logic as the finite case
+-- For the infinite element
+    -- infinity ∩ infinity
+    -- = Succ infinity ∩ Succ infinity
+    -- = Succ (infinity ∩ infinity)
+-- Since we have proved that the property holds for all partial numbers, the
+-- property also holds for infinity.
+
+-- 3.2.7. The claim made in the text is that if P(n) is an equation that holds
+-- for all partial numbers n, then P(infinity) holds as well. Any free variables
+-- in P are required to be universally quantified. For instance, we can take
+-- P(n) to be any of the propositions
+-- (for all x and m) x ^ (m+ n) = (x ^ m) * (x ^ n)
+-- (for all m)       (m + n) - n = m
+-- However, we cannot in general take P(n) to be an equation that involves an
+-- existentially quantified variable. Consider, for instance, the proposition
+-- P(n) given by
+-- (for some finite number m) n Θ m = bottom
+-- where Θ is the total version of subtraction, satisfying n Θ m = Zero if
+-- n < m. Show by induction that P(n) holds for all partial numbers n.
+    -- Case m = bottom:
+        -- n Θ bottom = bottom since rule does not exist
+    -- Case m = m:
+        -- Assume n Θ m = bottom
+        -- Evaluate if n Θ Succ m = bottom
+        -- Since no rule exists, n Θ Succ m = bottom
+-- Prove, also by induction, that infinity Θ m = infinity for all finite
+-- numbers m.
+    -- Case m = Zero
+        -- infinity Θ Zero = infinity by definition of Θ
+    -- Case m = m
+        -- Assume infinity Θ m = infinity
+        -- Evaluate if infinity Θ Succ m = infinity
+        -- infinity Θ Succ m
+        -- = Succ infinity Θ Succ m by definition of infinity
+        -- = infinity Θ m by definition of Θ
+        -- = infinity by replacing with our assumption
+-- QED
+
+main = return ()
