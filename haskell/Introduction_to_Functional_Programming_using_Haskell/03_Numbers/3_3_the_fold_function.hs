@@ -11,6 +11,8 @@ foldn h c (Succ n) = h (foldn h c n)
 -- 3.3.1 Prove that foldn Succ Zero n = n for all elements n of Nat, finite,
 -- partial, or infinite.
 -- Induct over n.
+-- Case n = bottom:
+    -- foldn Succ Zero bottom exhausts all cases, resulting in bottom
 -- Case n = Zero:
     -- foldn Succ Zero n
     -- = foldn Succ Zero Zero by substitution
