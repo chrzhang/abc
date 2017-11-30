@@ -159,10 +159,12 @@ sameSumSquareQuads n = [(a, b, c, d) | a <- [1..n], b <- [a..n],
     -- = concat (map f [1..n]) where f x = concat (map f' [1..n]) where f' x = [(x, y) | odd x]
     --                                                                         [e      | p, Q] fits the guard rule
     -- = concat (map f [1..n]) where f x = concat (map f' [1..n]) where f' x = if odd x then [(x, y)] else []
--- The comprehensions are equal because they both generate a subset of all possible pairings of the numbers [1..n] where the first is odd
--- The order of the individual steps taken to achieve the result is what differs.
--- By filtering on odd x earlier in the first comprehension, there are fewer pairings generated so the first is less costly than the second,
--- which generates all possible pairings before filtering.
+-- The comprehensions are equal because they both generate a subset of all
+-- possible pairings of the numbers [1..n] where the first is odd. The order of
+-- the individual steps taken to achieve the result is what differs. By
+-- filtering on odd x earlier in the first comprehension, there are fewer
+-- pairings generated so the first is less costly than the second, which
+-- generates all possible pairings before filtering.
 
 
 main :: IO ()
