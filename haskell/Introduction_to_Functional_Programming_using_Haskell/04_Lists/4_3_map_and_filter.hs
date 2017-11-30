@@ -17,13 +17,12 @@ import Control.Exception
 -- map map [a, b, c]
 -- = [map a, map b, map c] by definition of map
 -- Since the items of xs are the first inputs to map, they are of type
--- (a -> b) and the list as a whole is of type [ a -> b ]
--- What is returned is the type of [map a, map b, map c]
+-- (a -> b) and the input list as a whole is of type [a -> b]
+-- What is returned has the same type as that of [map a, map b, map c]
 -- The type of the individual items can be found by looking at the type of map a
 -- map a accepts a list and returns a list, i.e. [a] -> [b]
--- Thus, the overall type of the return is [ [a] -> [b] ]
--- And the type of map map is
--- [a -> b] -> [[a] -> [b]]
+-- Thus, the overall type of the output is [[a] -> [b]]
+-- And so, the type of map map is [a -> b] -> [[a] -> [b]]
 
 -- 4.3.4 Prove that map f (xs ++ ys) = map f xs ++ map f ys.
 -- Prove by induction over xs.
