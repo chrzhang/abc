@@ -77,7 +77,9 @@ sum_digits :: [Char] -> Int
 sum_digits s = sum (map digitToInt s)
 
 day1_solve :: [Char] -> Int -> Int
-day1_solve s n = sum_digits (zipWith (\x y-> if x then y else '0') (lists_equal s (rotate n s)) s)
+day1_solve s n = sum_digits (zipWith to_digit comparison s)
+                 where to_digit = (\x y-> if x then y else '0')
+                       comparison = lists_equal s (rotate n s)
 
 day1a_solve :: [Char] -> Int
 day1a_solve s = day1_solve s 1
