@@ -1,4 +1,4 @@
-import System.IO
+import System.IO()
 import Control.Exception
 import Data.Char
 
