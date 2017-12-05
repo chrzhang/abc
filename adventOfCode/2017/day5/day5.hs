@@ -1,5 +1,4 @@
 import Control.Exception
-import Data.Maybe
 import Data.Sequence
 
 {-
