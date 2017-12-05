@@ -69,11 +69,11 @@ outofbounds (_, ci, offs) = ci < 0 || ci >= Data.Sequence.length offs
 
 day5a_solve :: (Int, Int, [Int]) -> Int
 day5a_solve (i, ci, offs) = si
-                 where (si, _, _) = until outofbounds (step (+1)) (i, ci, fromList offs)
+    where (si, _, _) = until outofbounds (step (+1)) (i, ci, fromList offs)
 
 day5b_solve :: (Int, Int, [Int]) -> Int
 day5b_solve (i, ci, offs) = si
-                 where (si, _, _) = until outofbounds (step (\x -> if x >= 3 then x - 1 else x + 1)) (i, ci, fromList offs)
+    where (si, _, _) = until outofbounds (step (\x -> if x >= 3 then x - 1 else x + 1)) (i, ci, fromList offs)
 
 main :: IO ()
 main = do
