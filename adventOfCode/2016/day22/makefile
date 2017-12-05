@@ -1,5 +1,5 @@
-# Compiler of choice
-CC=g++-4.9
+# Compiler of choice, g++ -v should be at least 4.9 for regexes
+CC=g++
 
 # Flags for the compiler
 CFLAGS=-c -Wall -Wfatal-errors -g -ggdb -Ofast -pedantic-errors -std=c++11
