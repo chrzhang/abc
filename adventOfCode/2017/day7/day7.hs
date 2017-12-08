@@ -149,7 +149,7 @@ day7b_solve ns r = weightonly (snd oddity) ns + discrep
                          wn c = (weight c ns, c)
                          an = ans !! 0
                          -- All parent nodes of the unbalanced node will be
-                         -- unbalanced so need to change he deepest node
+                         -- unbalanced so need to change the deepest node
                          nord = reverse $ bfs_flat ns r
                          (minw, maxw) = (minimum $ map fst an,
                                          maximum $ map fst an)
@@ -171,9 +171,9 @@ to_nodedata c = [(na, (wt, ch)) | cwl <- wordlines,
 main :: IO ()
 main = do
     sample_contents <- readFile "sample_input.txt"
+    let sample_nodes = to_nodedata sample_contents
     contents <- readFile "input.txt"
     let indata = to_nodedata contents
-    let sample_nodes = to_nodedata sample_contents
     let day7a_result = day7a_solve indata
     let day7b_result = day7b_solve indata day7a_result
     putStrLn (unwords [ assert (day7a_solve sample_nodes == "tknk") "+",
