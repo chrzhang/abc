@@ -146,7 +146,7 @@ main = do
                          assert (day9a_solve "{{<a!>},{<a!>},{<a!>},{<ab>}}" == 3) "+",
                          assert (day9a_result == 14204) "+",
                          assert (day9b_solve "<>" == 0) "+",
-                         assert (day9b_solve "<random characters" == 17) "+",
+                         assert (day9b_solve "<random characters>" == 17) "+",
                          assert (day9b_solve "<<<<>" == 3) "+",
                          assert (day9b_solve "<{!>}>" == 2) "+",
                          assert (day9b_solve "<!!>" == 0) "+",
