@@ -40,6 +40,8 @@ se,sw,se,sw,sw is 3 steps away (s,s,sw).
 How many steps away is the furthest he ever got from his starting position?
 -}
 
+-- y axis runs NW (+) and SE (-) from the origin
+-- x axis runs NE (+) and SW (-) from the origin
 move :: String -> (Int, Int) -> (Int, Int)
 move "n" (x, y) = (x + 1, y + 1)
 move "ne" (x, y) = (x + 1, y)
@@ -55,6 +57,8 @@ movepath ds = foldl (flip move) (0, 0) ds
 getdist :: Int -> Int -> Int
 getdist dstx dsty
     -- Can use North or South to move (1, 1) or (-1, 1) in one step
+    -- e.g. If the point is at (-2, -5), moving s twice will go to (-2, -2)
+    -- which minimizes steps taken
     | (dstx < 0 && dsty < 0) || (dstx > 0 && dsty > 0) = mxadst
     | otherwise = adstx + adsty
     where (adstx, adsty) = (abs dstx, abs dsty)
