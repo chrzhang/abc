@@ -133,11 +133,8 @@ getlower16bits n = n .&. 0xFFFF
 lower16bitsmatch :: Int -> Int -> Bool
 lower16bitsmatch x y = getlower16bits x == getlower16bits y
 
-a_factor :: Int
-a_factor = 16807
-
-b_factor :: Int
-b_factor = 48271
+a_factor, b_factor :: Int
+(a_factor, b_factor) = (16807, 48271)
 
 nextvalue :: Int -> Int -> Int
 nextvalue mf n = (n * mf) `mod` 2147483647
