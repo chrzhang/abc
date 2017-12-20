@@ -1,4 +1,5 @@
 import Control.Exception
+import Data.Maybe (fromMaybe)
 
 {-
 From http://adventofcode.com/2017/day/8
@@ -59,7 +60,7 @@ next (is, ii, rs) = (is, ii + 1, upd ci)
           upd (Decr s d lo op ro) =
               if eval (lo, op, ro) rs then chgreg s (-d) rs else rs
 
-tocmp :: Ord a => String -> (a -> a -> Bool)
+tocmp :: Ord a => String -> a -> a -> Bool
 tocmp x = case x of "<"  -> (<)
                     "<=" -> (<=)
                     ">"  -> (>)
@@ -74,25 +75,20 @@ eval (lo, op, ro) rs = ord rv ro
                   rv = getval lo rs
 
 chgreg :: String -> Int -> Regs -> Regs
-chgreg r d rs = chgreg' (r, d) rs
-                where chgreg' (k, v) [] = [(k, v)]
-                      chgreg' (k, v) ((a, b):xs) =
-                          if k == a then (k, b + v) : xs
-                          else (a, b) : chgreg' (k, v) xs
+chgreg r d = chgreg' (r, d)
+             where chgreg' (k, v) [] = [(k, v)]
+                   chgreg' (k, v) ((a, b):xs) = if k == a then (k, b + v) : xs
+                                                else (a, b) : chgreg' (k, v) xs
 
 getval :: String -> Regs -> Int
-getval r rs = case found of Nothing -> 0
-                            Just x -> x
-              where found = lookup r rs
+getval r rs = fromMaybe 0 (lookup r rs)
 
-to_instrs :: [[String]] -> [Instr]
-to_instrs xs = map to_instr xs
-               where to_instr [r, "inc", d, "if", lo, op, ro] =
-                        Incr r (toint d) lo op (toint ro)
-                     to_instr [r, "dec", d, "if", lo, op, ro] =
-                        Decr r (toint d) lo op (toint ro)
-                     to_instr _ = error "Not valid instruction."
-                     toint d = read d :: Int
+toInstrs :: [[String]] -> [Instr]
+toInstrs = map to_instr
+            where to_instr [r, "inc", d, "if", lo, op, ro] = Incr r (toint d) lo op (toint ro)
+                  to_instr [r, "dec", d, "if", lo, op, ro] = Decr r (toint d) lo op (toint ro)
+                  to_instr _ = error "Not valid instruction."
+                  toint d = read d :: Int
 
 day8a_solve :: [Instr] -> Int
 day8a_solve instrs = get_mx fs
@@ -112,9 +108,9 @@ day8b_solve instrs = max' $ map get_mx vs
 main :: IO ()
 main = do
     sample_contents <- readFile "sample_input.txt"
-    let sample_instrs = to_instrs $ map words $ lines sample_contents
+    let sample_instrs = toInstrs $ map words $ lines sample_contents
     contents <- readFile "input.txt"
-    let instrs = to_instrs $ map words $ lines contents
+    let instrs = toInstrs $ map words $ lines contents
     let day8a_result = day8a_solve instrs
     let day8b_result = day8b_solve instrs
     putStrLn (unwords [ assert (day8a_solve sample_instrs == 10) "+",
