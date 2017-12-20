@@ -322,7 +322,7 @@ pass through the firewall without being caught?
 type LayerDepths = [(Int, Int)]
 
 posattick :: Int -> Int -> LayerDepths -> Int
-posattick l t lds = case s of Just d -> c !! (mod t (length c))
+posattick l t lds = case s of Just d -> c !! mod t (length c)
                                         where c = r ++ init (tail (reverse r))
                                               r = [0..d - 1]
                               Nothing -> error "Unknown layer."
@@ -340,20 +340,20 @@ day13b_solve lds = length $ takeWhile (elem 0) justposs
                    where poslayerranges = map (poss lds) [0..]
                          justposs = map (map (\(x, _, _) -> x)) poslayerranges
 
-to_layerdepths :: String -> LayerDepths
-to_layerdepths cts = map (\x -> (read (x !! 0) :: Int,
-                                 read (x !! 1) :: Int)) readlines
-                     where readlines = map (map (filter (/=':'))) ws
-                           ws = map words (lines cts)
+toLayerDepths :: String -> LayerDepths
+toLayerDepths cts = map (\x -> (read (head x) :: Int,
+                                read (x !! 1) :: Int)) readlines
+                    where readlines = map (map (filter (/=':'))) ws
+                          ws = map words (lines cts)
 
 main :: IO ()
 main = do
     sample_contents <- readFile "sample_input.txt"
-    let sample_layer_depths = to_layerdepths sample_contents
+    let sample_layer_depths = toLayerDepths sample_contents
     let samplea_result = day13a_solve sample_layer_depths
     let sampleb_result = day13b_solve sample_layer_depths
     contents <- readFile "input.txt"
-    let layer_depths = to_layerdepths contents
+    let layer_depths = toLayerDepths contents
     let day13a_result = day13a_solve layer_depths
     let day13b_result = day13b_solve layer_depths
     putStrLn (unwords [ assert (samplea_result == 24) "+",
