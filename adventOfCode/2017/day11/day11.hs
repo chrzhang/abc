@@ -52,7 +52,7 @@ move "sw" (x, y) = (x - 1, y)
 move _ _ = error "Unknown direction."
 
 movepath :: [String] -> (Int, Int)
-movepath ds = foldl (flip move) (0, 0) ds
+movepath = foldl (flip move) (0, 0)
 
 getdist :: Int -> Int -> Int
 getdist dstx dsty
@@ -69,7 +69,7 @@ day11a_solve ds = getdist dstx dsty
                   where (dstx, dsty) = movepath ds
 
 entirepath :: [String] -> [(Int, Int)]
-entirepath ds = scanl (flip move) (0, 0) ds
+entirepath = scanl (flip move) (0, 0)
 
 day11b_solve :: [String] -> Int
 day11b_solve ds = maximum ed
@@ -79,7 +79,7 @@ day11b_solve ds = maximum ed
 main :: IO ()
 main = do
     contents <- readFile "input.txt"
-    let dirs = words $ map (\x -> if x == ',' then ' ' else x) $ lines contents !! 0
+    let dirs = words $ map (\x -> if x == ',' then ' ' else x) $ head $ lines contents
     let day11a_result = day11a_solve dirs
     let day11b_result = day11b_solve dirs
     putStrLn (unwords [ assert (3 == day11a_solve ["ne", "ne", "ne"]) "+",
