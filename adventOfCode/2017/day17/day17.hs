@@ -81,7 +81,7 @@ insertafter x i xs = before ++ x : after
 type State = ([Int], Int, Int)
 
 nextpos :: State -> Int
-nextpos (xs, s, c) = (c + s) `mod` (length xs)
+nextpos (xs, s, c) = (c + s) `mod` length xs
 
 nextstate :: State -> State
 nextstate (xs, step, cindex) = (nxs, step, nindex + 1)
@@ -90,14 +90,14 @@ nextstate (xs, step, cindex) = (nxs, step, nindex + 1)
 
 day17a_solve :: Int -> Int
 day17a_solve s = fxs !! ni
-                 where (fxs, _, fc) = (iterate nextstate ([0], s, 0)) !! 2017
-                       ni = (fc + 1) `mod` (length fxs)
+                 where (fxs, _, fc) = iterate nextstate ([0], s, 0) !! 2017
+                       ni = (fc + 1) `mod` length fxs
 
 -- 0 always stays at the front since a value will never be inserted before it.
 -- The value after zero is created only when the spinlock lands on zero and
 -- inserts into position 1.
 day17b_solve :: Int -> Int
-day17b_solve s = (snd $ last h0) - 1
+day17b_solve s = snd (last h0) - 1
                  where is = iterate (\(x, l) -> ((x + s) `mod` l + 1, l + 1)) (0, 1)
                        fmis = take 50000000 $ tail is
                        h0 = filter ((1==) . fst) fmis
