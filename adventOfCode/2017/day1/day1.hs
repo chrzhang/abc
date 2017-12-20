@@ -70,21 +70,21 @@ rotate :: Int -> [a] -> [a]
 rotate _ [] = []
 rotate n xs = zipWith const (drop n (cycle xs)) xs
 
-lists_equal :: Eq a => [a] -> [a] -> [Bool]
-lists_equal xs ys = zipWith (==) xs ys
+listsEqual :: Eq a => [a] -> [a] -> [Bool]
+listsEqual = zipWith (==)
 
-sum_digits :: [Char] -> Int
-sum_digits s = sum (map digitToInt s)
+sumDigits :: String -> Int
+sumDigits s = sum (map digitToInt s)
 
-day1_solve :: [Char] -> Int -> Int
-day1_solve s n = sum_digits (zipWith to_digit comparison s)
-                 where to_digit = (\x y-> if x then y else '0')
-                       comparison = lists_equal s (rotate n s)
+day1_solve :: String -> Int -> Int
+day1_solve s n = sumDigits (zipWith to_digit comparison s)
+                 where to_digit x y = if x then y else '0'
+                       comparison = listsEqual s (rotate n s)
 
-day1a_solve :: [Char] -> Int
+day1a_solve :: String -> Int
 day1a_solve s = day1_solve s 1
 
-day1b_solve :: [Char] -> Int
+day1b_solve :: String -> Int
 day1b_solve s = day1_solve s (length s `div` 2)
 
 main :: IO ()
@@ -103,5 +103,5 @@ main = do
                        assert (day1b_solve "12131415" ==4) "+",
                        assert (day1b_solve input == 1156) "+"
                       ])
-    putStrLn ("Part 1: " ++ (show (day1a_solve input)))
-    putStrLn ("Part 2: " ++ (show (day1b_solve input)))
+    putStrLn $ "Part 1: " ++ show (day1a_solve input)
+    putStrLn $ "Part 2: " ++ show (day1b_solve input)
