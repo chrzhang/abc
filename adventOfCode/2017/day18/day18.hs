@@ -1,4 +1,5 @@
 import Control.Exception
+import Data.Maybe
 
 {-
 From http://adventofcode.com/2017/day/18
@@ -129,9 +130,7 @@ getvalue :: String -> Registers -> Int
 getvalue x rs
     | length x == 1 && elem (head x) ['a'..'z'] = getvaluereg (head x) rs
     | otherwise = read x :: Int
-    where getvaluereg y ys = case l of Nothing -> 0
-                                       Just z -> z
-                             where l = lookup y ys
+    where getvaluereg y ys = fromMaybe 0 (lookup y ys)
 
 setreg :: Char -> String -> Registers -> Registers
 setreg r x rs = upd r (getvalue x rs) rs
@@ -146,7 +145,7 @@ mulreg :: Char -> String -> Registers -> Registers
 mulreg r x rs = opreg r x rs (*)
 
 modreg :: Char -> String -> Registers -> Registers
-modreg r x rs = opreg r x rs (mod)
+modreg r x rs = opreg r x rs mod
 
 jmp :: String -> String -> Int -> Registers -> Int
 jmp x y ci rs
@@ -164,6 +163,9 @@ next1 st
     | not $ isvalid1 st = error "State is not valid."
     | otherwise = next1' st
 
+parseinstr :: [String] -> (String, Char, String, String)
+parseinstr curri = (head curri, head (curri !! 1), curri !! 1, curri !! 2)
+
 next1' :: State -> State
 next1' (rs, instrs, ii, ls)
     | currcmd == "snd" = (rs, instrs, ii + 1, getvalue val1 rs)
@@ -175,17 +177,14 @@ next1' (rs, instrs, ii, ls)
     | currcmd == "jgz" = (rs, instrs, jmp val1 val2 ii rs, ls)
     | otherwise = error "Unsupported command."
     where curri = words $ instrs !! ii
-          currcmd = curri !! 0
-          reg = head $ (curri !! 1)
-          val1 = curri !! 1
-          val2 = curri !! 2
+          (currcmd, reg, val1, val2) = parseinstr curri
 
 recvwithnzero :: State -> Bool
 recvwithnzero (rs, instrs, ii, _)
     | currcmd == "rcv" && getvalue val1 rs /= 0 = True
     | otherwise = False
     where curri = words $ instrs !! ii
-          currcmd = curri !! 0
+          currcmd = head curri
           val1 = curri !! 1
 
 day18a_solve :: Instrs -> Int
@@ -220,10 +219,7 @@ next2p1 ds@(DState r1' r2' is' i1' i2' wp' ctr' pipe1' pipe2')
     | currcmd == "rcv" = next2rcv1 ds
     | otherwise = error "Unsupported command."
     where curri = words $ is ds !! i1 ds
-          currcmd = curri !! 0
-          reg = head $ (curri !! 1)
-          val1 = curri !! 1
-          val2 = curri !! 2
+          (currcmd, reg, val1, val2) = parseinstr curri
 
 next2p2 :: DState -> DState
 next2p2 ds = flipst fs
@@ -234,12 +230,12 @@ next2p2 ds = flipst fs
 
 next2snd1 :: DState -> DState
 next2snd1 (DState r1' r2' is' i1' i2' wp' ctr' pipe1' pipe2') =
-    DState r1' r2' is' (i1' + 1) i2' wp' ctr' ((getvalue sndval r1'):pipe1') pipe2'
+    DState r1' r2' is' (i1' + 1) i2' wp' ctr' (getvalue sndval r1':pipe1') pipe2'
     where sndval = words (is' !! i1') !! 1
 
 next2snd2 :: DState -> DState
 next2snd2 (DState r1' r2' is' i1' i2' wp' ctr' pipe1' pipe2') =
-    DState r1' r2' is' i1' (i2' + 1) wp' (ctr' + 1) pipe1' ((getvalue sndval r2'):pipe2')
+    DState r1' r2' is' i1' (i2' + 1) wp' (ctr' + 1) pipe1' (getvalue sndval r2':pipe2')
     where sndval = words (is' !! i2') !! 1
 
 isvalid2 :: Choice -> DState -> Bool
@@ -252,7 +248,7 @@ next2rcv1 ds@(DState r1' r2' is' i1' i2' wp' ctr' pipe1' pipe2')
         DState (setreg rcvval (show $ last pipe2') r1') r2' is' (i1' + 1) i2' wp' ctr' pipe1' (init pipe2')
     | not (isvalid2 Prog2 ds) = -- Cannot consume, other program died
         DState r1' r2' is' (-1) (-1) Prog1 ctr' pipe1' pipe2'
-    | pipe1' == [] && othercmd == "rcv" = -- Deadlock
+    | null pipe1' && othercmd == "rcv" = -- Deadlock
         DState r1' r2' is' (-1) (-1) Prog1 ctr' pipe1' pipe2'
     | otherwise = DState r1' r2' is' i1' i2' Prog2 ctr' pipe1' pipe2' -- Switch programs
     where rcvval = head $ words (is' !! i1') !! 1
@@ -266,14 +262,14 @@ next2 ds@(DState _ _ is' i1' i2' wp' _ _ _)
     | wp' == Prog2 = next2p2 ds
     | otherwise = error "Impossible state."
     where curri = words $ is' !! (if wp' == Prog1 then i1' else i2')
-          currcmd = curri !! 0
+          currcmd = head curri
 
-initial_dstate :: [String] -> DState
-initial_dstate instrs = DState [('p', 0)] [('p', 1)] instrs 0 0 Prog1 0 [] []
+initialDState :: [String] -> DState
+initialDState instrs = DState [('p', 0)] [('p', 1)] instrs 0 0 Prog1 0 [] []
 
 day18b_solve :: Instrs -> Int
 day18b_solve instrs = ctr $ last vstates
-                      where dstates = iterate next2 (initial_dstate instrs)
+                      where dstates = iterate next2 (initialDState instrs)
                             vstates = takeWhile (\s -> isvalid2 Prog1 s || isvalid2 Prog2 s) dstates
 
 main :: IO ()
