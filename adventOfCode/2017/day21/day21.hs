@@ -121,9 +121,6 @@ initGrid = [".#.",
             "..#",
             "###"]
 
-sizeOf :: Grid -> Int
-sizeOf = length
-
 numOn :: Grid -> Int
 numOn g = length $ filter (=='#') $ concat g
 
@@ -140,7 +137,7 @@ gridChunks g
     | s `mod` 2 == 0 = map getVals (breakNxN 2 s)
     | s `mod` 3 == 0 = map getVals (breakNxN 3 s)
     | otherwise = error "Grid size is invalid."
-    where s = sizeOf g
+    where s = length g
           getVals = map (\(r, c) -> (g !! r) !! c)
 
 intSqrt :: Int -> Int
@@ -190,15 +187,13 @@ eqNxN m1 m2
     | lm1 == 2 * 2 = eq2x2 m1 m2
     | lm1 == 3 * 3 = eq3x3 m1 m2
     | otherwise = error ("Cannot compare chunks of size: " ++ show lm1)
-    where lm1 = length m1
-          lm2 = length m2
+    where (lm1, lm2) = (length m1, length m2)
 
 eq2x2 m1 m2 = m1 `elem` transforms m2
-    where transforms m = [rotn2x2 ramt tm | tm <- [m, fliph2x2 m],
-                                            ramt <- [0..3]]
+    where transforms m = [rotn2x2 ramt tm | tm <- [m, fliph2x2 m], ramt <- [0..3]]
+
 eq3x3 m1 m2 = m1 `elem` transforms m2
-    where transforms m = [rotn3x3 ramt tm | tm <- [m, fliph3x3 m],
-                                            ramt <- [0..3]]
+    where transforms m = [rotn3x3 ramt tm | tm <- [m, fliph3x3 m], ramt <- [0..3]]
 
 trans :: [(String, String)] -> String -> String
 trans table c = seek c table
@@ -207,18 +202,15 @@ seek :: String -> [(String, String)] -> String
 seek _ [] = error "No rule for transformation."
 seek n ((hk, hv):hs) = if eqNxN n hk then hv else seek n hs
 
-
 next :: Rules -> Grid -> Grid
-next r g = mergeChunks gks
-           where gks = map (trans r) (gridChunks g)
+next r g = mergeChunks $ map (trans r) (gridChunks g)
 
 states :: Rules -> [Grid]
 states r = iterate (next r) initGrid
 
 toRule :: [String] -> (String, String)
 toRule ws = (rems from, rems to)
-            where from = head ws
-                  to = ws !! 2
+            where [from, _, to] = ws
                   rems = filter (/='/')
 
 day21a_solve, day21b_solve :: Rules -> Int
