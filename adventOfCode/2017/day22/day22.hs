@@ -293,17 +293,12 @@ day22b_solve i = c
                        istate = RState (0, 0) N emps (Set.fromList i) emps 0
                        emps = Set.fromList []
 
-
-mid :: Int -> Int
-mid x
-    | x `mod` 2 == 0 = x `div` 2 - 1
-    | otherwise = x `div` 2
-
 main :: IO ()
 main = do
     contents <- readFile "input.txt"
     let readLines = lines contents
-    let (startr, startc) = (mid $ length readLines, mid $ length $ head readLines)
+    let (startr, startc) = ((length readLines - 1) `div` 2,
+                            (length (head readLines) - 1) `div` 2)
     let infected = [(r, c) | r <- [(-startr)..startr], c <- [(-startc)..startc],
                              (readLines !! (r + startr)) !! (c + startc) /= '.']
     let day22a_result = day22a_solve infected
