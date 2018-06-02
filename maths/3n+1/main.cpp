@@ -5,19 +5,16 @@
 using namespace std;
 
 int getLengthOfSeries(const int start) {
-    int current = start;
-    int length = 0;
-    do {
-        ++length;
-        if (1 == current) {
-            break;
-        } else if (current % 2 == 1) {
-            current = 3 * current + 1;
-        } else {
-            current = current / 2;
-        }
-    } while (true);
-    return length;
+    if (1 == start) {
+        return 1;
+    }
+    int next;
+    if (start  % 2 == 1) { // Odd
+        next = 3 * start + 1;
+    } else {
+        next = start / 2;
+    }
+    return 1 + getLengthOfSeries(next);
 }
 
 int getMaxLengthOfAllSeries(const int member1, const int member2) {
