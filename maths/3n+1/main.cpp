@@ -1,10 +1,16 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <unordered_map>
 
 using namespace std;
 
 int getLengthOfSeries(const int start) {
+    static unordered_map<int, int> lengthsFound;
+    auto got = lengthsFound.find(start);
+    if (got != lengthsFound.end()) {
+        return got->second;
+    }
     if (1 == start) {
         return 1;
     }
@@ -14,7 +20,9 @@ int getLengthOfSeries(const int start) {
     } else {
         next = start / 2;
     }
-    return 1 + getLengthOfSeries(next);
+    const int result = 1 + getLengthOfSeries(next);
+    lengthsFound[start] = result;
+    return result;
 }
 
 int getMaxLengthOfAllSeries(const int member1, const int member2) {
