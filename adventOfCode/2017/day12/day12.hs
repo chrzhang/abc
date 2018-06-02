@@ -1,5 +1,6 @@
 import Control.Exception
 import Data.List
+import Data.Maybe (fromMaybe)
 
 {-
 From http://adventofcode.com/2017/day/12
@@ -79,10 +80,9 @@ data SearchState = SearchState { nodes :: [Int],
 
 next :: SearchState -> SearchState
 next ss = SearchState nnodes nvisited (graph ss)
-          where children n = case lookup n (graph ss) of Just x -> x
-                                                         Nothing -> error "Node not in graph."
-                nlayer = concat $ map children (nodes ss)
-                nnodes = filter (\x -> not $ elem x (visited ss)) nlayer
+          where children n = fromMaybe (error "Node not in graph.") (lookup n (graph ss))
+                nlayer = concatMap children (nodes ss)
+                nnodes = filter (\x -> x `notElem` visited ss) nlayer
                 nvisited = visited ss ++ nnodes
 
 bfs :: Int -> Graph -> [[Int]]
@@ -95,7 +95,7 @@ day12a_solve g = length $ concat $ bfs 0 g
 
 groups :: Graph -> [[Int]]
 groups g = takeWhile (\x -> x /= []) groups'
-           where groups' = iterate (\x -> x \\ (concat $ bfs (head x) g)) allnodes
+           where groups' = iterate (\x -> x \\ concat (bfs (head x) g)) allnodes
                  allnodes = map fst g
 
 day12b_solve :: Graph -> Int
@@ -103,9 +103,9 @@ day12b_solve g = length $ groups g
 
 tograph :: String -> Graph
 tograph cts = [(read n :: Int, map (\x -> read x:: Int) c) | cw <- readlines,
-                                                             let n = cw !! 0,
+                                                             let n = head cw,
                                                              let c = drop 2 cw]
-              where readlines = map words $ map (filter (\x -> x /= ',')) l
+              where readlines = map (words . filter (/= ',')) l
                     l = lines cts
 
 main :: IO ()

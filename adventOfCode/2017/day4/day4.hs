@@ -52,9 +52,9 @@ day4b_solve lr = length (filter (\x -> x == nub x) (map (map sort) uniq_p))
 main :: IO ()
 main = do
     contents <- readFile "input.txt"
-    let lines_read = (map words (lines contents))
+    let lines_read = map words (lines contents)
     putStrLn (unwords [ assert (day4a_solve lines_read == 477) "+",
                         assert (day4b_solve lines_read == 167) "+"
                       ])
-    putStrLn ("Part 1: " ++ show (day4a_solve lines_read))
-    putStrLn ("Part 2: " ++ show (day4b_solve lines_read))
+    putStrLn $ "Part 1: " ++ show (day4a_solve lines_read)
+    putStrLn $ "Part 2: " ++ show (day4b_solve lines_read)

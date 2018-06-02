@@ -1,5 +1,6 @@
 import Data.List
 import Control.Exception
+import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
 
 {-
@@ -70,21 +71,19 @@ dup xs = dup' 0 xs Set.empty
                           else dup' (i + 1) ys (Set.insert y s)
 
 day6a_solve :: Ord a => [a] -> Int
-day6a_solve xs = case dup xs of
-                    Just a -> a
-                    Nothing -> error "Failure."
+day6a_solve xs = fromMaybe (error "Failure.") (dup xs)
 
 next :: [Int] -> [Int]
 next s = map (\(x, xi) -> x + dlt xi) (zip s [0..])
           where (m, mi) = maximumBy cmp (zip s [0..])
-                cmp (a, ai) (b, bi) = if a == b then flip compare ai bi
+                cmp (a, ai) (b, bi) = if a == b then compare bi ai
                                       else compare a b
-                pds = (mi, -m) : [(j `mod` (length s), 1) | j <- [mi + 1..mi + m]]
+                pds = (mi, -m) : [(j `mod` length s, 1) | j <- [mi + 1..mi + m]]
                 occ e = filter (\(i, _) -> i == e) pds
                 dlt e = foldr (\x y -> snd x + y) 0 (occ e)
 
 states :: [Int] -> [[Int]]
-states is = iterate next is
+states = iterate next
 
 indata :: [Int]
 indata = [4, 1, 15, 12, 0, 9, 9, 5, 5, 8, 7, 3, 14, 5, 12, 3]

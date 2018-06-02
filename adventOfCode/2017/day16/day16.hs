@@ -1,6 +1,7 @@
 import Data.List (elemIndex)
 import Data.List.Split (splitOn)
 import Control.Exception
+import Data.Maybe (fromMaybe)
 
 {-
 From http://adventofcode.com/2017/day/16
@@ -67,39 +68,38 @@ exchange i j s
           right = drop (m + 1) s
 
 findindex :: Char -> String -> Int
-findindex c s = case elemIndex c s of Nothing -> error "Not in string."
-                                      Just x -> x
+findindex c s = fromMaybe (error "Not in string.") (elemIndex c s)
 
 partner :: Char -> Char -> String -> String
 partner a b s = exchange (findindex a s) (findindex b s) s
 
-tofunc :: String -> (String -> String)
+tofunc :: String -> String -> String
 tofunc s
     | h == 's' = spin (read t :: Int)
     | h == 'x' = exchange (read spt0 :: Int) (read spt1 :: Int)
-    | h == 'p' = partner (spt0 !! 0) (spt1 !! 0)
+    | h == 'p' = partner (head spt0) (head spt1)
     | otherwise = error "Unsupported dance move."
     where (h, t) = (head s, tail s)
           spt = splitOn "/" t
-          spt0 = spt !! 0
+          spt0 = head spt
           spt1 = spt !! 1
 
 lineup :: String
 lineup = ['a'..'p']
 
-dance :: [(String -> String)] -> String -> String
+dance :: [String -> String] -> String -> String
 dance m s = foldl (\x y -> y x) s m
 
-day16a_solve :: [(String -> String)] -> String
+day16a_solve :: [String -> String] -> String
 day16a_solve moves = dance moves lineup
 
-cycle_length :: Eq a => [a] -> Int
-cycle_length [] = 0
-cycle_length (x:xs) = length $ takeWhile (/=x) xs
+cycleLength :: Eq a => [a] -> Int
+cycleLength [] = 0
+cycleLength (x:xs) = length $ takeWhile (/=x) xs
 
-day16b_solve :: [(String -> String)] -> String
+day16b_solve :: [String -> String] -> String
 day16b_solve moves = am !! (cl + (nm - 1))
-                     where cl = 1 + cycle_length am
+                     where cl = 1 + cycleLength am
                            am = iterate (dance moves) lineup
                            b = 1000000000
                            nm = (b + 1) `mod` cl
@@ -108,7 +108,7 @@ main :: IO ()
 main = do
     contents <- readFile "input.txt"
     let moves = map tofunc readlines
-                where readlines = splitOn "," $ lines contents !! 0
+                where readlines = splitOn "," $ head (lines contents)
     let day16a_result = day16a_solve moves
     let day16b_result = day16b_solve moves
     putStrLn $ unwords [ assert ("kpfonjglcibaedhm" == day16a_result) "+",

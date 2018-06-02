@@ -84,5 +84,5 @@ main = do
                         assert (day5a_result == 315613) "+",
                         assert (day5b_result == 22570529) "+"
                       ])
-    putStrLn ("Part 1: " ++ (show day5a_result))
-    putStrLn ("Part 2: " ++ (show day5b_result))
+    putStrLn $ "Part 1: " ++ show day5a_result
+    putStrLn $ "Part 2: " ++ show day5b_result

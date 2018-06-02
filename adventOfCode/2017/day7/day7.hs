@@ -1,4 +1,5 @@
-import Data.List
+import Data.List (nub)
+import Data.Char (isAsciiLower)
 import Control.Exception
 
 {-
@@ -110,7 +111,7 @@ nodeinfo :: String -> [NodeData] -> WeightChildren
 nodeinfo n ns = snd $ head $ filter (\(na, (_, _)) -> na == n) ns
 
 weight :: String -> [NodeData] -> Int
-weight n ns = (fst $ nodeinfo n ns) + sum (map (`weight` ns) (children n ns))
+weight n ns = fst (nodeinfo n ns) + sum (map (`weight` ns) (children n ns))
 
 weightonly :: String -> [NodeData] -> Int
 weightonly n ns = fst $ nodeinfo n ns
@@ -119,38 +120,35 @@ children :: String -> [NodeData] -> [String]
 children n ns = snd $ nodeinfo n ns
 
 allchildren :: [NodeData] -> [String]
-allchildren ns = concat $ map (\(_, (_, ch)) -> ch) ns
+allchildren = concatMap (\(_, (_, ch)) -> ch)
 
 empty :: [a] -> Bool
 empty [] = True
 empty _ = False
 
 bfs :: [NodeData] -> String -> [[String]]
-bfs ns r = takeWhile (not . empty) $ layers
-           where layers = iterate (\x -> concat (map (`children` ns) x)) [r]
+bfs ns r = takeWhile (not . empty) layers
+           where layers = iterate (concatMap (`children` ns)) [r]
 
-bfs_flat :: [NodeData] -> String -> [String]
-bfs_flat ns r = concat $ bfs ns r
+bfsFlat :: [NodeData] -> String -> [String]
+bfsFlat ns r = concat $ bfs ns r
 
 day7a_solve :: [NodeData] -> String
 day7a_solve ns = fst $ head $ filter (\(na, (_, ch)) -> not (ischild na) &&
                                                         ch /= []) ns
-                 where ischild n = elem n (allchildren ns)
+                 where ischild n = n `elem` allchildren ns
 
 anomaly :: [[(Int, String)]] -> [[(Int, String)]]
-anomaly aa = filter (\x -> length (nub (map fst x)) > 1) aa
-
-lcalpha :: Char -> Bool
-lcalpha c = c >= 'a' && c <= 'z'
+anomaly = filter (\x -> length (nub (map fst x)) > 1)
 
 day7b_solve :: [NodeData] -> String -> Int
 day7b_solve ns r = weightonly (snd oddity) ns + discrep
                    where ans = anomaly $ map (\n -> map wn (children n ns)) nord
                          wn c = (weight c ns, c)
-                         an = ans !! 0
+                         an = head ans
                          -- All parent nodes of the unbalanced node will be
                          -- unbalanced so need to change the deepest node
-                         nord = reverse $ bfs_flat ns r
+                         nord = reverse $ bfsFlat ns r
                          (minw, maxw) = (minimum $ map fst an,
                                          maximum $ map fst an)
                          mins = filter (\x -> fst x == minw) an
@@ -161,19 +159,19 @@ day7b_solve ns r = weightonly (snd oddity) ns + discrep
                                             else (head maxs, head mins)
                          discrep = fst normie - fst oddity
 
-to_nodedata :: String -> [NodeData]
-to_nodedata c = [(na, (wt, ch)) | cwl <- wordlines,
-                                  let na =  filter lcalpha (cwl !! 0),
-                                  let wt = read (cwl !! 1) :: Int,
-                                  let ch = map (filter lcalpha) $ drop 3 cwl]
+toNodeData :: String -> [NodeData]
+toNodeData c = [(na, (wt, ch)) | cwl <- wordlines,
+                                 let na =  filter isAsciiLower (head cwl),
+                                 let wt = read (cwl !! 1) :: Int,
+                                 let ch = map (filter isAsciiLower) $ drop 3 cwl]
                 where wordlines = map words $ lines c
 
 main :: IO ()
 main = do
     sample_contents <- readFile "sample_input.txt"
-    let sample_nodes = to_nodedata sample_contents
+    let sample_nodes = toNodeData sample_contents
     contents <- readFile "input.txt"
-    let indata = to_nodedata contents
+    let indata = toNodeData contents
     let day7a_result = day7a_solve indata
     let day7b_result = day7b_solve indata day7a_result
     putStrLn (unwords [ assert (day7a_solve sample_nodes == "tknk") "+",

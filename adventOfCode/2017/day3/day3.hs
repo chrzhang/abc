@@ -92,18 +92,18 @@ neighbors p = [(fst p + xd, snd p + yd) | xd <- [-1..1],
                                           yd <- [-1..1],
                                           xd /= 0 || yd /= 0]
 
-spiral_values :: [Int]
-spiral_values = 1 : [s | i <- [1..],
-                         let currp = allp !! i,
-                         let priorp = take i allp,
-                         let nbrs = filter (\x -> elem x priorp) (neighbors currp),
-                         let nbrinds = map (\n -> fromMaybe (error "Position must exist") (elemIndex n allp)) nbrs,
-                         let s = sum (map (\ni -> spiral_values !! ni) nbrinds)
+spiralValues :: [Int]
+spiralValues = 1 : [s | i <- [1..],
+                        let currp = allp !! i,
+                        let priorp = take i allp,
+                        let nbrs = filter (`elem` priorp) (neighbors currp),
+                        let nbrinds = map (\n -> fromMaybe (error "Position must exist") (elemIndex n allp)) nbrs,
+                        let s = sum (map (\ni -> spiralValues !! ni) nbrinds)
                     ]
     where allp = map pos [1..]
 
 day3b_solve :: Int -> Int
-day3b_solve l = head (filter (>l) spiral_values)
+day3b_solve l = head (filter (>l) spiralValues)
 
 main :: IO ()
 main = do

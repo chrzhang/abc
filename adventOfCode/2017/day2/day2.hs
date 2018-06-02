@@ -62,40 +62,40 @@ In this example, the sum of the results would be 4 + 3 + 2 = 9.
 What is the sum of each row's result in your puzzle input?
 -}
 
-get_range :: [Int] -> Int
-get_range xs = maximum xs - minimum xs
+getRange :: [Int] -> Int
+getRange xs = maximum xs - minimum xs
 
 day2_solve :: [[Int]] -> ([Int] -> Int) -> Int
 day2_solve rows f = sum (map f rows)
 
 day2a_solve :: [[Int]] -> Int
-day2a_solve rows = day2_solve rows get_range
+day2a_solve rows = day2_solve rows getRange
 
-ord_elements :: Int -> Int -> (Int, Int)
-ord_elements a b = if a > b then (a, b) else (b, a)
+ordElements :: Int -> Int -> (Int, Int)
+ordElements a b = if a > b then (a, b) else (b, a)
 
-get_division :: [Int] -> Int
-get_division xs =
+getDivision :: [Int] -> Int
+getDivision xs =
     head [gr_e `div` le_e | let n = length xs - 1,
                             a <- [0..n],
                             b <- [(a + 1)..n],
-                            let (gr_e, le_e) = ord_elements (xs !! a) (xs !! b),
+                            let (gr_e, le_e) = ordElements (xs !! a) (xs !! b),
                             gr_e `mod` le_e == 0]
 
 day2b_solve :: [[Int]] -> Int
-day2b_solve rows = day2_solve rows get_division
+day2b_solve rows = day2_solve rows getDivision
 
 main :: IO ()
 main = do
-    contents <- readFile("input.txt")
-    let lines_read = map (map (\x -> read x :: Int)) (map words (lines contents))
+    contents <- readFile "input.txt"
+    let lines_read = map (map (\x -> read x :: Int) . words) (lines contents)
     putStrLn (unwords [ assert (18 == day2a_solve [[5, 1, 9, 5],
                                                    [7, 5, 3],
                                                    [2, 4, 6, 8]]) "+",
                         assert (39126 == day2a_solve lines_read) "+",
-                        assert (4 == get_division [5, 9, 2, 8]) "+",
-                        assert (3 == get_division [9, 4, 7, 3]) "+",
-                        assert (2 == get_division [3, 8, 6, 5]) "+",
+                        assert (4 == getDivision [5, 9, 2, 8]) "+",
+                        assert (3 == getDivision [9, 4, 7, 3]) "+",
+                        assert (2 == getDivision [3, 8, 6, 5]) "+",
                         assert (258 == day2b_solve lines_read) "+"
                       ])
     putStrLn ("Part 1: " ++ show (day2a_solve lines_read))

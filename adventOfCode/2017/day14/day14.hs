@@ -83,7 +83,7 @@ How many regions are present given your key string?
 -}
 
 torow :: String -> String
-torow kh = concat $ map tobits kh
+torow = concatMap tobits
 
 tobits :: Char -> String
 tobits c = replicate (4 - length repr) '0' ++ repr
@@ -91,7 +91,7 @@ tobits c = replicate (4 - length repr) '0' ++ repr
                  repr = showIntAtBase 2 intToDigit n ""
 
 grid :: String -> [String]
-grid ks = [torow $ knothash $ ks ++ '-':(show rn) | rn <- [0..127] :: [Int]]
+grid ks = [torow $ knothash $ ks ++ '-':show rn | rn <- [0..127] :: [Int]]
 
 day14a_solve :: String -> Int
 day14a_solve ks = sum $ map (count '1') g
