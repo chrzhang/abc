@@ -6,48 +6,34 @@
 
 using namespace std;
 
-int sumAmounts(const vector<int> & amounts) {
-    int sum = 0;
+double sumAmounts(const vector<double> & amounts) {
+    double sum = 0;
     for (const auto & amount : amounts) {
         sum += amount;
     }
     return sum;
 }
 
-int findExchange_(const vector<int> & amounts) {
-    const int totalSum = sumAmounts(amounts);
-    const int perStudent = totalSum / (int) amounts.size();
-    int underpaidTotal = 0;
-    int overpaidTotal = 0;
-    int exchange = 0;
-    for (const auto & amount : amounts) {
-        if (perStudent == amount) {
-            continue;
-        } else if (amount < perStudent) { // Underpaid
-            underpaidTotal += perStudent - amount;
-        } else { // Overpaid
-            overpaidTotal += amount - perStudent;
-        }
-        const int currentExchange = min(underpaidTotal, overpaidTotal);
-        exchange += currentExchange;
-        underpaidTotal -= currentExchange;
-        overpaidTotal -= currentExchange;
-    }
-    return exchange;
-}
-
 double findExchange(const vector<double> & amounts) {
-    vector<int> centAmounts;
-    for (const auto dollarAmount : amounts) {
-        centAmounts.push_back((int) (100 * dollarAmount));
+    const double totalSum = sumAmounts(amounts);
+    const double perStudent = totalSum / (int) amounts.size();
+    double underpaidTotal = 0;
+    double overpaidTotal = 0;
+    for (const auto & amount : amounts) {
+        const double diff = (long) ((amount - perStudent) * 100.0) / 100.0;
+        if (diff <= 0) { // Underpaid
+            underpaidTotal += -1 * diff;
+        } else { // Overpaid
+            overpaidTotal += diff;
+        }
     }
-    return (double) findExchange_(centAmounts);
+    return max(underpaidTotal, overpaidTotal);
 }
 
 int main() {
-    assert(1199 == findExchange({15, 15.01, 3, 3.01}));
-    assert(1000 == findExchange({10, 20, 30}));
-    assert(7 == findExchange({9999.1, 9999.1, 9999.0, 9999.1}));
+    assert(10 == findExchange({10, 20, 30}));
+    assert(11.99 == findExchange({15, 15.01, 3, 3.01}));
+    assert(0.07 == findExchange({9999.1, 9999.1, 9999.0, 9999.1}));
     return 0;
 }
 
