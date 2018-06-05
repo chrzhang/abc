@@ -3,6 +3,8 @@
 #include <set>
 #include <array>
 #include <vector>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -34,13 +36,26 @@ set<string> getCandidates(const string & encWord,
     return result;
 }
 
+bool noOneElseMapsTo(const array<char, 26> & translation, const char ee, const char dd) {
+    for (size_t ii = 0; ii < 26; ++ii) {
+        if (ii == ee - 'a') {
+            continue;
+        }
+        if (translation[ii] == dd) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool updateBasedOn(array<char, 26> & translation,
                    const string & enc,
                    const string & dec) {
     assert(enc.size() == dec.size());
     for (size_t ii = 0; ii < enc.size(); ++ii) {
-        if (translation[enc[ii] - 'a'] == 0 ||
-            translation[enc[ii] - 'a'] == dec[ii]) {
+        if (noOneElseMapsTo(translation, enc[ii], dec[ii]) &&
+            (translation[enc[ii] - 'a'] == 0 ||
+             translation[enc[ii] - 'a'] == dec[ii])) {
             translation[enc[ii] - 'a'] = dec[ii];
         } else {
             return false;
@@ -117,7 +132,37 @@ string solve(const set<string> & dictionary,
 }
 
 int main() {
-    cout << solve({"and", "dick", "jane", "puff", "spot", "yertle"},
-                  {"bjvg", "xsb", "hxsn", "xsb", "qymm", "xsb", "rqat", "xsb",
-                  "pnetfn"}) << endl;
+    assert("dick and jane and puff and spot and yertle" ==
+           solve({"and", "dick", "jane", "puff", "spot", "yertle"},
+                 {"bjvg", "xsb", "hxsn", "xsb", "qymm", "xsb", "rqat", "xsb",
+                 "pnetfn"}));
+    assert("**** *** **** *** **** *** **** *** ******" ==
+           solve({"and", "dick", "jane", "puff", "spot", "yertle"},
+                 {"xxxx", "yyy", "zzzz", "www", "yyyy", "aaa", "bbbb", "ccc", "dddddd"}));
+    ifstream inFile("input.txt");
+    int dictLength;
+    if (!(inFile >> dictLength)) {
+        cerr << "Could not read dictionary length." << endl;
+        return 1;
+    }
+    set<string> currDict;
+    for (int ii = 0; ii < dictLength; ++ii) {
+        string dictWord;
+        if (!(inFile >> dictWord)) {
+            cerr << "Could not read dictionary word." << endl;
+            return 1;
+        }
+        currDict.insert(dictWord);
+    }
+    string currLine;
+    getline(inFile, currLine);
+    while (getline(inFile, currLine)) {
+        vector<string> encWords;
+        stringstream ss(currLine);
+        string currEncWord;
+        while (ss >> currEncWord) {
+            encWords.push_back(currEncWord);
+        }
+        cout << solve(currDict, encWords) << endl;
+    }
 }
