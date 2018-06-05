@@ -34,6 +34,7 @@ string solve(const vector<int> & seq) {
 
 int main() {
     assert("Jolly" == solve({1, 4, 2, 3}));
+    assert("Jolly" == solve({-1, 1, 2}));
     assert("Not jolly" == solve({5, 1, 4, 2, -1, 6}));
     ifstream inFile("input.txt");
     int nn, ss;
