@@ -2,46 +2,95 @@
 #include <cassert>
 #include <vector>
 #include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
 
 using namespace std;
 
-vector<int>::reverse_iterator findSpot(const int bigPancake,
-                                       const vector<int>::reverse_iterator start,
-                                       const vector<int>::reverse_iterator close) {
-    // TODO Use binary search since [start, close] is sorted
-    for (auto currIt = start; currIt <= close; ++currIt) {
-        if (bigPancake > *currIt) return currIt;
+void printVec(const vector<int> & v) {
+    for (const auto i : v) {
+        cout << i << " ";
     }
-    return start;
+    cout << endl;
 }
 
+void flipAt(const size_t i, vector<int> & v) {
+    assert(i < v.size());
+    size_t end = i;
+    for (size_t start = 0; start < end; ++start, --end) {
+        swap(v[start], v[end]);
+    }
+}
 
+const vector<int> getSorted(vector<int> v) {
+    sort(v.begin(), v.end());
+    return v;
+}
 
-void howToFlip(vector<int> pancakes, vector<int> & steps) {
-    if (pancakes.size() <= 1) return;
-    for (auto it = pancakes.rbegin(); next(it) != pancakes.rend(); ++it) {
-        const int top = *next(it);
-        const int bottom = *it;
-        if (top > bottom) {
-            auto pos = findSpot(top, pancakes.rbegin(), it);
-            steps.push_back(1 + distance(pancakes.rbegin(), pos));
-            reverse(pos, pancakes.rend());
-            howToFlip(pancakes, steps);
-            return;
+vector<int> solve(vector<int> & pancakes) {
+    vector<int> steps;
+    const int numPancakes = pancakes.size();
+    const vector<int> sortedPancakes = getSorted(pancakes);
+    int indexOfOrderedStackStart = numPancakes;
+    while (indexOfOrderedStackStart != 0) {
+        int indexOfBiggestOutOfOrderPancake = -1;
+        int max = -1;
+        for (int i = 0; i < indexOfOrderedStackStart; ++i) {
+            if (pancakes[i] > max) {
+                max = pancakes[i];
+                indexOfBiggestOutOfOrderPancake = i;
+            }
+        }
+        if (indexOfBiggestOutOfOrderPancake != -1 &&
+            indexOfBiggestOutOfOrderPancake != indexOfOrderedStackStart - 1) {
+            // Since flipping the same stack twice nets nothing
+            // Same goes for flipping at the top
+            if (indexOfBiggestOutOfOrderPancake != 0) {
+                flipAt(indexOfBiggestOutOfOrderPancake, pancakes);
+                steps.push_back(indexOfBiggestOutOfOrderPancake);
+            }
+            if (indexOfOrderedStackStart - 1 != 0) {
+                flipAt(indexOfOrderedStackStart - 1, pancakes);
+                steps.push_back(indexOfOrderedStackStart - 1);
+            }
+        }
+        bool foundNewUnordered = false;
+        for (int i = numPancakes - 1; i >= 0; --i) {
+            if (pancakes[i] != sortedPancakes[i]) {
+                indexOfOrderedStackStart = i + 1;
+                foundNewUnordered = true;
+                break;
+            }
+        }
+        if (!foundNewUnordered) {
+            indexOfOrderedStackStart = 0;
         }
     }
-}
-
-vector<int> flip(vector<int> pancakes) {
-    vector<int> steps = {};
-    howToFlip(pancakes, steps);
-    steps.push_back({0});
+    for (auto & step : steps) {
+        step = numPancakes - step;
+    }
+    steps.push_back(0);
     return steps;
 }
 
+void test(vector<int> pancakes) {
+    const vector<int> solution = getSorted(pancakes);
+    solve(pancakes);
+    assert(solution == pancakes);
+}
+
 int main() {
-    assert(vector<int>({1, 2, 0}) == flip({5, 1, 2, 3, 4}));
-    assert(vector<int>({1, 0}) == flip({5, 4, 3, 2, 1}));
-    assert(vector<int>({0}) == flip({1, 2, 3, 4, 5}));
-    return 0;
+    test({1, 2, 3});
+    test({1, 3, 2});
+    test({2, 1, 3});
+    test({2, 3, 1});
+    test({3, 1, 2});
+    test({3, 2, 1});
+    vector<int> input_1({1, 2, 3, 4, 5});
+    assert(vector<int>({0}) == solve(input_1));
+    vector<int> input_2({5, 4, 3, 2, 1});
+    assert(vector<int>({1, 0}) == solve(input_2));
+    vector<int> input_3({5, 1, 2, 3, 4});
+    assert(vector<int>({1, 2, 0}) == solve(input_3));
 }
