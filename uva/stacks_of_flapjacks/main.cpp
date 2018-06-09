@@ -9,8 +9,11 @@
 using namespace std;
 
 void printVec(const vector<int> & v) {
-    for (const auto i : v) {
-        cout << i << " ";
+    for (size_t i = 0; i < v.size(); ++i) {
+        cout << v[i];
+        if (i + 1 != v.size()) {
+            cout << " ";
+        }
     }
     cout << endl;
 }
@@ -93,4 +96,17 @@ int main() {
     assert(vector<int>({1, 0}) == solve(input_2));
     vector<int> input_3({5, 1, 2, 3, 4});
     assert(vector<int>({1, 2, 0}) == solve(input_3));
+    ifstream inFile("input.txt");
+    string currLine;
+    while (getline(inFile, currLine)) {
+        stringstream ss(currLine);
+        vector<int> pancakes;
+        int pancake;
+        while (ss >> pancake) {
+            pancakes.push_back(pancake);
+        }
+        printVec(pancakes);
+        auto steps = solve(pancakes);
+        printVec(steps);
+    }
 }
