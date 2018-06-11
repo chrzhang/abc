@@ -41,13 +41,21 @@ void shellSort(const vector<string> & unsorted, const vector<string> & sorted) {
     cout << endl;
 }
 
-int main() {
+int main(int argc, const char * argv[]) {
     /* The order of the turtles commanded to crawl to the top will be a suffix
      * of [N, N -1, ... 1] since that is the only way the result will be in
      * ascending order. The problem then reduces to finding the shortest suffix
      * possible. Because the suffix must be consecutive, the only real question
      * that remains is finding the first element of the suffix. */
-    ifstream inputFile("input.txt");
+    if (2 != argc) {
+        cerr << "Usage: " << argv[0] << " <input>" << endl;
+        return 1;
+    }
+    ifstream inputFile(argv[1]);
+    if (!inputFile.is_open()) {
+        cerr << "Cannot open " << argv[1] << endl;
+        return 1;
+    }
     int numInputs;
     inputFile >> numInputs;
     for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex) {
