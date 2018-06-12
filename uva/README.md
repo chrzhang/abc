@@ -13,5 +13,5 @@
 |10041|[Vito's Family](https://uva.onlinejudge.org/external/100/10041.pdf)|
 |10110|[Light More Light](https://uva.onlinejudge.org/external/101/10110.pdf)|
 |10137|[The Trip](https://uva.onlinejudge.org/external/101/10137.pdf)|
-|10142|[Austrlian Voting](https://uva.onlinejudge.org/external/101/10142.pdf)|
+|10142|[Australian Voting](https://uva.onlinejudge.org/external/101/10142.pdf)|
 |10152|[Shellsort](https://uva.onlinejudge.org/external/101/10152.pdf)|
