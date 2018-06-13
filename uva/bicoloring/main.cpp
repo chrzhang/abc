@@ -3,6 +3,7 @@
 #include <vector>
 #include <cassert>
 #include <list>
+#include <fstream>
 
 using namespace std;
 using vert_t = int;
@@ -12,6 +13,7 @@ struct Graph {
     void add_edge(const vert_t & from,
                   const vert_t & toward) {
         adj_list[from].push_back(toward);
+        adj_list[toward].push_back(from);
     }
     bool bicolorable() const {
         if (adj_list.size() < 3) return true;
@@ -36,7 +38,7 @@ struct Graph {
             }
         }
 
-        return false;
+        return true;
     }
 };
 
@@ -78,5 +80,18 @@ int main() {
         g.add_edge(0, 7);
         g.add_edge(0, 8);
         assert(g.bicolorable());
+    }
+    ifstream inFile("input.txt");
+    int node_ct, edge_ct;
+    while (inFile >> node_ct && inFile >> edge_ct) {
+        Graph g;
+        for (int edge_i = 0; edge_i < edge_ct; ++edge_i) {
+            vert_t from, toward;
+            if (!(inFile >> from && inFile >> toward)) {
+                assert(false);
+            }
+            g.add_edge(from, toward);
+        }
+        cout << (g.bicolorable() ? "BICOLORABLE." : "NOT BICOLORABLE.") << endl;
     }
 }
