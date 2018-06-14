@@ -2,6 +2,7 @@
 #include <cassert>
 #include <array>
 #include <list>
+#include <fstream>
 
 using namespace std;
 using wheels_t = array<char, 4>;
@@ -17,6 +18,9 @@ wheels_t spin(wheels_t ws, const int i, const bool clockwise) {
 }
 
 int toInt(const wheels_t & ws) {
+    for (int i = 0; i < 4; ++i) {
+        assert(ws[i] >= 0 && ws[i] <= 9);
+    }
     return 1000 * ws[0] + 100 * ws[1] + 10 * ws[2] + ws[3];
 }
 
@@ -66,6 +70,12 @@ int solve(const wheels_t & start,
     return -1;
 }
 
+void readChar(ifstream & ifs, char & c) {
+    int x;
+    ifs >> x;
+    c = x;
+}
+
 int main() {
     assert(toInt({1, 2, 3, 4}) == 1234);
     assert(14 == solve({8, 0, 5, 6}, {6, 5, 0, 8},
@@ -83,4 +93,30 @@ int main() {
                          {0, 9, 0, 0},
                          {1, 0, 0, 0},
                          {9, 0, 0, 0} }));
+    assert(4 == solve({9, 9, 9, 9}, {0, 0, 0, 0}, {{9, 9, 9, 9}}));
+    ifstream inFile("input.txt");
+    int input_ct;
+    inFile >> input_ct;
+    for (int input_i = 0; input_i < input_ct; ++input_i) {
+        wheels_t start;
+        for (int start_i = 0; start_i < 4; ++start_i) {
+            readChar(inFile, start[start_i]);
+        }
+        wheels_t target;
+        for (int target_i = 0; target_i < 4; ++target_i) {
+            readChar(inFile, target[target_i]);
+        }
+        int forbidden_ct;
+        inFile >> forbidden_ct;
+        list<wheels_t> forbidden;
+        for (int forbid_i = 0; forbid_i < forbidden_ct; ++forbid_i) {
+            wheels_t forbid;
+            for (int forbid_ii = 0; forbid_ii < 4; ++forbid_ii) {
+                readChar(inFile, forbid[forbid_ii]);
+                assert(forbid[forbid_ii] >= 0 && forbid[forbid_ii] <= 9);
+            }
+            forbidden.push_back(forbid);
+        }
+        cout << solve(start, target, forbidden) << endl;
+    }
 }
