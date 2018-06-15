@@ -55,10 +55,11 @@ int get_best_route(const Graph & cities, const int start_city,
         for (size_t r = 0; r < cities.size(); ++r) { // Start city
             for (size_t c = 0; c < cities.size(); ++c) { // End city
                 if (r == c || r == k || c == k) continue;
+                // Going through k means updating our bottleneck
                 const int bottleneck_thru_k = min(best_paths_matrix[r][k],
                                                   best_paths_matrix[k][c]);
                 const int curr_bottleneck = best_paths_matrix[r][c];
-                if (bottleneck_thru_k > curr_bottleneck || curr_bottleneck == INT_MAX) {
+                if (bottleneck_thru_k > curr_bottleneck) {
                     // Prefer the bigger bottleneck
                     best_paths_matrix[r][c] = bottleneck_thru_k;
                 }
