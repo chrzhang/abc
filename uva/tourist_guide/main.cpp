@@ -3,6 +3,7 @@
 #include <map>
 #include <climits>
 #include <cassert>
+#include <fstream>
 
 using namespace std;
 
@@ -75,16 +76,38 @@ int get_best_route(const Graph & cities, const int start_city,
 }
 
 int main() {
-    Graph g;
-    g.connect(0, 1, 30);
-    g.connect(0, 3, 10);
-    g.connect(0, 2, 15);
-    g.connect(1, 3, 25);
-    g.connect(1, 4, 60);
-    g.connect(2, 3, 40);
-    g.connect(2, 5, 20);
-    g.connect(3, 6, 35);
-    g.connect(4, 6, 20);
-    g.connect(5, 6, 30);
-    assert(5 == get_best_route(g, 0, 6, 100));
+    {
+        Graph g;
+        g.connect(0, 1, 30);
+        g.connect(0, 3, 10);
+        g.connect(0, 2, 15);
+        g.connect(1, 3, 25);
+        g.connect(1, 4, 60);
+        g.connect(2, 3, 40);
+        g.connect(2, 5, 20);
+        g.connect(3, 6, 35);
+        g.connect(4, 6, 20);
+        g.connect(5, 6, 30);
+        assert(5 == get_best_route(g, 0, 6, 100));
+    }
+    ifstream inFile("input.txt");
+    int city_ct, road_ct;
+    int scenario_num = 1;
+    while (inFile >> city_ct && inFile >> road_ct) {
+        if (city_ct == 0 && road_ct == 0) break;
+        cout << "Scenario #" << scenario_num++ << endl;
+        Graph g;
+        int road_from, road_to, road_weight;
+        for (size_t road_i = 0; road_i < road_ct; ++road_i) {
+            inFile >> road_from;
+            inFile >> road_to;
+            inFile >> road_weight;
+            g.connect(road_from - 1, road_to - 1, road_weight);
+        }
+        int start, dest, passenger_ct;
+        inFile >> start;
+        inFile >> dest;
+        inFile >> passenger_ct;
+        cout << "Minimum Number of Trips = " <<  get_best_route(g, start - 1, dest - 1, passenger_ct) << endl << endl;
+    }
 }
