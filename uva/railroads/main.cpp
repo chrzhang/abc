@@ -10,10 +10,10 @@ using namespace std;
 
 struct Edge {
     string dest_city;
-    int time_leave_source_city, time_arrive_dest_city;
+    int departure, arrival;
     Edge(const string & dest_city, const int time_leave, const int time_arrive)
-    : dest_city(dest_city), time_leave_source_city(time_leave),
-      time_arrive_dest_city(time_arrive) {}
+    : dest_city(dest_city), departure(time_leave),
+      arrival(time_arrive) {}
 };
 
 struct Graph {
@@ -29,6 +29,29 @@ struct Graph {
     }
     bool is_visited(const string & city, const set<string> & visited) const {
         return visited.find(city) != visited.end();
+    }
+    bool can_reach_in_time_aux(const string & from, const string & to, const int arrival, const int start, const set<string> & visited) const {
+        if (from == to) return arrival == start;
+        if (start > arrival) return false;
+        for (const Edge & edge : cities_to_neighbors.at(from)) {
+            if (!is_visited(edge.dest_city, visited)) {
+                if (edge.departure < start) continue;
+                auto visited_copy = visited;
+                visited_copy.insert(edge.dest_city);
+                if (can_reach_in_time_aux(edge.dest_city, to, arrival, edge.arrival, visited_copy)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    bool can_reach_in_time(const string & from, const string & to, const int arrival, const int start) const {
+        // Enumerate all paths from -> to with DFS, see if we can reach our
+        // target in a time == arrival when we start at start
+        assert(from != to);
+        set<string> visited;
+        visited.insert(from);
+        return can_reach_in_time_aux(from, to, arrival, start, visited);
     }
     pair<int, int> fastest_trip(const string & from, const string & to,
                                 const int start_time) const {
@@ -48,11 +71,11 @@ struct Graph {
             // going to it with a departure >= the curr_city's curr best_arrival time
             for (const Edge & edge : cities_to_neighbors.at(curr_city)) {
                 if (is_visited(edge.dest_city, visited)) continue;
-                if (edge.time_leave_source_city < best_arrival_times[curr_city]) continue;
+                if (edge.departure < best_arrival_times[curr_city]) continue;
                 // If time going across the train to the neighbor gets us there
                 // faster, update the best arrival time
-                if (edge.time_arrive_dest_city < best_arrival_times[edge.dest_city]) {
-                    best_arrival_times[edge.dest_city] = edge.time_arrive_dest_city;
+                if (edge.arrival < best_arrival_times[edge.dest_city]) {
+                    best_arrival_times[edge.dest_city] = edge.arrival;
                 }
             }
             visited.insert(curr_city);
@@ -75,7 +98,12 @@ struct Graph {
         // The departure is one of the departures from city 'from'
         // We would like to use the latest one, provided it gets us onto
         // a path that can reach city 'to' at the desired arrival time
-        int departure = 0;
+        int departure = INT_MIN;
+        for (const Edge & edge : cities_to_neighbors.at(from)) {
+            if (can_reach_in_time(from, to, arrival, edge.departure)) {
+                departure = max(departure, edge.departure);
+            }
+        }
         return make_pair(departure, arrival);
     }
 };
