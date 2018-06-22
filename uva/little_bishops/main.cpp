@@ -34,7 +34,20 @@ void ways_aux(const int bishop_count_remaining,
         configs.insert(occupied);
         return;
     }
-    for (size_t r = 0; r < occupied.size(); ++r) {
+    // Start throwing bishops only on rows >= the last row we put a bishop since
+    // we've already considered putting a bishop above that row
+    bool found_lr = false;
+    int low_row = 0;
+    // TODO Same for columns (though only relevant on the low_row)
+    for (int r = (int) occupied.size() - 1; !found_lr && r >= 0; --r) {
+        for (int c = (int) occupied[r].size() - 1; !found_lr && c >= 0; --c) {
+            if (occupied[r][c]) {
+                found_lr = true;
+                low_row = r;
+            }
+        }
+    }
+    for (size_t r = low_row; r < occupied.size(); ++r) {
         size_t start_c = 0;
         if (white) {
             start_c = (r % 2 == 1 ? 0 : 1);
