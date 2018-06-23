@@ -13,7 +13,8 @@ int sum(const vector<int> & team) {
 }
 
 pair<int, int> solve(const vector<int> & weights) {
-    if (weights.size() < 2) { throw invalid_argument("Not enough people."); }
+    if (weights.size() == 0) { return make_pair(0, 0); }
+    if (weights.size() == 1) { return make_pair(0, weights[0]); }
     vector<int> team_A, team_B;
     auto mid_iter = next(weights.begin(), weights.size() / 2);
     team_A = vector<int>(weights.begin(), mid_iter);
@@ -55,11 +56,15 @@ void print_result(const pair<int, int> & result) {
     cout << result.first << " " << result.second << endl;
 }
 
-int main() {
+int main(int argc, const char * argv[]) {
+    if (2 != argc) {
+        cerr << "Usage: " << argv[0] << " <filename>\n";
+        return 1;
+    }
     assert(make_pair(20, 68) == solve(vector<int>({68, 20})));
     assert(make_pair(100, 100) == solve(vector<int>({68, 50, 32, 30, 20})));
     assert(make_pair(190, 200) == solve(vector<int>({100, 90, 200})));
-    ifstream inFile("input.txt");
+    ifstream inFile(argv[1]);
     int input_ct;
     inFile >> input_ct;
     for (int input_i = 0; input_i < input_ct; ++input_i) {
