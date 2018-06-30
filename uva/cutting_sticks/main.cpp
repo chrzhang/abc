@@ -3,6 +3,7 @@
 #include <cassert>
 #include <climits>
 #include <list>
+#include <fstream>
 
 using namespace std;
 
@@ -44,4 +45,19 @@ int main() {
     assert(20 == solve(10, {2, 4, 7}));
     assert(200 == solve(100, {25, 50, 75}));
     assert(22 == solve(10, {4, 5, 7, 8}));
+    ifstream inFile("input.txt");
+    int stick_length;
+    while (inFile >> stick_length) {
+        if (stick_length == 0) { return 0; }
+        int cut_ct;
+        inFile >> cut_ct;
+        vector<int> cuts;
+        for (int cut_i = 0; cut_i < cut_ct; ++cut_i) {
+            int cut;
+            inFile >> cut;
+            cuts.push_back(cut);
+        }
+        cout << "The minimum cutting is " << solve(stick_length, cuts) << "."
+             << endl;
+    }
 }
