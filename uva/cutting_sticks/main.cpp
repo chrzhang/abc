@@ -13,6 +13,11 @@ int solve(const int length, vector<int> cut_indices) {
     const int cut_ct = cut_indices.size();
     // dp[i][j] = the min cost of making all cuts between i and j
     // If there are no cuts, the cost is 0.
+    // If there are cuts, pick one to make first that will minimize cost.
+    // Calculate what it would take to perform each cut, and pick the cheapest.
+    // By building the matrix diagonal-by-diagonal, we have a direction to
+    // generate values that will help us use DP and guarantee subranges of i
+    // and j are already found.
     vector<vector<int>> dp(cut_ct, vector<int>(cut_ct, INT_MAX));
     // Since half the matrix is where i > j, we are wasting half the space.
     for (int start_c = 0; start_c < cut_ct; ++start_c) {
@@ -28,6 +33,8 @@ int solve(const int length, vector<int> cut_indices) {
                 int min_cost = INT_MAX;
                 while (b_i < c) {
                     assert(dp[r][b_i] != INT_MAX && dp[b_i][c] != INT_MAX);
+                    // Cost of doing all cuts to the left and right of the
+                    // current cut being considered.
                     const int curr_cost = dp[r][b_i] + dp[b_i][c];
                     min_cost = min(min_cost, curr_cost);
                     ++b_i;
