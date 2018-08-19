@@ -15,3 +15,6 @@
     the lowest total cost so far. We can stop exploring further solutions if the
     partial cost found so far has exceeded our lowest cost since it can only
     increase.
+
+### 1.2.3.2
+    [Print pi to N (N <= 15) digits](pi_printer.cpp)
