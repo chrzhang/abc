@@ -17,4 +17,7 @@
     increase.
 
 ### 1.2.3.2
-    [Print pi to N (N <= 15) digits](pi_printer.cpp)
+    [Print pi to N (N <= 15) digits](pi_printer.h)
+
+### 1.2.3.3
+    [Find day of week](day_of_week.h)
