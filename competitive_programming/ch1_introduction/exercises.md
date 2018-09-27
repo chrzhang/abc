@@ -21,3 +21,6 @@
 
 ### 1.2.3.3
     [Find day of week](day_of_week.h)
+
+### 1.2.3.4
+    [Print distinct ordered integers](distinct.h)
