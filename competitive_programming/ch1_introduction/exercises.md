@@ -17,10 +17,13 @@
     increase.
 
 ### 1.2.3.2
-    [Print pi to N (N <= 15) digits](pi_printer.h)
+[Print pi to N (N <= 15) digits](pi_printer.h)
 
 ### 1.2.3.3
-    [Find day of week](day_of_week.h)
+[Find day of week](day_of_week.h)
 
 ### 1.2.3.4
-    [Print distinct ordered integers](distinct.h)
+[Print distinct ordered integers](distinct.h)
+
+### 1.2.3.5
+[Order dates in MMDDYYYY order](order_dates.h)
