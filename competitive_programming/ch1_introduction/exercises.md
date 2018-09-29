@@ -27,3 +27,6 @@
 
 ### 1.2.3.5
 [Order dates in MMDDYYYY order](order_dates.h)
+
+### 1.2.3.6
+[Binary search for 1M items](binary_search.h)

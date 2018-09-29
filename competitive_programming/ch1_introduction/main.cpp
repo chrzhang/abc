@@ -2,6 +2,8 @@
 #include "day_of_week.h"
 #include "distinct.h"
 #include "order_dates.h"
+#include "binary_search.h"
+#include <cassert>
 int main() {
     for (int i = 0; i <= 15; ++i) {
         print_pi(i);
@@ -14,5 +16,13 @@ int main() {
     my_sort(v);
     for (const auto & b : v) {
         cout << b.m << " " << b.d << " " << b.y << endl;
+    }
+    vector<int> haystack;
+    for (int i = 0; i < 1000000; ++i) {
+        haystack.push_back(i);
+    }
+    for (int needle = 0; needle < 1000000; ++needle) {
+        assert(needle ==
+               search_sorted(haystack, needle, 0, haystack.size() - 1));
     }
 }
