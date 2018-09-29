@@ -30,3 +30,6 @@
 
 ### 1.2.3.6
 [Binary search for 1M items](binary_search.h)
+
+### 1.2.3.7
+[Generate all permutations](permutations.h)
