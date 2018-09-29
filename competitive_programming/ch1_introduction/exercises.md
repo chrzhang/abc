@@ -33,3 +33,6 @@
 
 ### 1.2.3.7
 [Generate all permutations](permutations.h)
+
+### 1.2.3.8
+[Generate all subsets](subsets.h)

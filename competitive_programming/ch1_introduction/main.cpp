@@ -4,6 +4,7 @@
 #include "order_dates.h"
 #include "binary_search.h"
 #include "permutations.h"
+#include "subsets.h"
 #include <cassert>
 int main() {
     { // 1.2.3.2
@@ -41,6 +42,13 @@ int main() {
         for (char c = 'A'; c <= 'J'; ++c) {
             v.push_back(c);
         }
-        all_permutations_of(v);
+        all_permutations_of(v); // 10!
+    }
+    { // 1.2.3.8
+        vector<int> v;
+        for (int i= 0; i < 20; ++i) {
+            v.push_back(i);
+        }
+        subsets_of(v); // 2^20
     }
 }
