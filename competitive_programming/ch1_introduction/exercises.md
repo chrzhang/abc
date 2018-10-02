@@ -36,3 +36,6 @@
 
 ### 1.2.3.8
 [Generate all subsets](subsets.h)
+
+### 1.2.3.9
+[Convert between bases](BaseConvert.java)
