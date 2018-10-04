@@ -5,6 +5,7 @@
 #include "binary_search.h"
 #include "permutations.h"
 #include "subsets.h"
+#include "regex_sub.h"
 #include <cassert>
 int main() {
     { // 1.2.3.2
@@ -50,5 +51,8 @@ int main() {
             v.push_back(i);
         }
         subsets_of(v); // 2^20
+    }
+    { // 1.2.3.10
+        cout << replace_special("line: a70 and z72 will be replaced, aa24 and a872 will not") << endl;
     }
 }

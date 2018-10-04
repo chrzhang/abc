@@ -39,3 +39,6 @@
 
 ### 1.2.3.9
 [Convert between bases](BaseConvert.java)
+
+### 1.2.3.10
+[Replace all with regex](regex_sub.h)
