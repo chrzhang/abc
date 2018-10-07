@@ -1,3 +1,5 @@
 *.o
 p
 *.hi
+*.class
+*.out
