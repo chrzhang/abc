@@ -12,6 +12,5 @@ public:
             nums[w++] = nums[r++];
         }
         return w;
-        
     }
 };
