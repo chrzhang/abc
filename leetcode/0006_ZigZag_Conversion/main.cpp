@@ -1,6 +1,7 @@
 class Solution {
 public:
-    string convert(string s, int numRows) {
+    string convert(string s, int numRows)
+    {
         if (numRows == 1) {
             return s;
         }
@@ -31,7 +32,7 @@ public:
             ++index;
         }
         string result = "";
-        for (const auto & s : allStrs) {
+        for (const auto& s : allStrs) {
             result += s;
         }
         return result;

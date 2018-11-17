@@ -1,6 +1,7 @@
 class Solution {
 public:
-    void swaux(ListNode ** t, ListNode * c) {
+    void swaux(ListNode** t, ListNode* c)
+    {
         if (c == nullptr) {
             if (*t) {
                 (*t)->next = c;
@@ -13,7 +14,7 @@ public:
             } else {
                 (*t)->next = c->next;
             }
-            ListNode * n = c->next->next;
+            ListNode* n = c->next->next;
             c->next->next = c;
             swaux(&c, n);
         } else {
@@ -25,8 +26,9 @@ public:
         }
     }
 
-    ListNode * swapPairs(ListNode * l) {
-        ListNode * result = nullptr;
+    ListNode* swapPairs(ListNode* l)
+    {
+        ListNode* result = nullptr;
         swaux(&result, l);
         return result;
     }

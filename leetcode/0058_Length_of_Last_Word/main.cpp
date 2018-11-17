@@ -1,6 +1,7 @@
 class Solution {
 public:
-    int lengthOfLastWord(string s) {
+    int lengthOfLastWord(string s)
+    {
         int r = 0;
         for (auto it = s.rbegin(); it != s.rend(); ++it) {
             if (*it != ' ') {

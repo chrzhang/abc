@@ -1,9 +1,14 @@
 class Solution {
 public:
-    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2)
+    {
         auto totalSize = nums1.size() + nums2.size();
-        if (totalSize == 0) { assert(false); }
-        if (totalSize == 1) { return nums1.empty() ? nums2.front() : nums1.front(); }
+        if (totalSize == 0) {
+            assert(false);
+        }
+        if (totalSize == 1) {
+            return nums1.empty() ? nums2.front() : nums1.front();
+        }
         auto it1 = nums1.begin();
         auto it2 = nums2.begin();
         int target = totalSize / 2;
@@ -16,13 +21,19 @@ public:
                 if (*it1 < *it2) {
                     prev = *it1;
                     ++it1;
-                    if (it1 != nums1.end()) { current = *it1 < *it2 ? *it1 : *it2; }
-                    else { current = *it2; }
+                    if (it1 != nums1.end()) {
+                        current = *it1 < *it2 ? *it1 : *it2;
+                    } else {
+                        current = *it2;
+                    }
                 } else {
                     prev = *it2;
                     ++it2;
-                    if (it2 != nums2.end()) { current = *it1 < *it2 ? *it1 : *it2; }
-                    else { current = *it1; }
+                    if (it2 != nums2.end()) {
+                        current = *it1 < *it2 ? *it1 : *it2;
+                    } else {
+                        current = *it1;
+                    }
                 }
             } else if (it1 != nums1.end()) {
                 prev = *it1;
@@ -37,9 +48,9 @@ public:
             }
             if (index == target) {
                 if (totalSize % 2 == 0) {
-                    return (((double) prev) + current) / 2;
+                    return (((double)prev) + current) / 2;
                 } else {
-                    return (double) (current);
+                    return (double)(current);
                 }
             }
         }

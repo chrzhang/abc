@@ -1,6 +1,7 @@
 class Solution {
 public:
-    vector<string> summaryRanges(vector<int>& nums) {
+    vector<string> summaryRanges(vector<int>& nums)
+    {
         vector<string> result;
         for (auto it = nums.begin(); it != nums.end();) {
             auto b = *it;
@@ -21,6 +22,5 @@ public:
             it = next(walker);
         }
         return result;
-        
     }
 };

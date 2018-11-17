@@ -1,7 +1,10 @@
 class Solution {
 public:
-    int maxProfit(vector<int>& prices) {
-        if (prices.empty()) { return 0; }
+    int maxProfit(vector<int>& prices)
+    {
+        if (prices.empty()) {
+            return 0;
+        }
         int currProfit = 0;
         int currMin = prices.front();
         for (auto p : prices) {

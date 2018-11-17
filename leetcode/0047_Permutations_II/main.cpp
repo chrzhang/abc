@@ -1,6 +1,7 @@
 class Solution {
 public:
-    vector<vector<int>> permuteUnique(vector<int>& nums) {
+    vector<vector<int>> permuteUnique(vector<int>& nums)
+    {
         set<vector<int>> result;
         sort(nums.begin(), nums.end());
         do {

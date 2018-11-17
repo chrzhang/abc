@@ -1,6 +1,7 @@
 class Solution {
 public:
-    bool canConstruct(string ransomNote, string magazine) {
+    bool canConstruct(string ransomNote, string magazine)
+    {
         map<char, int> occ;
         for (auto c : magazine) {
             occ[c]++;

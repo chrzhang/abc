@@ -1,9 +1,10 @@
 class Solution {
 public:
-    ListNode* removeNthFromEnd(ListNode* head, int n) {
+    ListNode* removeNthFromEnd(ListNode* head, int n)
+    {
 
-        ListNode * orig_head = head;
-        ListNode * advance = head;
+        ListNode* orig_head = head;
+        ListNode* advance = head;
         for (int i = 0; i < n; ++i) {
             advance = advance->next;
         }

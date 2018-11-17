@@ -1,7 +1,10 @@
 class Solution {
 public:
-    int findPeakElement(vector<int>& nums) {
-        if (nums.size() == 1) { return 0; }
+    int findPeakElement(vector<int>& nums)
+    {
+        if (nums.size() == 1) {
+            return 0;
+        }
         for (auto it = nums.begin(); it != nums.end(); ++it) {
             // Check left
             auto leftVal = it == nums.begin() ? INT_MIN : *prev(it);

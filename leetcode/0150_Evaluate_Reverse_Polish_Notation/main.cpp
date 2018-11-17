@@ -1,6 +1,7 @@
 class Solution {
 public:
-    int evalRPN(vector<string>& tokens) {
+    int evalRPN(vector<string>& tokens)
+    {
         stack<string> myStack;
         for (auto token : tokens) {
             if (token == "+") {

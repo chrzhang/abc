@@ -1,6 +1,7 @@
 class Solution {
 public:
-    void gaux(const int no, const int nc, const string & s, vector<string> & result) {
+    void gaux(const int no, const int nc, const string& s, vector<string>& result)
+    {
         if (no + nc == 0) {
             result.push_back(s);
             return;
@@ -14,7 +15,8 @@ public:
             gaux(no - 1, nc, s + "(", result);
         }
     }
-    vector<string> generateParenthesis(int n) {
+    vector<string> generateParenthesis(int n)
+    {
         vector<string> result;
         gaux(n, n, "", result);
         return result;

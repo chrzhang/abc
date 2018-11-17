@@ -1,7 +1,10 @@
 class Solution {
 public:
-    bool isIsomorphic(string s, string t) {
-        if (s.empty() && t.empty()) { return true; }
+    bool isIsomorphic(string s, string t)
+    {
+        if (s.empty() && t.empty()) {
+            return true;
+        }
         int sLastMapping, tLastMapping;
         sLastMapping = tLastMapping = 0;
         unordered_map<char, int> sIds;
@@ -21,10 +24,12 @@ public:
             } else {
                 tLastMapping = seekT->second;
             }
-            if (tLastMapping != sLastMapping) { return false; }
+            if (tLastMapping != sLastMapping) {
+                return false;
+            }
             ++sit;
             ++tit;
         }
-        return true; 
+        return true;
     }
 };
