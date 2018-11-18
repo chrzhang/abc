@@ -1,9 +1,10 @@
 class Solution {
 public:
-    bool isValid(string s) {
-            std::stack<char> pStack; // Keep track of all (), {}, and []
-    for (auto c : s) {
-        switch (c) {
+    bool isValid(string s)
+    {
+        std::stack<char> pStack; // Keep track of all (), {}, and []
+        for (auto c : s) {
+            switch (c) {
             case '(':
             case '[':
             case '{':
@@ -33,13 +34,13 @@ public:
             default:
                 std::cout << "Invalid character " << c << " found.\n";
                 return false;
+            }
         }
-    }
-    if (pStack.empty()) {
-        return true;
-    } else {
+        if (pStack.empty()) {
+            return true;
+        } else {
 
-        return false;
-    }
+            return false;
+        }
     }
 };

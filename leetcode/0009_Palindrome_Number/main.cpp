@@ -1,6 +1,7 @@
 class Solution {
 public:
-    bool isPalindrome(int x) {
+    bool isPalindrome(int x)
+    {
         int original = x;
         x = abs(x);
         int y = 0;

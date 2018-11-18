@@ -1,6 +1,7 @@
 class Solution {
 public:
-    int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+    int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid)
+    {
         auto width = obstacleGrid[0].size();
         auto height = obstacleGrid.size();
         vector<vector<int>> table(height, vector<int>(width, 0));

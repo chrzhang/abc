@@ -1,10 +1,11 @@
 class Solution {
 public:
-    int divide(int dividend, int divisor) {
+    int divide(int dividend, int divisor)
+    {
         long int result = 0;
         const bool is_neg = (dividend < 0) != (divisor < 0); // XOR is !=
-        long dend = labs((long) dividend);
-        long dsor = labs((long) divisor);
+        long dend = labs((long)dividend);
+        long dsor = labs((long)divisor);
         for (;;) {
             long int ds = dsor;
             long int x = 1;
@@ -22,11 +23,15 @@ public:
             }
         }
         while (dend > 0) {
-            if (dend - dsor >= 0) ++result;
+            if (dend - dsor >= 0)
+                ++result;
             dend -= dsor;
         }
-        if (is_neg) result *= -1;
-        if (result > INT_MAX || result < INT_MIN) { return INT_MAX; }
+        if (is_neg)
+            result *= -1;
+        if (result > INT_MAX || result < INT_MIN) {
+            return INT_MAX;
+        }
         return result;
     }
 };

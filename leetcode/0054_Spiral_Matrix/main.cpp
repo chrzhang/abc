@@ -1,7 +1,10 @@
 class Solution {
 public:
-    vector<int> spiralOrder(vector<vector<int>>& m) {
-        if (m.empty()) { return vector<int>(); }
+    vector<int> spiralOrder(vector<vector<int>>& m)
+    {
+        if (m.empty()) {
+            return vector<int>();
+        }
         vector<vector<bool>> visited(m.size(), vector<bool>(m[0].size(), false));
         visited[0][0] = true;
         int r = 0;
@@ -31,7 +34,9 @@ public:
                 result.push_back(m[r][c]);
                 visited[r][c] = true;
             }
-            if (result.size() == NC * NR) { return result; }
+            if (result.size() == NC * NR) {
+                return result;
+            }
         }
     }
 };

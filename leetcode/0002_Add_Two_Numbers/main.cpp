@@ -1,8 +1,9 @@
 class Solution {
 public:
-    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
-        ListNode * result = NULL;
-        ListNode * lastNode = NULL;
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2)
+    {
+        ListNode* result = NULL;
+        ListNode* lastNode = NULL;
         int carry = 0;
         while (l1 != NULL || l2 != NULL) {
             const int l1Digit = l1 == NULL ? 0 : l1->val;
@@ -14,7 +15,7 @@ public:
                 result = new ListNode(sum);
                 lastNode = result;
             } else {
-                ListNode * newNode = new ListNode(sum);
+                ListNode* newNode = new ListNode(sum);
                 lastNode->next = newNode;
                 lastNode = newNode;
             }
@@ -22,7 +23,7 @@ public:
             l2 = l2 == NULL ? l2 : l2->next;
         }
         if (carry) {
-            ListNode * newNode = new ListNode(carry);
+            ListNode* newNode = new ListNode(carry);
             lastNode->next = newNode;
             lastNode = newNode;
         }

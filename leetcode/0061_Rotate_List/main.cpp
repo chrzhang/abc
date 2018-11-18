@@ -1,7 +1,10 @@
 class Solution {
 public:
-    ListNode * rotateOnce(ListNode * head) {
-        if (!head->next) { return head; }
+    ListNode* rotateOnce(ListNode* head)
+    {
+        if (!head->next) {
+            return head;
+        }
         auto tail = head;
         while (tail->next->next) {
             tail = tail->next;
@@ -11,9 +14,12 @@ public:
         tail->next = nullptr;
         return result;
     }
-    int getSize(ListNode * head) {
-        if (!head) { return 0; }
-        auto curr= head;
+    int getSize(ListNode* head)
+    {
+        if (!head) {
+            return 0;
+        }
+        auto curr = head;
         int c = 0;
         while (curr) {
             ++c;
@@ -21,8 +27,11 @@ public:
         }
         return c;
     }
-    ListNode* rotateRight(ListNode* head, int k) {
-        if (k <= 0 || !head) { return head; }
+    ListNode* rotateRight(ListNode* head, int k)
+    {
+        if (k <= 0 || !head) {
+            return head;
+        }
         auto s = getSize(head);
         auto l = k % s;
         for (int i = 0; i < l; ++i) {

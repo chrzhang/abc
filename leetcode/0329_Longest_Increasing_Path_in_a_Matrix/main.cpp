@@ -1,6 +1,7 @@
 class Solution {
 public:
-    void findLengthsAux(vector<vector<int>> & lengths, vector<vector<int>> & matrix, int row, int col) {
+    void findLengthsAux(vector<vector<int>>& lengths, vector<vector<int>>& matrix, int row, int col)
+    {
         int currVal = 1;
         // North
         if (row > 0 && matrix[row][col] > matrix[row - 1][col]) {
@@ -31,9 +32,9 @@ public:
             currVal = max(currVal, 1 + lengths[row + 1][col]);
         }
         lengths[row][col] = currVal;
-        
     }
-    void findLengths(vector<vector<int>> & lengths, vector<vector<int>> & matrix) {
+    void findLengths(vector<vector<int>>& lengths, vector<vector<int>>& matrix)
+    {
         for (auto row = 0; row < matrix.size(); ++row) {
             for (auto col = 0; col < matrix[0].size(); ++col) {
                 if (lengths[row][col] == 1) {
@@ -42,10 +43,13 @@ public:
             }
         }
     }
-    int longestIncreasingPath(vector<vector<int>>& matrix) {
-        if (matrix.empty()) { return 0; }
+    int longestIncreasingPath(vector<vector<int>>& matrix)
+    {
+        if (matrix.empty()) {
+            return 0;
+        }
         // Use DP to not recalculate everything
-        vector<vector<int>> lengths (matrix.size(), vector<int>(matrix[0].size(), 1));
+        vector<vector<int>> lengths(matrix.size(), vector<int>(matrix[0].size(), 1));
         findLengths(lengths, matrix);
         int maxSoFar = INT_MIN;
         for (auto row : lengths) {
@@ -55,6 +59,6 @@ public:
                 }
             }
         }
-        return maxSoFar;   
+        return maxSoFar;
     }
 };

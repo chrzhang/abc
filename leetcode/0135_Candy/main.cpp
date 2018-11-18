@@ -1,6 +1,7 @@
 class Solution {
 public:
-    int candy(vector<int>& ratings) {
+    int candy(vector<int>& ratings)
+    {
         vector<int> candy_cts(ratings.size(), 1);
         for (int i = 1; i < ratings.size(); ++i) {
             if (ratings[i] > ratings[i - 1]) {

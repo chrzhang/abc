@@ -1,6 +1,7 @@
 class Solution {
 public:
-    vector<int> plusOne(vector<int>& v) {
+    vector<int> plusOne(vector<int>& v)
+    {
         int carry = 1;
         int i = v.size() - 1;
         while (carry && i >= 0) {

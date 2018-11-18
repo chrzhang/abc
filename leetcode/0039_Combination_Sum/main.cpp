@@ -1,9 +1,11 @@
 class Solution {
-vector<int> ints;
-int t;
-vector<vector<int>> result;
+    vector<int> ints;
+    int t;
+    vector<vector<int>> result;
+
 public:
-    void solve(vector<int> counts, const int i, const int curr_sum) {
+    void solve(vector<int> counts, const int i, const int curr_sum)
+    {
         if (curr_sum == t) {
             vector<int> r;
             for (int i = 0; i < counts.size(); ++i) {
@@ -23,7 +25,8 @@ public:
             solve(counts, i + 1, curr_sum + a * ints[i]);
         }
     }
-    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target)
+    {
         ints = candidates;
         t = target;
         vector<int> counts(candidates.size(), 0);

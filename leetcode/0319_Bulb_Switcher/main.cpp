@@ -1,8 +1,13 @@
 class Solution {
 public:
-    int bulbSwitch(int n) {
-        if (n == 0) { return 0; }
-        if (n == 1) { return n; }
+    int bulbSwitch(int n)
+    {
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return n;
+        }
         return sqrt(n);
         vector<bool> lights(n, true);
         for (int round = 2; round <= n; ++round) {
@@ -12,7 +17,9 @@ public:
         }
         int acc = 0;
         for (auto x : lights) {
-            if (x) { ++acc; }
+            if (x) {
+                ++acc;
+            }
         }
         return acc;
     }
