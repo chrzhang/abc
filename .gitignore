@@ -3,3 +3,4 @@ p
 *.hi
 *.class
 *.out
+__pycache__
