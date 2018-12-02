@@ -4,18 +4,18 @@ import collections
 # Helpers
 
 
-def has_n_occ(n, s):
-    c = collections.Counter(s)
-    return any([v == n for v in dict(c).values()])
+def has_n_occ(amount, text):
+    ctr = collections.Counter(text)
+    return any([ct == amount for ct in dict(ctr).values()])
 
 
-def differ_by_1(s1, s2):
-    if len(s1) != len(s2):
+def differ_by_1(str1, str2):
+    if len(str1) != len(str2):
         return False
     i = 0
     mismatch_found = False
-    while i < len(s1):
-        if s1[i] != s2[i]:
+    while i < len(str1):
+        if str1[i] != str2[i]:
             if mismatch_found:
                 return False
             else:
@@ -24,42 +24,43 @@ def differ_by_1(s1, s2):
     return mismatch_found
 
 
-def overlap(s1, s2):
-    if len(s1) != len(s2):
+def overlap(str1, str2):
+    if len(str1) != len(str2):
         return None
-    inds = filter(lambda i: (s1[i] == s2[i]), range(len(s1)))
-    return ''.join([s1[i] for i in inds])
+    return ''.join([str1[i] for i in range(len(str1)) if str1[i] == str2[i]])
 
 # Solutions
 
 
-def day1a(input):
-    return sum([int(x) for x in input.split(', ')])
+def day1a(line):
+    return sum([int(x) for x in line.split(', ')])
 
 
-def day1b(input):
+def day1b(line):
     curr_freq = 0
     freqs_seen = set()
-    for n in itertools.cycle(input.split(', ')):
-        curr_freq += int(n)
+    for delta in itertools.cycle(line.split(', ')):
+        curr_freq += int(delta)
         if curr_freq in freqs_seen:
             return curr_freq
         freqs_seen.add(curr_freq)
+    return None
 
 
-def day2a(input):
+def day2a(lines):
     count_2 = 0
     count_3 = 0
-    for s in input:
-        if has_n_occ(2, s):
+    for line in lines:
+        if has_n_occ(2, line):
             count_2 += 1
-        if has_n_occ(3, s):
+        if has_n_occ(3, line):
             count_3 += 1
     return count_2 * count_3
 
 
-def day2b(input):
-    for s1 in input:
-        for s2 in input:
-            if differ_by_1(s1, s2):
-                return overlap(s1, s2)
+def day2b(lines):
+    for line1 in lines:
+        for line2 in lines:
+            if differ_by_1(line1, line2):
+                return overlap(line1, line2)
+    return None

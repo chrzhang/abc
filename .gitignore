@@ -4,3 +4,4 @@ p
 *.class
 *.out
 __pycache__
+*.pyc
