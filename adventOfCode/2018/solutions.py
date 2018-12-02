@@ -3,9 +3,11 @@ import collections
 
 # Helpers
 
+
 def has_n_occ(n, s):
     c = collections.Counter(s)
     return any([v == n for v in dict(c).values()])
+
 
 def differ_by_1(s1, s2):
     if len(s1) != len(s2):
@@ -21,6 +23,7 @@ def differ_by_1(s1, s2):
         i += 1
     return mismatch_found
 
+
 def overlap(s1, s2):
     if len(s1) != len(s2):
         return None
@@ -29,8 +32,10 @@ def overlap(s1, s2):
 
 # Solutions
 
+
 def day1a(input):
     return sum([int(x) for x in input.split(', ')])
+
 
 def day1b(input):
     curr_freq = 0
@@ -52,9 +57,9 @@ def day2a(input):
             count_3 += 1
     return count_2 * count_3
 
+
 def day2b(input):
     for s1 in input:
         for s2 in input:
             if differ_by_1(s1, s2):
                 return overlap(s1, s2)
-
