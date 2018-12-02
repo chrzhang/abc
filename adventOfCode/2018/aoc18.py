@@ -7,10 +7,11 @@ class TestHelpers(unittest.TestCase):
     """Test helper functions."""
     pass
 
+"""Test against website sample inputs (c), part 1 (a), and part 2 (b)."""
+
 class TestDay1(unittest.TestCase):
-    """Test against website sample inputs (c), part 1 (a), and part 2(b)."""
     def setUp(self):
-        with open('inputs/day1a_input', 'r') as f:
+        with open('inputs/day1_input', 'r') as f:
             lines = f.read()
         self.tidylines = ', '.join(filter(None, lines.split('\n')))
     def test_day1c(self):
@@ -23,6 +24,24 @@ class TestDay1(unittest.TestCase):
         self.assertEqual(439, day1a(self.tidylines))
     def test_day1b(self):
         self.assertEqual(124645, day1b(self.tidylines))
+
+class TestDay2(unittest.TestCase):
+    def setUp(self):
+        with open('inputs/day2_input', 'r') as f:
+            self.lines = [l.strip() for l in f.readlines()]
+    def test_day2c(self):
+        self.assertEqual(12, day2a(['abcdef',
+                                    'bababc',
+                                    'abbcde',
+                                    'abcccd',
+                                    'aabcdd',
+                                    'abcdee',
+                                    'ababab']))
+    def test_day2a(self):
+        self.assertEqual(5368, day2a(self.lines))
+    def test_day2b(self):
+        self.assertEqual('cvgywxqubnuaefmsljdrpfzyi', day2b(self.lines))
+
 
 if __name__ == '__main__':
     unittest.main()
