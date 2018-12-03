@@ -70,14 +70,16 @@ def day2b(lines):
 def day3h(lines):
     fabric = collections.defaultdict(list)
     for line in lines:
-        matched = re.match(r'^#(\d+) @ (\d+),(\d+): (\d+)x(\d+)$', line)
+        matched = re.match(
+            r'^#(?P<fid>\d+) @ (?P<col>\d+),(?P<row>\d+): (?P<width>\d+)x(?P<height>\d+)$',  # noqa
+            line)
         if not matched:
             raise Exception('Line malformed: {0}'.format(line))
-        fid = int(matched.group(1))
-        col = int(matched.group(2))
-        row = int(matched.group(3))
-        width = int(matched.group(4))
-        height = int(matched.group(5))
+        fid = int(matched.group('fid'))
+        col = int(matched.group('col'))
+        row = int(matched.group('row'))
+        width = int(matched.group('width'))
+        height = int(matched.group('height'))
         coords = itertools.product(range(row, row + height),
                                    range(col, col + width))
         for coord in coords:
