@@ -50,7 +50,26 @@ class TestDay2(unittest.TestCase):
         self.assertEqual(5368, solutions.day2a(self.lines))
 
     def test_b(self):
-        self.assertEqual('cvgywxqubnuaefmsljdrpfzyi', solutions.day2b(self.lines))
+        self.assertEqual('cvgywxqubnuaefmsljdrpfzyi',
+                         solutions.day2b(self.lines))
+
+
+class TestDay3(unittest.TestCase):
+    def setUp(self):
+        with open('inputs/day3_input', 'r') as infile:
+            self.lines = [l.strip() for l in infile.readlines()]
+
+    def test_c(self):
+        input_lines = ("#1 @ 1,3: 4x4",
+                       "#2 @ 3,1: 4x4",
+                       "#3 @ 5,5: 2x2")
+        self.assertEqual(4, solutions.day3a(input_lines))
+
+    def test_a(self):
+        self.assertEqual(101781, solutions.day3a(self.lines))
+
+    def test_b(self):
+        self.assertEqual(909, solutions.day3b(self.lines))
 
 
 if __name__ == '__main__':

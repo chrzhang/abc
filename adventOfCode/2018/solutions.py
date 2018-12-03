@@ -1,5 +1,6 @@
 import itertools
 import collections
+import re
 
 # Helpers
 
@@ -64,3 +65,39 @@ def day2b(lines):
             if differ_by_1(line1, line2):
                 return overlap(line1, line2)
     return None
+
+
+def day3h(lines):
+    fabric = collections.defaultdict(list)
+    for line in lines:
+        matched = re.match(r'^#(\d+) @ (\d+),(\d+): (\d+)x(\d+)$', line)
+        if not matched:
+            raise Exception('Line malformed: {0}'.format(line))
+        fid = int(matched.group(1))
+        col = int(matched.group(2))
+        row = int(matched.group(3))
+        width = int(matched.group(4))
+        height = int(matched.group(5))
+        coords = itertools.product(range(row, row + height),
+                                   range(col, col + width))
+        for coord in coords:
+            fabric[coord].append(fid)
+    return fabric
+
+
+def day3a(lines):
+    fabric = day3h(lines)
+    return len([k for k, v in fabric.items() if len(v) > 1])
+
+
+def day3b(lines):
+    fabric = day3h(lines)
+    all_ids = set([x for sublist in fabric.values() for x in sublist])
+    for claims in fabric.values():
+        if len(claims) > 1:
+            for claim in claims:
+                if claim in all_ids:
+                    all_ids.remove(claim)
+    if len(all_ids) != 1:
+        raise Exception('No answer')
+    return next(iter(all_ids))
