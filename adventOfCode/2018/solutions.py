@@ -173,16 +173,14 @@ def day5a(linestr):
             return char2.isupper() and char2.lower() == char1
         return char2.islower() and char2.upper() == char1
 
-    def react(ind, lst):
-        if flip(lst[ind - 1], lst[ind]):
-            del lst[ind - 1]
-            del lst[ind - 1]
-            return ind - 1
-        return ind + 1
-    ind = 1
-    while ind < len(line):
-        ind = react(ind, line)
-    return ''.join(line)
+    stack = []
+    for c in line:
+        if stack and flip(stack[-1], c):
+            stack.pop()
+        else:
+            stack.append(c)
+
+    return ''.join(stack)
 
 
 def day5b(linestr):

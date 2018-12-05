@@ -124,6 +124,9 @@ class TestDay5(unittest.TestCase):
             self.line = infile.read().strip()
 
     def test_c(self):
+        self.assertEqual('abc', solutions.day5a('abc'))
+        self.assertEqual('abc', solutions.day5a('aZzbc'))
+        self.assertEqual('abc', solutions.day5a('adZzDbc'))
         self.assertEqual('', solutions.day5a('aA'))
         self.assertEqual('', solutions.day5a('abBA'))
         self.assertEqual('abAB', solutions.day5a('abAB'))
