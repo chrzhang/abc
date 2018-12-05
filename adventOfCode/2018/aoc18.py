@@ -1,11 +1,11 @@
 #!/usr/bin/python3
-"""Check that our solutions work against the inputs."""
+'''Check that our solutions work against the inputs.'''
 import unittest
 import solutions
 
 
 class TestHelpers(unittest.TestCase):
-    """Test helper functions."""
+    '''Test helper functions.'''
     pass
 
 
@@ -60,9 +60,9 @@ class TestDay3(unittest.TestCase):
             self.lines = [l.strip() for l in infile.readlines()]
 
     def test_c(self):
-        input_lines = ("#1 @ 1,3: 4x4",
-                       "#2 @ 3,1: 4x4",
-                       "#3 @ 5,5: 2x2")
+        input_lines = ('#1 @ 1,3: 4x4',
+                       '#2 @ 3,1: 4x4',
+                       '#3 @ 5,5: 2x2')
         self.assertEqual(4, solutions.day3a(input_lines))
 
     def test_a(self):
@@ -70,6 +70,40 @@ class TestDay3(unittest.TestCase):
 
     def test_b(self):
         self.assertEqual(909, solutions.day3b(self.lines))
+
+
+class TestDay4(unittest.TestCase):
+    def setUp(self):
+        with open('inputs/day4_input', 'r') as infile:
+            self.lines = [l.strip() for l in infile.readlines()]
+            self.lines.sort()
+
+    def test_c(self):
+        lines = ('[1518-11-01 00:00] Guard #10 begins shift',
+                 '[1518-11-01 00:05] falls asleep',
+                 '[1518-11-01 00:25] wakes up',
+                 '[1518-11-01 00:30] falls asleep',
+                 '[1518-11-01 00:55] wakes up',
+                 '[1518-11-01 23:58] Guard #99 begins shift',
+                 '[1518-11-02 00:40] falls asleep',
+                 '[1518-11-02 00:50] wakes up',
+                 '[1518-11-03 00:05] Guard #10 begins shift',
+                 '[1518-11-03 00:24] falls asleep',
+                 '[1518-11-03 00:29] wakes up',
+                 '[1518-11-04 00:02] Guard #99 begins shift',
+                 '[1518-11-04 00:36] falls asleep',
+                 '[1518-11-04 00:46] wakes up',
+                 '[1518-11-05 00:03] Guard #99 begins shift',
+                 '[1518-11-05 00:45] falls asleep',
+                 '[1518-11-05 00:55] wakes up')
+        self.assertEqual(240, solutions.day4a(lines))
+        self.assertEqual(4455, solutions.day4b(lines))
+
+    def test_a(self):
+        self.assertEqual(8950, solutions.day4a(self.lines))
+
+    def test_b(self):
+        self.assertEqual(78452, solutions.day4b(self.lines))
 
 
 if __name__ == '__main__':
