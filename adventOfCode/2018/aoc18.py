@@ -118,5 +118,25 @@ class TestDay4(unittest.TestCase):
         self.assertEqual(78452, solutions.day4b(self.lines))
 
 
+class TestDay5(unittest.TestCase):
+    def setUp(self):
+        with open('inputs/day5_input', 'r') as infile:
+            self.line = infile.read().strip()
+
+    def test_c(self):
+        self.assertEqual('', solutions.day5a('aA'))
+        self.assertEqual('', solutions.day5a('abBA'))
+        self.assertEqual('abAB', solutions.day5a('abAB'))
+        self.assertEqual('aabAAB', solutions.day5a('aabAAB'))
+        self.assertEqual('dabCBAcaDA', solutions.day5a('dabAcCaCBAcCcaDA'))
+        self.assertEqual(4, solutions.day5b('dabAcCaCBAcCcaDA'))
+
+    def test_a(self):
+        self.assertEqual(9704, len(solutions.day5a(self.line)))
+
+    def test_b(self):
+        self.assertEqual(6942, solutions.day5b(self.line))
+
+
 if __name__ == '__main__':
     unittest.main()

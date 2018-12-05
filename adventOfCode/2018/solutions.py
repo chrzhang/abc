@@ -39,6 +39,7 @@ def mode_count(lst):
 def mode(lst):
     return mode_count(lst)[0]
 
+
 # Solutions
 
 
@@ -162,3 +163,32 @@ def day4b(lines):
     chosen_guard = max(guards_to_most_sleepy_mins,
                        key=lambda x: guards_to_most_sleepy_mins[x][1])
     return chosen_guard * guards_to_most_sleepy_mins[chosen_guard][0]
+
+
+def day5a(linestr):
+    line = list(linestr)
+
+    def flip(char1, char2):
+        if char1.islower():
+            return char2.isupper() and char2.lower() == char1
+        return char2.islower() and char2.upper() == char1
+
+    def react(ind, lst):
+        if flip(lst[ind - 1], lst[ind]):
+            del lst[ind - 1]
+            del lst[ind - 1]
+            return ind - 1
+        return ind + 1
+    ind = 1
+    while ind < len(line):
+        ind = react(ind, line)
+    return ''.join(line)
+
+
+def day5b(linestr):
+    all_types = set([cr.lower() for cr in linestr])
+    min_len = len(linestr)
+    for polyt in all_types:
+        removed = filter(lambda cr, pt=polyt: cr.lower() != pt, linestr)
+        min_len = min(min_len, len(day5a(removed)))
+    return min_len
