@@ -48,7 +48,7 @@ def day1a(line):
 
 def day1b(line):
     curr_freq = 0
-    freqs_seen = set()
+    freqs_seen = set([curr_freq])
     for delta in itertools.cycle(line.split(', ')):
         curr_freq += int(delta)
         if curr_freq in freqs_seen:

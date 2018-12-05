@@ -24,6 +24,10 @@ class TestDay1(unittest.TestCase):
         self.assertEqual(0, solutions.day1a('+1, +1, -2'))
         self.assertEqual(-6, solutions.day1a('-1, -2, -3'))
         self.assertEqual(2, solutions.day1b('+1, -2, +3, +1'))
+        self.assertEqual(0, solutions.day1b('+1, -1'))
+        self.assertEqual(10, solutions.day1b('+3, +3, +4, -2, -4'))
+        self.assertEqual(5, solutions.day1b('-6, +3, +8, +5, -6'))
+        self.assertEqual(14, solutions.day1b('+7, +7, -2, -7, -4'))
 
     def test_a(self):
         self.assertEqual(439, solutions.day1a(self.tidylines))
@@ -45,6 +49,13 @@ class TestDay2(unittest.TestCase):
                                               'aabcdd',
                                               'abcdee',
                                               'ababab']))
+        self.assertEqual('fgij', solutions.day2b(['abcde',
+                                                  'fghij',
+                                                  'klmno',
+                                                  'pqrst',
+                                                  'fguij',
+                                                  'axcye',
+                                                  'wvxyz']))
 
     def test_a(self):
         self.assertEqual(5368, solutions.day2a(self.lines))
@@ -64,6 +75,7 @@ class TestDay3(unittest.TestCase):
                        '#2 @ 3,1: 4x4',
                        '#3 @ 5,5: 2x2')
         self.assertEqual(4, solutions.day3a(input_lines))
+        self.assertEqual(3, solutions.day3b(input_lines))
 
     def test_a(self):
         self.assertEqual(101781, solutions.day3a(self.lines))
