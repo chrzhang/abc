@@ -1,5 +1,5 @@
 import itertools
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, deque
 import re
 
 # Helpers
@@ -38,6 +38,18 @@ def mode_count(lst):
 
 def mode(lst):
     return mode_count(lst)[0]
+
+
+def mean(lst):
+    return sum(lst) / len(lst)
+
+
+def manhat_dist(c_1, c_2):
+    return abs(c_1[0] - c_2[0]) + abs(c_1[1] - c_2[1])
+
+
+def all_dist(coord, coords):
+    return sum([manhat_dist(coord, c) for c in coords])
 
 
 # Solutions
@@ -173,12 +185,12 @@ def day5a(linestr):
             return char2.isupper() and char2.lower() == char1
         return char2.islower() and char2.upper() == char1
 
-    stack = []
-    for c in line:
-        if stack and flip(stack[-1], c):
+    stack = deque()
+    for c_r in line:
+        if stack and flip(stack[-1], c_r):
             stack.pop()
         else:
-            stack.append(c)
+            stack.append(c_r)
 
     return ''.join(stack)
 
@@ -190,3 +202,70 @@ def day5b(linestr):
         removed = filter(lambda cr, pt=polyt: cr.lower() != pt, linestr)
         min_len = min(min_len, len(day5a(removed)))
     return min_len
+
+
+def day6a(coords):
+    minx = min([coord[0] for coord in coords])
+    maxx = max([coord[0] for coord in coords])
+    miny = min([coord[1] for coord in coords])
+    maxy = max([coord[1] for coord in coords])
+
+    def get_bbox():
+        bbox = {coord: set()
+                for coord in itertools.product(range(minx, maxx + 1),
+                                               range(miny, maxy + 1))}
+        for idx, coord in enumerate(coords):
+            bbox[coord] = {idx}
+        frontier = set(coords)
+        while frontier:
+            next_frontier = set()
+            for coord in frontier:
+                neighbors = [n for n in [(coord[0] + 1, coord[1]),
+                                         (coord[0] - 1, coord[1]),
+                                         (coord[0], coord[1] - 1),
+                                         (coord[0], coord[1] + 1)]
+                             if n in bbox and (not bbox[n] or n in next_frontier)]
+                for neighbor in neighbors:
+                    bbox[neighbor] |= bbox[coord]
+                    if neighbor not in next_frontier:
+                        next_frontier.add(neighbor)
+            frontier = next_frontier
+        return bbox
+
+    bbox = get_bbox()
+    # Get letters that would be inf since they live on edge of bbox
+    blacklist = set()
+    edges = [coord for coord in bbox
+             if len(bbox[coord]) == 1 and (coord[0] in (minx, maxx) or
+                                           coord[1] in (miny, maxy))]
+    for edge in edges:
+        blacklist |= bbox[edge]
+    contenders = itertools.chain.from_iterable([x for x in bbox.values()
+                                                if len(x) == 1])
+    contenders = [c for c in contenders if c not in blacklist]
+    return mode_count(contenders)[1]
+
+
+def day6b(coords, limit):
+    meanx = mean([coord[0] for coord in coords])
+    meany = mean([coord[1] for coord in coords])
+    center = (int(meanx), int(meany))
+    visited = set([center])
+    result = 0
+    frontier = [center]
+    while frontier:
+        next_frontier = []
+        for coord in frontier:
+            result += 1
+            assert all_dist(coord, coords) < limit
+            neighbors = [(coord[0] + 1, coord[1]),
+                         (coord[0] - 1, coord[1]),
+                         (coord[0], coord[1] - 1),
+                         (coord[0], coord[1] + 1)]
+            for neighbor in neighbors:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    if all_dist(neighbor, coords) < limit:
+                        next_frontier.append(neighbor)
+        frontier = next_frontier
+    return result

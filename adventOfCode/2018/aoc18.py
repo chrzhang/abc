@@ -141,5 +141,25 @@ class TestDay5(unittest.TestCase):
         self.assertEqual(6942, solutions.day5b(self.line))
 
 
+class TestDay6(unittest.TestCase):
+    def setUp(self):
+        with open('inputs/day6_input', 'r') as infile:
+            lines = [l.strip() for l in infile.readlines()]
+        self.coords = []
+        for line in lines:
+            x_c, y_c = line.split(', ')
+            self.coords.append((int(x_c), int(y_c)))
+
+    def test_c(self):
+        self.assertEqual(17, solutions.day6a([(1, 1), (1, 6), (8, 3), (3, 4), (5, 5), (8, 9)]))
+        self.assertEqual(16, solutions.day6b([(1, 1), (1, 6), (8, 3), (3, 4), (5, 5), (8, 9)], 32))
+
+    def test_a(self):
+        self.assertEqual(2906, solutions.day6a(self.coords))
+
+    def test_b(self):
+        self.assertEqual(50530, solutions.day6b(self.coords, 10000))
+
+
 if __name__ == '__main__':
     unittest.main()
