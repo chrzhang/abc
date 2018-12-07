@@ -52,6 +52,10 @@ def all_dist(coord, coords):
     return sum([manhat_dist(coord, c) for c in coords])
 
 
+def flatten(lst):
+    return [i for sublist in lst for i in sublist]
+
+
 # Solutions
 
 
@@ -116,7 +120,7 @@ def day3a(lines):
 
 def day3b(lines):
     fabric = day3h(lines)
-    all_ids = set([x for sublist in fabric.values() for x in sublist])
+    all_ids = set(flatten(fabric.values()))
     for claims in fabric.values():
         if len(claims) > 1:
             for claim in claims:
@@ -162,7 +166,7 @@ def day4h(lines):
 def day4a(lines):
     data = day4h(lines)
     most_sleepy = max(data, key=lambda x: sum([len(m) for m in data[x].values()]))
-    all_mins = [i for sublist in data[most_sleepy].values() for i in sublist]
+    all_mins = flatten(data[most_sleepy].values())
     return most_sleepy * mode(all_mins)
 
 
@@ -170,7 +174,7 @@ def day4b(lines):
     data = day4h(lines)
     guards_to_most_sleepy_mins = {}
     for guard, dminutes in data.items():
-        all_mins = [item for sublist in dminutes.values() for item in sublist]
+        all_mins = flatten(dminutes.values())
         guards_to_most_sleepy_mins[guard] = mode_count(all_mins)
     chosen_guard = max(guards_to_most_sleepy_mins,
                        key=lambda x: guards_to_most_sleepy_mins[x][1])
@@ -269,3 +273,63 @@ def day6b(coords, limit):
                         next_frontier.append(neighbor)
         frontier = next_frontier
     return result
+
+
+def day7h(lines):
+    rels = []
+    for line in lines:
+        matched = re.match(
+            r'^Step (?P<prereq>\w) must be finished before step (?P<step>\w) can begin.$',
+            line)
+        if not matched:
+            raise Exception('Line malformed: {0}'.format(line))
+        rels.append((matched.group('prereq'), matched.group('step')))
+    step_prereqs = {d: [] for d in flatten([r for r in rels])}
+    for relation in rels:
+        step_prereqs[relation[1]] += relation[0]
+    return step_prereqs
+
+
+def day7a(lines):
+    step_prereqs = day7h(lines)
+    done = set()
+    result = ''
+    while len(result) != len(step_prereqs):
+        can_do = min([step for step, pqs in step_prereqs.items()
+                      if step not in done and all([x in done for x in pqs])])
+        done.add(can_do)
+        result += can_do
+    return result
+
+
+def day7b(lines, num_workers, base_time):
+    step_prereqs = day7h(lines)
+    workers = {}
+    doing = set()
+    done = set()
+    second = 0
+    result = ''
+    while len(result) != len(step_prereqs):
+        # Check if any jobs are finished
+        jobs_finished = []
+        for step in workers:
+            workers[step] += 1
+            if workers[step] == base_time + (ord(step) - ord('A') + 1):
+                jobs_finished.append(step)
+        for j in sorted(jobs_finished):
+            result += j
+            doing.remove(j)
+            done.add(j)
+            del workers[j]
+        # Add new jobs
+        if num_workers - len(workers):
+            can_do = [step for step, pqs in step_prereqs.items()
+                      if (step not in doing and step not in done) and all([x in done for x in pqs])]
+            num_jobs_taskable = min(len(can_do), num_workers - len(workers))
+            if num_jobs_taskable:
+                steps_tasked = can_do[:num_jobs_taskable]
+                for step in steps_tasked:
+                    workers[step] = 0
+                    doing.add(step)
+        second += 1
+    return second - 1

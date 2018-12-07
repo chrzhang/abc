@@ -161,5 +161,29 @@ class TestDay6(unittest.TestCase):
         self.assertEqual(50530, solutions.day6b(self.coords, 10000))
 
 
+class TestDay7(unittest.TestCase):
+    def setUp(self):
+        with open('inputs/day7_input', 'r') as infile:
+            self.lines = [l.strip() for l in infile.readlines()]
+
+    def test_c(self):
+        sample_in = [
+            'Step C must be finished before step A can begin.',
+            'Step C must be finished before step F can begin.',
+            'Step A must be finished before step B can begin.',
+            'Step A must be finished before step D can begin.',
+            'Step B must be finished before step E can begin.',
+            'Step D must be finished before step E can begin.',
+            'Step F must be finished before step E can begin.']
+        self.assertEqual('CABDFE', solutions.day7a(sample_in))
+        self.assertEqual(15, solutions.day7b(sample_in, 2, 0))
+
+    def test_a(self):
+        self.assertEqual('ADEFKLBVJQWUXCNGORTMYSIHPZ', solutions.day7a(self.lines))
+
+    def test_b(self):
+        self.assertEqual(1120, solutions.day7b(self.lines, 5, 60))
+
+
 if __name__ == '__main__':
     unittest.main()
