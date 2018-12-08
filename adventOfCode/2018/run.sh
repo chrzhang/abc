@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo "PYLINT"
+
 pylint3 --max-line-length=200 *.py
-pep8 --max-line-length=200 *.py
-python -m unittest -v aoc18
+
+echo "PEP8"
+
+python3 -m pycodestyle --max-line-length=200 *.py
+
+python3 -m unittest -v aoc18

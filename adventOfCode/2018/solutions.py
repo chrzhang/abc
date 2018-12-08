@@ -333,3 +333,42 @@ def day7b(lines, num_workers, base_time):
                     doing.add(step)
         second += 1
     return second - 1
+
+
+def day8a(lst):
+    def recurse(begin):
+        result = 0
+        child_count = lst[begin]
+        meta_count = lst[begin + 1]
+        i = begin + 2
+        for _ in range(child_count):
+            val = recurse(i)
+            i = val[0]
+            result += val[1]
+        for _ in range(meta_count):
+            result += lst[i]
+            i += 1
+        return (i, result)
+    return recurse(0)[1]
+
+
+def day8b(lst):
+
+    def value(begin):
+        result = 0
+        child_count = lst[begin]
+        meta_count = lst[begin + 1]
+        i = begin + 2
+        children_values = []
+        for _ in range(child_count):
+            val = value(i)
+            i = val[0]
+            children_values.append(val[1])
+        for _ in range(meta_count):
+            if not children_values:
+                result += lst[i]
+            elif lst[i] <= len(children_values):
+                result += children_values[lst[i] - 1]
+            i += 1
+        return (i, result)
+    return value(0)[1]

@@ -185,5 +185,22 @@ class TestDay7(unittest.TestCase):
         self.assertEqual(1120, solutions.day7b(self.lines, 5, 60))
 
 
+class TestDay8(unittest.TestCase):
+    def setUp(self):
+        with open('inputs/day8_input', 'r') as infile:
+            self.line = [int(x) for x in infile.read().split()]
+
+    def test_c(self):
+        sample_in = [int(x) for x in '2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2'.split()]
+        self.assertEqual(138, solutions.day8a(sample_in))
+        self.assertEqual(66, solutions.day8b(sample_in))
+
+    def test_a(self):
+        self.assertEqual(41454, solutions.day8a(self.line))
+
+    def test_b(self):
+        self.assertEqual(25752, solutions.day8b(self.line))
+
+
 if __name__ == '__main__':
     unittest.main()
