@@ -353,7 +353,6 @@ def day8a(lst):
 
 
 def day8b(lst):
-
     def value(begin):
         result = 0
         child_count = lst[begin]
