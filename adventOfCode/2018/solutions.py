@@ -371,3 +371,17 @@ def day8b(lst):
             i += 1
         return (i, result)
     return value(0)[1]
+
+
+def day9(player_count, marble_count):
+    scores = [0 for _ in range(player_count)]
+    marbles = deque([0])
+    for marble in range(1, marble_count + 1):
+        if marble % 23:
+            marbles.rotate(-1)
+            marbles.append(marble)
+        else:
+            marbles.rotate(7)
+            scores[marble % player_count] += marbles.pop() + marble
+            marbles.rotate(-1)
+    return max(scores)

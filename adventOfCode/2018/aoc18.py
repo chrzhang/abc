@@ -202,5 +202,25 @@ class TestDay8(unittest.TestCase):
         self.assertEqual(25752, solutions.day8b(self.line))
 
 
+class TestDay9(unittest.TestCase):
+    def setUp(self):
+        self.player_count = 418
+        self.marble_count = 71339
+
+    def test_c(self):
+        self.assertEqual(32, solutions.day9(9, 25))
+        self.assertEqual(8317, solutions.day9(10, 1618))
+        self.assertEqual(146373, solutions.day9(13, 7999))
+        self.assertEqual(2764, solutions.day9(17, 1104))
+        self.assertEqual(54718, solutions.day9(21, 6111))
+        self.assertEqual(37305, solutions.day9(30, 5807))
+
+    def test_a(self):
+        self.assertEqual(412127, solutions.day9(self.player_count, self.marble_count))
+
+    def test_b(self):
+        self.assertEqual(3482394794, solutions.day9(self.player_count, 100 * self.marble_count))
+
+
 if __name__ == '__main__':
     unittest.main()
