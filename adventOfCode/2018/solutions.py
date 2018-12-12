@@ -382,3 +382,41 @@ def day9(player_count, marble_count):
             scores[marble % player_count] += marbles.pop() + marble
             marbles.rotate(-1)
     return max(scores)
+
+
+def day10(disp):
+    def show_disp(disp):
+        miny = min(disp, key=lambda x: x[1])[1]
+        maxy = max(disp, key=lambda x: x[1])[1]
+        minx = min(disp, key=lambda x: x[0])[0]
+        maxx = max(disp, key=lambda x: x[0])[0]
+        lines = []
+        offsetted = set([(x[0] - minx, x[1] - miny) for x in disp])
+        for col in range(maxy - miny + 1):
+            line = ''
+            for row in range(maxx - minx + 1):
+                if (row, col) in offsetted:
+                    line += 'O'
+                else:
+                    line += '.'
+            lines.append(line)
+        return lines
+    second = 0
+    min_so_far = None
+    while True:
+        miny = min(disp, key=lambda x: x[1])[1]
+        maxy = max(disp, key=lambda x: x[1])[1]
+        if min_so_far is None:
+            min_so_far = abs(maxy - miny)
+        else:
+            min_so_far = min(min_so_far, abs(maxy - miny))
+        # This solution does not account for setup where points expand into word
+        if abs(maxy - miny) > min_so_far:  # When we're done converging
+            for i, _ in enumerate(disp):
+                disp[i][0] -= disp[i][2]
+                disp[i][1] -= disp[i][3]
+            return (show_disp(disp), second - 1)
+        for i, _ in enumerate(disp):
+            disp[i][0] += disp[i][2]
+            disp[i][1] += disp[i][3]
+        second += 1

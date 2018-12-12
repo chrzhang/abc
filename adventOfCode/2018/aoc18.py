@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 '''Check that our solutions work against the inputs.'''
 import unittest
+import re
 import solutions
 
 
@@ -151,8 +152,10 @@ class TestDay6(unittest.TestCase):
             self.coords.append((int(x_c), int(y_c)))
 
     def test_c(self):
-        self.assertEqual(17, solutions.day6a([(1, 1), (1, 6), (8, 3), (3, 4), (5, 5), (8, 9)]))
-        self.assertEqual(16, solutions.day6b([(1, 1), (1, 6), (8, 3), (3, 4), (5, 5), (8, 9)], 32))
+        self.assertEqual(17, solutions.day6a(
+            [(1, 1), (1, 6), (8, 3), (3, 4), (5, 5), (8, 9)]))
+        self.assertEqual(16, solutions.day6b(
+            [(1, 1), (1, 6), (8, 3), (3, 4), (5, 5), (8, 9)], 32))
 
     def test_a(self):
         self.assertEqual(2906, solutions.day6a(self.coords))
@@ -179,7 +182,10 @@ class TestDay7(unittest.TestCase):
         self.assertEqual(15, solutions.day7b(sample_in, 2, 0))
 
     def test_a(self):
-        self.assertEqual('ADEFKLBVJQWUXCNGORTMYSIHPZ', solutions.day7a(self.lines))
+        self.assertEqual(
+            'ADEFKLBVJQWUXCNGORTMYSIHPZ',
+            solutions.day7a(
+                self.lines))
 
     def test_b(self):
         self.assertEqual(1120, solutions.day7b(self.lines, 5, 60))
@@ -191,7 +197,8 @@ class TestDay8(unittest.TestCase):
             self.line = [int(x) for x in infile.read().split()]
 
     def test_c(self):
-        sample_in = [int(x) for x in '2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2'.split()]
+        sample_in = [int(x)
+                     for x in '2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2'.split()]
         self.assertEqual(138, solutions.day8a(sample_in))
         self.assertEqual(66, solutions.day8b(sample_in))
 
@@ -216,10 +223,69 @@ class TestDay9(unittest.TestCase):
         self.assertEqual(37305, solutions.day9(30, 5807))
 
     def test_a(self):
-        self.assertEqual(412127, solutions.day9(self.player_count, self.marble_count))
+        self.assertEqual(
+            412127,
+            solutions.day9(
+                self.player_count,
+                self.marble_count))
 
     def test_b(self):
-        self.assertEqual(3482394794, solutions.day9(self.player_count, 100 * self.marble_count))
+        self.assertEqual(
+            3482394794,
+            solutions.day9(
+                self.player_count,
+                100 *
+                self.marble_count))
+
+
+class TestDay10(unittest.TestCase):
+    def prep_disp(self, filename):
+        with open(filename, 'r') as infile:
+            lines = [l.strip() for l in infile.readlines()]
+        self.disp = []
+        for line in lines:
+            matched = re.match(
+                r'^position=<[ ]*(?P<posx>[-]?\d+), [ ]*(?P<posy>[-]?\d+)> velocity=<[ ]*(?P<velx>[-]?\d+), [ ]*(?P<vely>[-]?\d+)>$',
+                line)
+            if not matched:
+                raise Exception('Line malformed: {0}'.format(line))
+            posx = int(matched.group('posx'))
+            posy = int(matched.group('posy'))
+            velx = int(matched.group('velx'))
+            vely = int(matched.group('vely'))
+            self.disp.append([posx, posy, velx, vely])
+
+    def setUp(self):
+        self.prep_disp('inputs/day10_input')
+
+    def test_c(self):
+        self.prep_disp('inputs/day10_sample')
+        result = solutions.day10(self.disp)
+        self.assertEqual(result[0], [
+            'O...O..OOO',
+            'O...O...O.',
+            'O...O...O.',
+            'OOOOO...O.',
+            'O...O...O.',
+            'O...O...O.',
+            'O...O...O.',
+            'O...O..OOO'])
+        self.assertEqual(3, result[1])
+
+    def test_ab(self):
+        result = solutions.day10(self.disp)
+        self.assertEqual(result[0], [
+            '.OOOO...OOOOOO....OO....O....O..OOOOOO..O....O..O....O.....OOO',
+            'O....O..O........O..O...OO...O..O.......O....O..O...O.......O.',
+            'O.......O.......O....O..OO...O..O.......O....O..O..O........O.',
+            'O.......O.......O....O..O.O..O..O.......O....O..O.O.........O.',
+            'O.......OOOOO...O....O..O.O..O..OOOOO...OOOOOO..OO..........O.',
+            'O..OOO..O.......OOOOOO..O..O.O..O.......O....O..OO..........O.',
+            'O....O..O.......O....O..O..O.O..O.......O....O..O.O.........O.',
+            'O....O..O.......O....O..O...OO..O.......O....O..O..O....O...O.',
+            'O...OO..O.......O....O..O...OO..O.......O....O..O...O...O...O.',
+            '.OOO.O..O.......O....O..O....O..OOOOOO..O....O..O....O...OOO..'])
+        self.assertEqual(10086, result[1])
 
 
 if __name__ == '__main__':
