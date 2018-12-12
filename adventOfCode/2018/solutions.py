@@ -1,4 +1,4 @@
-import itertools
+from itertools import cycle, product, chain
 from collections import Counter, defaultdict, deque
 import re
 
@@ -66,7 +66,7 @@ def day1a(line):
 def day1b(line):
     curr_freq = 0
     freqs_seen = set([curr_freq])
-    for delta in itertools.cycle(line.split(', ')):
+    for delta in cycle(line.split(', ')):
         curr_freq += int(delta)
         if curr_freq in freqs_seen:
             return curr_freq
@@ -106,8 +106,7 @@ def day3h(lines):
         row = int(matched.group('row'))
         width = int(matched.group('width'))
         height = int(matched.group('height'))
-        coords = itertools.product(range(row, row + height),
-                                   range(col, col + width))
+        coords = product(range(row, row + height), range(col, col + width))
         for coord in coords:
             fabric[coord].append(fid)
     return fabric
@@ -216,8 +215,7 @@ def day6a(coords):
 
     def get_bbox():
         bbox = {coord: set()
-                for coord in itertools.product(range(minx, maxx + 1),
-                                               range(miny, maxy + 1))}
+                for coord in product(range(minx, maxx + 1), range(miny, maxy + 1))}
         for idx, coord in enumerate(coords):
             bbox[coord] = {idx}
         frontier = set(coords)
@@ -244,8 +242,7 @@ def day6a(coords):
                                            coord[1] in (miny, maxy))]
     for edge in edges:
         blacklist |= bbox[edge]
-    contenders = itertools.chain.from_iterable([x for x in bbox.values()
-                                                if len(x) == 1])
+    contenders = chain.from_iterable([x for x in bbox.values() if len(x) == 1])
     contenders = [c for c in contenders if c not in blacklist]
     return mode_count(contenders)[1]
 
