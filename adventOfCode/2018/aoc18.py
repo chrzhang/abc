@@ -288,5 +288,43 @@ class TestDay10(unittest.TestCase):
         self.assertEqual(10086, result[1])
 
 
+class TestDay12(unittest.TestCase):
+    def setUp(self):
+        self.rules = {}
+        self.initial_state = '###......#.#........##.###.####......#..#####.####..#.###..#.###.#..#..#.#..#..#.##...#..##......#.#'
+        with open('inputs/day12_input', 'r') as infile:
+            self.lines = [l.strip() for l in infile.readlines()]
+        for line in self.lines:
+            matched = re.match(r'^(?P<from>[.#]+) => (?P<to>[.#]{1})$', line)
+            if not matched:
+                raise Exception('Line {0} malformed.'.format(line))
+            self.rules[matched.group('from')] = matched.group('to')
+
+    def test_c(self):
+        sample_initial_state = '#..#.#..##......###...###'
+        sample_rules = {
+            '...##': '#',
+            '..#..': '#',
+            '.#...': '#',
+            '.#.#.': '#',
+            '.#.##': '#',
+            '.##..': '#',
+            '.####': '#',
+            '#.#.#': '#',
+            '#.###': '#',
+            '##.#.': '#',
+            '##.##': '#',
+            '###..': '#',
+            '###.#': '#',
+            '####.': '#'}
+        self.assertEqual(325, solutions.day12(sample_rules, sample_initial_state, 20, brevity=True))
+
+    def test_a(self):
+        self.assertEqual(2045, solutions.day12(self.rules, self.initial_state, 20))
+
+    def test_b(self):
+        self.assertEqual(210000000428, solutions.day12(self.rules, self.initial_state, 5 * 10 ** 9))
+
+
 if __name__ == '__main__':
     unittest.main()

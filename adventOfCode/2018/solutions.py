@@ -420,3 +420,45 @@ def day10(disp):
             disp[i][0] += disp[i][2]
             disp[i][1] += disp[i][3]
         second += 1
+
+
+def day12(rules, initial_state, gens, brevity=False):
+
+    rule_len = len(next(iter(rules.keys())))
+
+    def tick(offset_flowers):
+        def tick_aux(flowers):
+            next_flowers = flowers.copy()
+            minflower = min(flowers)
+            maxflower = max(flowers)
+            for pos in range(minflower - rule_len + 1, maxflower + rule_len):
+                patch = ''.join(['#' if i - (rule_len // 2) + pos in flowers else '.' for i in range(rule_len)])
+                if rules.get(patch, '.') == '#' and pos not in flowers:
+                    next_flowers.add(pos)
+                elif rules.get(patch, '.') == '.' and pos in flowers:
+                    next_flowers.remove(pos)
+            return next_flowers
+        curr_offset, canon_flowers = offset_flowers
+        adj_flowers = set([x + curr_offset for x in canon_flowers])
+        adj_flowers = tick_aux(adj_flowers)
+        new_offset = min(adj_flowers)
+        return (new_offset, set([x - new_offset for x in adj_flowers]))
+
+    assert rules.get(rule_len * '.', '.') == '.'  # Else inf flowers
+    if not brevity:
+        assert len(rules) == 2 ** rule_len  # All possibilities covered
+
+    flowers = set([i for i, c in enumerate(initial_state) if c == '#'])
+    offset_flowers = (0, flowers)
+    flowers_states = {}  # Canonical flowers to (offset, ticks)
+    for ticks in range(gens):
+        tupled = tuple(sorted(list(offset_flowers[1])))
+        if tupled in flowers_states:  # Detected a cycle
+            # Input results in an infinite cycle that is only 1 unique flower
+            # combination repeating (TODO Extend to longer cycles?)
+            cycle_from_offset, cycle_from_tick = flowers_states[tupled]
+            final_offset = (gens - cycle_from_tick + cycle_from_offset)
+            return sum([x + final_offset for x in offset_flowers[1]])
+        flowers_states[tupled] = (offset_flowers[0], ticks)
+        offset_flowers = tick(offset_flowers)
+    return sum([x + offset_flowers[0] for x in offset_flowers[1]])
