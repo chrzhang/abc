@@ -462,3 +462,97 @@ def day12(rules, initial_state, gens, brevity=False):
         flowers_states[tupled] = (offset_flowers[0], ticks)
         offset_flowers = tick(offset_flowers)
     return sum([x + offset_flowers[0] for x in offset_flowers[1]])
+
+
+def day13(my_config):
+    def make_tracks(config):
+        tracks = {}
+        for rowi, row in enumerate(config):
+            for coli, elem in enumerate(row):
+                if elem in ('|', '^', 'v'):
+                    tracks[(rowi, coli)] = '|'
+                elif elem in ('-', '>', '<'):
+                    tracks[(rowi, coli)] = '-'
+                elif elem != ' ':
+                    tracks[(rowi, coli)] = elem
+        return tracks
+
+    def make_carts(config):
+        carts = []
+        for rowi, row in enumerate(config):
+            for coli, elem in enumerate(row):
+                if elem in ('<', '>', '^', 'v'):
+                    carts.append({'state': 'L',
+                                  'dir': elem,
+                                  'pos': [rowi, coli]})
+        return carts
+
+    def move(cart, tracks):
+        track = tracks[tuple(cart['pos'])]
+        east = (0, 1)
+        west = (0, -1)
+        north = (-1, 0)
+        south = (1, 0)
+        offset_dict = {'>': east, '<': west, '^': north, 'v': south}
+        if track == '+':
+            cross_dict = {
+                '>': {
+                    'L': '^', 'S': '>', 'R': 'v'
+                },
+                '<': {
+                    'L': 'v', 'S': '<', 'R': '^'
+                },
+                'v': {
+                    'L': '>', 'S': 'v', 'R': '<'
+                },
+                '^': {
+                    'L': '<', 'S': '^', 'R': '>'
+                }
+            }
+            cart['dir'] = cross_dict[cart['dir']][cart['state']]
+            cart['pos'][0] += offset_dict[cart['dir']][0]
+            cart['pos'][1] += offset_dict[cart['dir']][1]
+            cart['state'] = {'L': 'S',
+                             'S': 'R',
+                             'R': 'L'}[cart['state']]
+            return cart
+        new_dir_dict = {
+            '>': {
+                '-': '>', '/': '^', '\\': 'v'
+            },
+            '<': {
+                '-': '<', '/': 'v', '\\': '^'
+            },
+            'v': {
+                '|': 'v', '/': '<', '\\': '>'
+            },
+            '^': {
+                '|': '^', '/': '>', '\\': '<'
+            }
+        }
+        cart['dir'] = new_dir_dict[cart['dir']][track]
+        cart['pos'][0] += offset_dict[cart['dir']][0]
+        cart['pos'][1] += offset_dict[cart['dir']][1]
+        return cart
+
+    my_tracks = make_tracks(my_config)
+    my_carts = make_carts(my_config)
+
+    first_collision = None
+    while len(my_carts) > 1:
+        my_carts = sorted(my_carts, key=lambda cart: cart['pos'])
+        crashed = set()
+        for carti, cart in enumerate(my_carts):
+            if carti in crashed:
+                continue
+            my_carts[carti] = move(cart, my_tracks)
+            for cartj, othercart in enumerate(my_carts):
+                if cartj == carti:
+                    continue
+                if othercart['pos'] == cart['pos']:
+                    if first_collision is None:
+                        first_collision = cart['pos']
+                    crashed.add(carti)
+                    crashed.add(cartj)
+        my_carts = [x for i, x in enumerate(my_carts) if i not in crashed]
+    return first_collision, None if not my_carts else my_carts[0]['pos']

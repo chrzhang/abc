@@ -326,5 +326,23 @@ class TestDay12(unittest.TestCase):
         self.assertEqual(210000000428, solutions.day12(self.rules, self.initial_state, 5 * 10 ** 9))
 
 
+class TestDay13(unittest.TestCase):
+    def setUp(self):
+        with open('inputs/day13_input', 'r') as infile:
+            self.config = [l.strip('\n') for l in infile.readlines()]
+
+    def test_c(self):
+        with open('inputs/day13_input_a', 'r') as infile:
+            config = [l.strip('\n') for l in infile.readlines()]
+        self.assertEqual(([3, 7], None), solutions.day13(config))
+        with open('inputs/day13_input_b', 'r') as infile:
+            config = [l.strip('\n') for l in infile.readlines()]
+        self.assertEqual(([0, 2], [4, 6]), solutions.day13(config))
+
+    def test(self):
+        result = solutions.day13(self.config)
+        self.assertEqual(([121, 71], [76, 71]), result)
+
+
 if __name__ == '__main__':
     unittest.main()
