@@ -556,3 +556,33 @@ def day13(my_config):
                     crashed.add(cartj)
         my_carts = [x for i, x in enumerate(my_carts) if i not in crashed]
     return first_collision, None if not my_carts else my_carts[0]['pos']
+
+
+def day14a(recipe_ct):
+    recipes = [3, 7]
+    ielf, jelf = 0, 1
+    while len(recipes) < recipe_ct + 10:
+        total = recipes[ielf] + recipes[jelf]
+        if total > 9:
+            recipes.append(1)
+        recipes.append(total % 10)
+        ielf = (ielf + recipes[ielf] + 1) % len(recipes)
+        jelf = (jelf + recipes[jelf] + 1) % len(recipes)
+    return ''.join([str(x) for x in recipes[recipe_ct:recipe_ct + 10]])
+
+
+def day14b(target):
+    recipes = [3, 7]
+    ielf, jelf = 0, 1
+    while True:
+        total = recipes[ielf] + recipes[jelf]
+        if total > 9:
+            recipes.append(1)
+        recipes.append(total % 10)
+        ielf = (ielf + recipes[ielf] + 1) % len(recipes)
+        jelf = (jelf + recipes[jelf] + 1) % len(recipes)
+        if target[-1] in recipes[-2:]:
+            if recipes[len(recipes) - len(target):] == target:
+                return str(len(recipes) - len(target))
+            if recipes[len(recipes) - len(target) - 1:-1] == target:
+                return str(len(recipes) - len(target) - 1)

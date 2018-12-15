@@ -344,5 +344,13 @@ class TestDay13(unittest.TestCase):
         self.assertEqual(([121, 71], [76, 71]), result)
 
 
+class TestDay14(unittest.TestCase):
+    def test_a(self):
+        self.assertEqual('5115114101', solutions.day14a(633601))
+
+    def test_b(self):
+        self.assertEqual('20310465', solutions.day14b([6, 3, 3, 6, 0, 1]))
+
+
 if __name__ == '__main__':
     unittest.main()
