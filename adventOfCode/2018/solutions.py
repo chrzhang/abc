@@ -1,4 +1,4 @@
-from itertools import cycle, product, chain
+from itertools import cycle, product, chain, count
 from collections import Counter, defaultdict, deque
 import re
 
@@ -586,3 +586,122 @@ def day14b(target):
                 return str(len(recipes) - len(target))
             if recipes[len(recipes) - len(target) - 1:-1] == target:
                 return str(len(recipes) - len(target) - 1)
+
+
+class Day15Helpers:
+    @staticmethod
+    def get_neighbors(pos):
+        return ((pos[0] + 1, pos[1]), (pos[0] - 1, pos[1]),
+                (pos[0], pos[1] + 1), (pos[0], pos[1] - 1))
+
+    @staticmethod
+    def opp_unit(unit_type):
+        return 'g' if unit_type == 'e' else 'e'
+
+    @staticmethod
+    def in_range_of_target(unit_pos, units):
+        unit_type = units[unit_pos][0]
+        neighbors = [n for n in Day15Helpers.get_neighbors(unit_pos) if n in units]
+        return any([units[x][0] == Day15Helpers.opp_unit(unit_type) for x in neighbors])
+
+    @staticmethod
+    def attack_from(unit_pos, units, open_spots, elf_attack_power):
+        unit_type = units[unit_pos][0]
+        neighbors = [n for n in Day15Helpers.get_neighbors(unit_pos) if n in units and units[n][0] == Day15Helpers.opp_unit(unit_type)]
+        attack_target = min(sorted(neighbors), key=lambda n: units[n][1])
+        units[attack_target][1] -= elf_attack_power if unit_type == 'e' else 3
+        if units[attack_target][1] <= 0:
+            del units[attack_target]
+            open_spots.add(attack_target)
+            return attack_target
+        return None
+
+    @staticmethod
+    def get_nwes(pos):
+        return [[(pos[0] - 1, pos[1]) for _ in range(2)],
+                [(pos[0], pos[1] - 1) for _ in range(2)],
+                [(pos[0], pos[1] + 1) for _ in range(2)],
+                [(pos[0] + 1, pos[1]) for _ in range(2)]]
+
+    @staticmethod
+    def count_eg(units, eorg):
+        return len(list(filter(lambda x: units[x][0] == eorg, units)))
+
+    @staticmethod
+    def move_from(unit_pos, units, open_spots):
+        unit_type = units[unit_pos][0]
+        frontier = [n for n in Day15Helpers.get_nwes(unit_pos) if n[0] in open_spots]
+        visited = set([unit_pos])
+        while frontier:
+            next_frontier = []
+            for pos, immed in frontier:
+                if pos in visited:
+                    continue
+                visited.add(pos)
+                if any(filter(lambda x: x in units and units[x][0] == Day15Helpers.opp_unit(unit_type), Day15Helpers.get_neighbors(pos))):
+                    units[immed] = units[unit_pos]
+                    del units[unit_pos]
+                    open_spots.add(unit_pos)
+                    open_spots.remove(immed)
+                    return immed
+                next_frontier.extend([(n, immed) for n in Day15Helpers.get_neighbors(pos) if n in open_spots and n not in visited])
+            frontier = sorted(next_frontier, key=lambda x: x[0])
+        return unit_pos
+
+    @staticmethod
+    def process(filename):
+        my_units = {}
+        my_open_spots = set()
+        with open(filename, "r") as infile:
+            lines = [l.strip() for l in infile.readlines()]
+        for row, line in enumerate(lines):
+            for col, elem in enumerate(line):
+                if elem == 'G':
+                    my_units[(row, col)] = ['g', 200]
+                elif elem == 'E':
+                    my_units[(row, col)] = ['e', 200]
+                elif elem == '.':
+                    my_open_spots.add((row, col))
+                elif elem == '#':
+                    pass
+                else:
+                    raise Exception("What is {0} in {1}?".format(elem, line))
+        return my_units, my_open_spots
+
+
+def day15(filename, elf_attack_power):
+    my_units, my_open_spots = Day15Helpers.process(filename)
+
+    def done(i):
+        return sum(v[1] for v in my_units.values()) * i
+
+    initial_elf_count = Day15Helpers.count_eg(my_units, 'e')
+    initial_goblin_count = Day15Helpers.count_eg(my_units, 'g')
+    for i in count(0):
+        units_to_handle = set(my_units.keys())
+        skip_this = set()
+        for my_unit_pos in sorted(units_to_handle):
+            e_ct = Day15Helpers.count_eg(my_units, 'e')
+            g_ct = Day15Helpers.count_eg(my_units, 'g')
+            if not e_ct or not g_ct:
+                return done(i), initial_elf_count - e_ct, initial_goblin_count - g_ct
+            if my_unit_pos in skip_this:
+                continue
+            if not Day15Helpers.in_range_of_target(my_unit_pos, my_units):
+                my_unit_pos = Day15Helpers.move_from(my_unit_pos, my_units, my_open_spots)
+            if Day15Helpers.in_range_of_target(my_unit_pos, my_units):
+                died = Day15Helpers.attack_from(my_unit_pos, my_units, my_open_spots, elf_attack_power)
+                if died is not None:
+                    skip_this.add(died)
+
+
+def day15a(filename):
+    return day15(filename, 3)[0]
+
+
+def day15b(filename):
+    for eap in count(4):
+        result = day15(filename, eap)
+        if result[1] == 0:
+            return result[0]
+    return None

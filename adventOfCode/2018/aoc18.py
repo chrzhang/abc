@@ -352,5 +352,28 @@ class TestDay14(unittest.TestCase):
         self.assertEqual('20310465', solutions.day14b([6, 3, 3, 6, 0, 1]))
 
 
+class TestDay15(unittest.TestCase):
+    def test_c1(self):
+        self.assertEqual(47 * 590, solutions.day15a('inputs/day15_sample1'))
+        self.assertEqual(37 * 982, solutions.day15a('inputs/day15_sample2'))
+        self.assertEqual(46 * 859, solutions.day15a('inputs/day15_sample3'))
+        self.assertEqual(35 * 793, solutions.day15a('inputs/day15_sample4'))
+        self.assertEqual(54 * 536, solutions.day15a('inputs/day15_sample5'))
+        self.assertEqual(20 * 937, solutions.day15a('inputs/day15_sample6'))
+
+    def test_c2(self):
+        self.assertEqual(4988, solutions.day15b('inputs/day15_sample1'))
+        self.assertEqual(31284, solutions.day15b('inputs/day15_sample3'))
+        self.assertEqual(3478, solutions.day15b('inputs/day15_sample4'))
+        self.assertEqual(6474, solutions.day15b('inputs/day15_sample5'))
+        self.assertEqual(1140, solutions.day15b('inputs/day15_sample6'))
+
+    def test_a(self):
+        self.assertEqual(237996, solutions.day15a('inputs/day15_input'))
+
+    def test_b(self):
+        self.assertEqual(69700, solutions.day15b('inputs/day15_input'))
+
+
 if __name__ == '__main__':
     unittest.main()
