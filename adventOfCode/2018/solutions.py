@@ -705,3 +705,100 @@ def day15b(filename):
         if result[1] == 0:
             return result[0]
     return None
+
+
+class Day16Helpers:
+    @staticmethod
+    def do_instr(opcode, regs, m_a, m_b, m_c):
+        cregs = regs[:]
+        all_instrs = {
+            'a': lambda r: r[m_a] + r[m_b],
+            'b': lambda r: r[m_a] + m_b,
+            'c': lambda r: r[m_a] * r[m_b],
+            'd': lambda r: r[m_a] * m_b,
+            'e': lambda r: r[m_a] & r[m_b],
+            'f': lambda r: r[m_a] & m_b,
+            'g': lambda r: r[m_a] | r[m_b],
+            'h': lambda r: r[m_a] | m_b,
+            'i': lambda r: r[m_a],
+            'j': lambda r: m_a,
+            'k': lambda r: m_a > r[m_b],
+            'l': lambda r: r[m_a] > m_b,
+            'm': lambda r: r[m_a] > r[m_b],
+            'n': lambda r: m_a == r[m_b],
+            'o': lambda r: r[m_a] == m_b,
+            'p': lambda r: r[m_a] == r[m_b]}
+        cregs[m_c] = all_instrs[opcode](cregs)
+        return cregs
+
+    @staticmethod
+    def which_opcodes_apply(inregs, outregs, ininstr):
+        _, m_a, m_b, m_c = ininstr
+        possible_opcodes = []
+        for i in 'abcdefghijklmnop':
+            if Day16Helpers.do_instr(i, inregs, m_a, m_b, m_c) == outregs:
+                possible_opcodes.append(i)
+        return possible_opcodes
+
+    @staticmethod
+    def update_mapping(mapping, key, value):
+        mapping[key] = value
+        for other_key in mapping:
+            if other_key == key:
+                continue
+            if value in mapping[other_key]:
+                mapping[other_key].remove(value)
+                if len(mapping[other_key]) == 1:
+                    Day16Helpers.update_mapping(mapping, other_key, next(iter(mapping[other_key])))
+
+    @staticmethod
+    def parse_line(line):
+        the_list = line[8:].strip('[]')
+        return [int(x) for x in the_list.split(', ')]
+
+    @staticmethod
+    def get_mapping(lines):
+        mapping = {k: set('abcdefghijklmnop') for k in range(16)}
+        for idx, line in enumerate(lines):
+            if idx % 3 == 0:
+                begin = Day16Helpers.parse_line(line)
+            elif idx % 3 == 1:
+                curr_instr = [int(x) for x in line.split()]
+            else:
+                after = Day16Helpers.parse_line(line)
+                possib_opcodes = Day16Helpers.which_opcodes_apply(begin, after, curr_instr)
+                mapping[curr_instr[0]] = set(possib_opcodes)
+        for key, value in mapping.items():
+            if len(value) == 1:
+                Day16Helpers.update_mapping(mapping, key, next(iter(value)))
+        return mapping
+
+
+def day16a(filename_before_after):
+    with open(filename_before_after, 'r') as infile:
+        my_lines = [l.strip() for l in infile if l.strip()]
+    result = 0
+    for idx, line in enumerate(my_lines):
+        if idx % 3 == 0:
+            begin = Day16Helpers.parse_line(line)
+        elif idx % 3 == 1:
+            curr_instr = [int(x) for x in line.split()]
+        else:
+            after = Day16Helpers.parse_line(line)
+            possib_opcodes = Day16Helpers.which_opcodes_apply(begin, after, curr_instr)
+            if len(possib_opcodes) >= 3:
+                result += 1
+    return result
+
+
+def day16b(filename_before_after, filename_instrs):
+    with open(filename_before_after, 'r') as infile:
+        my_lines = [l.strip() for l in infile if l.strip()]
+    with open(filename_instrs, 'r') as infile:
+        my_instrs = [l.strip().split() for l in infile]
+    mapping = Day16Helpers.get_mapping(my_lines)
+    regs = [0, 0, 0, 0]
+    for instrs in my_instrs:
+        instrs = [int(x) for x in instrs]
+        regs = Day16Helpers.do_instr(mapping[instrs[0]], regs, instrs[1], instrs[2], instrs[3])
+    return regs[0]
