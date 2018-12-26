@@ -19,8 +19,7 @@ def differ_by_1(str1, str2):
         if str1[i] != str2[i]:
             if mismatch_found:
                 return False
-            else:
-                mismatch_found = True
+            mismatch_found = True
         i += 1
     return mismatch_found
 
@@ -199,7 +198,7 @@ def day5a(linestr):
 
 
 def day5b(linestr):
-    all_types = set([cr.lower() for cr in linestr])
+    all_types = {cr.lower() for cr in linestr}
     min_len = len(linestr)
     for polyt in all_types:
         removed = filter(lambda cr, pt=polyt: cr.lower() != pt, linestr)
@@ -391,7 +390,7 @@ def day10(disp):
         minx = min(disp, key=lambda x: x[0])[0]
         maxx = max(disp, key=lambda x: x[0])[0]
         lines = []
-        offsetted = set([(x[0] - minx, x[1] - miny) for x in disp])
+        offsetted = {(x[0] - minx, x[1] - miny) for x in disp}
         for col in range(maxy - miny + 1):
             line = ''
             for row in range(maxx - minx + 1):
@@ -439,16 +438,16 @@ def day12(rules, initial_state, gens, brevity=False):
                     next_flowers.remove(pos)
             return next_flowers
         curr_offset, canon_flowers = offset_flowers
-        adj_flowers = set([x + curr_offset for x in canon_flowers])
+        adj_flowers = {x + curr_offset for x in canon_flowers}
         adj_flowers = tick_aux(adj_flowers)
         new_offset = min(adj_flowers)
-        return (new_offset, set([x - new_offset for x in adj_flowers]))
+        return (new_offset, {x - new_offset for x in adj_flowers})
 
     assert rules.get(rule_len * '.', '.') == '.'  # Else inf flowers
     if not brevity:
         assert len(rules) == 2 ** rule_len  # All possibilities covered
 
-    flowers = set([i for i, c in enumerate(initial_state) if c == '#'])
+    flowers = {i for i, c in enumerate(initial_state) if c == '#'}
     offset_flowers = (0, flowers)
     flowers_states = {}  # Canonical flowers to (offset, ticks)
     for ticks in range(gens):

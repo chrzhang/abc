@@ -1,8 +1,10 @@
 #!/bin/bash
 
+set -euo pipefail
+
 echo "PYLINT"
 
-pylint3 --max-line-length=200 *.py
+pylint --max-line-length=200 *.py
 
 echo "PEP8"
 

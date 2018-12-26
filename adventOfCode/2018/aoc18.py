@@ -5,11 +5,6 @@ import re
 import solutions
 
 
-class TestHelpers(unittest.TestCase):
-    '''Test helper functions.'''
-    pass
-
-
 # Test against website sample inputs (c), part 1 (a), and part 2 (b).
 
 
