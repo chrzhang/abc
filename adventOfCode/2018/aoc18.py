@@ -393,5 +393,16 @@ class TestDay17(unittest.TestCase):
         self.assertEqual(23811, solutions.day17b('inputs/day17_input1'))
 
 
+class TestDay18(unittest.TestCase):
+    def test_c(self):
+        self.assertEqual(1147, solutions.day18('inputs/day18_input0', 10))
+
+    def test_a(self):
+        self.assertEqual(603098, solutions.day18('inputs/day18_input', 10))
+
+    def test_b(self):
+        self.assertEqual(210000, solutions.day18('inputs/day18_input', 10 ** 9))
+
+
 if __name__ == '__main__':
     unittest.main()

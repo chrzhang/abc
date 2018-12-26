@@ -914,3 +914,52 @@ def day17a(filename):
 
 def day17b(filename):
     return day17(filename)['stillct']
+
+
+class Day18Helpers():
+    @staticmethod
+    def neighbors(pos):
+        row, col = pos
+        return [(row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1),
+                (row + 1, col + 1), (row - 1, col - 1), (row + 1, col - 1), (row - 1, col + 1)]
+
+    @staticmethod
+    def step(grid):
+        copy = {}
+        for pos, elem in grid.items():
+            copy[pos] = elem
+            neighbors = [grid.get(n) for n in Day18Helpers.neighbors(pos)]
+            if elem == '.' and neighbors.count('|') >= 3:
+                copy[pos] = '|'
+            elif elem == '|' and neighbors.count('#') >= 3:
+                copy[pos] = '#'
+            elif elem == '#' and not (neighbors.count('#') >= 1 and neighbors.count('|') >= 1):
+                copy[pos] = '.'
+        return copy
+
+    @staticmethod
+    def get_score(grid):
+        vals = list(grid.values())
+        return vals.count('#') * vals.count('|')
+
+
+def day18(filename, gens):
+    with open(filename, 'r') as infile:
+        lines = [l.strip() for l in infile.readlines()]
+
+    my_grid = {}
+    for rowi, row in enumerate(lines):
+        for coli, elem in enumerate(row):
+            my_grid[(rowi, coli)] = elem
+
+    all_gens = [my_grid]
+    for gen in range(gens):
+        my_grid = Day18Helpers.step(my_grid)
+        try:
+            ind = all_gens.index(my_grid)
+            # Cycle found!
+            cycle_width = gen - ind + 1
+            return Day18Helpers.get_score(all_gens[(gens - ind + 1) % cycle_width + ind - 1])
+        except ValueError:
+            all_gens.append(my_grid)
+    return Day18Helpers.get_score(my_grid)
