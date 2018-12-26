@@ -801,3 +801,116 @@ def day16b(filename_before_after, filename_instrs):
         instrs = [int(x) for x in instrs]
         regs = Day16Helpers.do_instr(mapping[instrs[0]], regs, instrs[1], instrs[2], instrs[3])
     return regs[0]
+
+
+class Day17Helpers:
+    @staticmethod
+    def init_grid(filename):  # grid in (col, row): symbol
+        with open(filename, 'r') as infile:
+            lines = [l.strip() for l in infile.readlines()]
+
+        grid = defaultdict(lambda: '.')
+        grid[(0, 500)] = '+'
+
+        for line in lines:
+            matched = re.match(r'^(?P<axis>[xy]{1})=(?P<val>\d+), [xy]{1}=(?P<otherbegin>\d+)\.\.(?P<otherend>\d+)$', line)
+            val = int(matched.group('val'))
+            valiscol = matched.group('axis') == 'x'
+            otherbegin = int(matched.group('otherbegin'))
+            otherend = int(matched.group('otherend'))
+            for coord in [(z, val) if valiscol else (val, z) for z in range(otherbegin, otherend + 1)]:
+                grid[coord] = '#'
+            if not matched:
+                raise Exception('Could not understand {0}'.format(line))
+        return grid
+
+    @staticmethod
+    def go_down(row, col, grid, stats):
+        while grid[(row + 1, col)] in '|.':
+            if grid[(row + 1, col)] == '.':
+                grid[(row + 1, col)] = '|'
+                if row + 1 >= stats['min_row']:
+                    stats['waterct'] += 1
+            row += 1  # Go down as far as possible
+            if row == stats['max_row']:
+                break
+        return row, col
+
+    @staticmethod
+    def go_left(row, col, grid, stats, dumped):
+        left_hit_wall = True
+        while grid[(row, col - 1)] != '#':
+            if grid[(row, col - 1)] == '.':
+                grid[(row, col - 1)] = '|'
+                if row >= stats['min_row']:
+                    stats['waterct'] += 1
+            col -= 1  # Go left as far as possible
+            if grid[(row + 1, col)] not in '#~':
+                Day17Helpers.dump_water((row, col), grid, stats, dumped)
+                if grid[(row + 1, col)] not in '#~':
+                    left_hit_wall = False
+                    break  # Stop going left
+        return left_hit_wall, row, col
+
+    @staticmethod
+    def go_right(row, col, grid, stats, dumped):
+        right_hit_wall = True
+        while grid[(row, col + 1)] != '#':
+            if grid[(row, col + 1)] != '|':
+                grid[(row, col + 1)] = '|'
+                if row >= stats['min_row']:
+                    stats['waterct'] += 1
+            col += 1  # Go right as far as possible
+            if grid[(row + 1, col)] not in '#~':
+                Day17Helpers.dump_water((row, col), grid, stats, dumped)
+                if grid[(row + 1, col)] not in '#~':
+                    right_hit_wall = False
+                    break
+        return right_hit_wall, row, col
+
+    @staticmethod
+    def send_droplet(fromh, grid, stats, dumped):
+        row, col = fromh
+        if row >= stats['max_row'] or grid[(row + 1, col)] not in '|.':
+            return
+        row, col = Day17Helpers.go_down(row, col, grid, stats)
+        if row == stats['max_row']:
+            return
+        left_hit_wall, row, col = Day17Helpers.go_left(row, col, grid, stats, dumped)
+        right_hit_wall, row, col = Day17Helpers.go_right(row, col, grid, stats, dumped)
+        if left_hit_wall and right_hit_wall:
+            while grid[(row, col)] == '|':
+                grid[(row, col)] = '~'
+                stats['stillct'] += 1
+                col -= 1
+        return
+
+    @staticmethod
+    def dump_water(source, grid, stats, dumped):
+        if source in dumped:
+            return
+        dumped.add(source)
+        curr, still = stats['waterct'], stats['stillct']
+        while True:
+            Day17Helpers.send_droplet(source, grid, stats, dumped)
+            if stats['waterct'] == curr and stats['stillct'] == still:
+                break
+            curr, still = stats['waterct'], stats['stillct']
+
+
+def day17(filename):
+    my_grid = Day17Helpers.init_grid(filename)
+    max_row = max(my_grid, key=lambda x: x[0])[0]
+    min_row = min([k for k in my_grid if my_grid[k] != '+'], key=lambda x: x[0])[0]
+    stats = {'waterct': 0, 'stillct': 0, 'max_row': max_row, 'min_row': min_row}
+    dumped = set()
+    Day17Helpers.dump_water((0, 500), my_grid, stats, dumped)
+    return stats
+
+
+def day17a(filename):
+    return day17(filename)['waterct']
+
+
+def day17b(filename):
+    return day17(filename)['stillct']
