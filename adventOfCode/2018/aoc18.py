@@ -404,5 +404,21 @@ class TestDay18(unittest.TestCase):
         self.assertEqual(210000, solutions.day18('inputs/day18_input', 10 ** 9))
 
 
+class TestDay20(unittest.TestCase):
+    def setUp(self):
+        with open('inputs/day20_input', 'r') as infile:
+            self.lines = [l.strip() for l in infile.readlines()]
+
+    def test_c(self):
+        self.assertEqual(31, solutions.day20a("^WSSEESWWWNW(S|NENNEEEENN(ESSSSW(NWSW|SSEN)|WSWWN(E|WWS(E|SS))))$"))
+        self.assertEqual(23, solutions.day20a("^ESSWWN(E|NNENN(EESS(WNSE|)SSS|WWWSSSSE(SW|NNNE)))$"))
+
+    def test_a(self):
+        self.assertEqual(4308, solutions.day20a(self.lines[0]))
+
+    def test_b(self):
+        self.assertEqual(8528, solutions.day20b(self.lines[0]))
+
+
 if __name__ == '__main__':
     unittest.main()

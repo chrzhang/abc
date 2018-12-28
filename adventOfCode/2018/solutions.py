@@ -963,3 +963,107 @@ def day18(filename, gens):
         except ValueError:
             all_gens.append(my_grid)
     return Day18Helpers.get_score(my_grid)
+
+
+class Day20Helpers:
+    FRONTIER_BEGIN = (0, 0)  # Doesn't really matter, it's relative movement that counts
+
+    move = {
+        'N': lambda pos: (pos[0] - 1, pos[1]),
+        'S': lambda pos: (pos[0] + 1, pos[1]),
+        'E': lambda pos: (pos[0], pos[1] + 1),
+        'W': lambda pos: (pos[0], pos[1] - 1)
+    }
+
+    @staticmethod
+    def make_lookup(path):
+        lookup = {}
+        my_stack = deque()
+        for idx, tok in enumerate(path):
+            if tok == ')':
+                branches = []
+                while path[my_stack[-1]] == '|':
+                    branches.append(my_stack[-1])
+                    my_stack.pop()
+                lookup[my_stack.pop()] = (branches, idx)
+            elif tok in '|(':
+                my_stack.append(idx)
+        return lookup
+
+    @staticmethod
+    def make_adjlist(path, lookup):
+        my_frontier = [Day20Helpers.FRONTIER_BEGIN]
+        adjlist = defaultdict(set)
+
+        def explore(start, indent, frontier):
+            while start < len(path):
+                frontier = list(set(frontier))
+                if path[start] == '(':
+                    new_frontier = []
+                    for branch in [start] + lookup[start][0]:
+                        copy_of_frontier = frontier[:]
+                        explore(branch + 1, indent + 1, copy_of_frontier)
+                        new_frontier += copy_of_frontier
+                    frontier.clear()
+                    frontier.extend(new_frontier)
+                    start = lookup[start][1] + 1  # Jump past closing )
+                    continue
+                if path[start] in '|)':
+                    return
+                for idx, pos in enumerate(frontier):
+                    dest = Day20Helpers.move[path[start]](pos)
+                    adjlist[pos].add(dest)
+                    adjlist[dest].add(pos)
+                    frontier[idx] = dest
+                start += 1
+        explore(0, 1, my_frontier)
+        return adjlist
+
+    @staticmethod
+    def farthest_bfs_depth(adjlist):
+        visited = set()
+        bfs_frontier = [Day20Helpers.FRONTIER_BEGIN]
+        depth = 0
+        while bfs_frontier:
+            next_bfs_frontier = []
+            for elem in bfs_frontier:
+                visited.add(elem)
+                for neighbor in adjlist[elem]:
+                    if neighbor not in visited:
+                        next_bfs_frontier.append(neighbor)
+            bfs_frontier = next_bfs_frontier
+            depth += 1
+        return depth - 1
+
+    @staticmethod
+    def amounts_at_each_bfs_depth(adjlist):
+        visited = set()
+        bfs_frontier = [Day20Helpers.FRONTIER_BEGIN]
+        depth = 0
+        amounts_at_each_depth = {}
+        while bfs_frontier:
+            amounts_at_each_depth[depth] = len(bfs_frontier)
+            next_bfs_frontier = []
+            for elem in bfs_frontier:
+                visited.add(elem)
+                for neighbor in adjlist[elem]:
+                    if neighbor not in visited:
+                        next_bfs_frontier.append(neighbor)
+            bfs_frontier = next_bfs_frontier
+            depth += 1
+        return amounts_at_each_depth
+
+
+def day20a(path):
+    path = path.strip('^$')
+    lookup = Day20Helpers.make_lookup(path)
+    adjlist = Day20Helpers.make_adjlist(path, lookup)
+    return Day20Helpers.farthest_bfs_depth(adjlist)
+
+
+def day20b(path):
+    path = path.strip('^$')
+    lookup = Day20Helpers.make_lookup(path)
+    adjlist = Day20Helpers.make_adjlist(path, lookup)
+    relevant_depths = {k: v for k, v in Day20Helpers.amounts_at_each_bfs_depth(adjlist).items() if k >= 1000}
+    return sum(relevant_depths.values())
