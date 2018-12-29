@@ -420,5 +420,17 @@ class TestDay20(unittest.TestCase):
         self.assertEqual(8528, solutions.day20b(self.lines[0]))
 
 
+class TestDay22(unittest.TestCase):
+    def test_c(self):
+        self.assertEqual(114, solutions.day22a(510, (10, 10)))
+        self.assertEqual(45, solutions.day22b(510, (10, 10)))
+
+    def test_a(self):
+        self.assertEqual(9659, solutions.day22a(3198, (12, 757)))
+
+    def test_b(self):
+        self.assertEqual(1043, solutions.day22b(3198, (12, 757)))
+
+
 if __name__ == '__main__':
     unittest.main()

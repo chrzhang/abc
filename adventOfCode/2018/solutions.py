@@ -1,6 +1,8 @@
 from itertools import cycle, product, chain, count
-from collections import Counter, defaultdict, deque
+from collections import Counter, defaultdict, deque, namedtuple
+from functools import lru_cache
 import re
+import heapq
 
 # Helpers
 
@@ -54,6 +56,8 @@ def all_dist(coord, coords):
 def flatten(lst):
     return [i for sublist in lst for i in sublist]
 
+
+Pos = namedtuple('Pos', ['x', 'y'])
 
 # Solutions
 
@@ -1067,3 +1071,87 @@ def day20b(path):
     adjlist = Day20Helpers.make_adjlist(path, lookup)
     relevant_depths = {k: v for k, v in Day20Helpers.amounts_at_each_bfs_depth(adjlist).items() if k >= 1000}
     return sum(relevant_depths.values())
+
+
+class Day22Helpers:
+    ROCKY = '.'
+    WET = '='
+    NARROW = '|'
+    TORCH = 0
+    CLIMBING_GEAR = 1
+    NEITHER = 2
+    ALL_TOOLS = [TORCH, CLIMBING_GEAR, NEITHER]
+    IMPOSSIBLE_OPTIONS = {ROCKY: NEITHER,
+                          WET: TORCH,
+                          NARROW: CLIMBING_GEAR}
+
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def geological_index(pos, target, depth):
+        if pos == (0, 0):
+            return 0
+        if pos == target:
+            return 0
+        if pos.y == 0:
+            return pos.x * 16807
+        if pos.x == 0:
+            return pos.y * 48271
+        return (Day22Helpers.erosion_level(Pos(pos.x - 1, pos.y), target, depth) *
+                Day22Helpers.erosion_level(Pos(pos.x, pos.y - 1), target, depth))
+
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def erosion_level(pos, target, depth):
+        return (Day22Helpers.geological_index(pos, target, depth) + depth) % 20183
+
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def region_type(pos, target, depth):
+        region = Day22Helpers.erosion_level(pos, target, depth) % 3
+        return [Day22Helpers.ROCKY, Day22Helpers.WET, Day22Helpers.NARROW][region]
+
+    @staticmethod
+    def get_neighbors(pos):
+        return filter(lambda p: p.x >= 0 and p.y >= 0, [
+            Pos(pos.x + 1, pos.y), Pos(pos.x - 1, pos.y),
+            Pos(pos.x, pos.y + 1), Pos(pos.x, pos.y - 1)])
+
+    # Consider moving N, E, W, S, AND itself, with each possible gear option
+    @staticmethod
+    def shortest_path(source_pos, source_tool, dest_pos, dest_tool, depth):
+        # To find shortest path, use Dijkstra's algorithm
+        # Nodes are positions, edges are weighted by time needed to transition to that node
+        prioriq = [(0, source_pos, source_tool)]
+        dists = {}
+        while prioriq:
+            minutes, position, tool = heapq.heappop(prioriq)
+            heap_key = (position, tool)
+            if heap_key in dists and dists[heap_key] <= minutes:  # We can already reach position faster
+                continue
+            dists[heap_key] = minutes
+            if (dest_pos, dest_tool) == heap_key:
+                return minutes
+            for possible_tool in Day22Helpers.ALL_TOOLS:  # Consider using other tools
+                regiont = Day22Helpers.region_type(position, dest_pos, depth)
+                if possible_tool not in (tool, Day22Helpers.IMPOSSIBLE_OPTIONS[regiont]):
+                    heapq.heappush(prioriq, (7 + minutes, position, possible_tool))
+            for neigh in Day22Helpers.get_neighbors(position):  # Simply move, keeping our tool
+                regiont = Day22Helpers.region_type(neigh, dest_pos, depth)
+                if tool != Day22Helpers.IMPOSSIBLE_OPTIONS[regiont]:
+                    heapq.heappush(prioriq, (1 + minutes, neigh, tool))
+
+
+def day22a(depth, targett):
+    target = Pos(targett[0], targett[1])
+    result = 0
+    for rowi in range(target.y + 1):
+        line = ''
+        for coli in range(target.x + 1):
+            regiont = Day22Helpers.region_type(Pos(coli, rowi), target, depth)
+            line += regiont
+            result += [Day22Helpers.ROCKY, Day22Helpers.WET, Day22Helpers.NARROW].index(regiont)
+    return result
+
+
+def day22b(depth, target):
+    return Day22Helpers.shortest_path(Pos(0, 0), Day22Helpers.TORCH, target, Day22Helpers.TORCH, depth)
