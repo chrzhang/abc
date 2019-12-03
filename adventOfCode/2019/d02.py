@@ -29,11 +29,14 @@ def solve(states, noun, verb):
 assert 4090689 == solve(read_states, 12, 2)
 
 from itertools import product
+part_2 = None
 for possible_noun, possible_verb in product(range(100), range(100)):
     try:
         result = solve(read_states, possible_noun, possible_verb)
         if result == 19690720:
-            assert 7733 == 100 * possible_noun + possible_verb
+            part_2 = 100 * possible_noun + possible_verb
             break
     except RuntimeError:
         pass
+
+assert 7733 == part_2
