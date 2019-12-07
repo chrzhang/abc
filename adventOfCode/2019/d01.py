@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-with open('inputs/day1_input', 'r') as f:
-    lines = f.read().strip().split('\n')
+with open("inputs/day1_input", "r") as f:
+    lines = f.read().strip().split("\n")
 
 masses = [int(line) for line in lines]
 fuel_requirements = [mass // 3 - 2 for mass in masses]
