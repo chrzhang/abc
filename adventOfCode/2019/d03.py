@@ -93,3 +93,37 @@ shortest_distance = get_shortest_intersection_distance(
 )
 
 assert 293 == shortest_distance
+
+def get_points_to_dists(some_range):
+    points = [list(r.points()) for r in some_range]
+    for point_list in points[:-1]:
+        point_list.pop()
+    return {x[1]: x[0] for x in list(enumerate(flatten(points)))}
+
+def get_intersections_with_dists(points_to_dists_1, points_to_dists_2):
+    intersections = []
+    for point_1, dist_1 in points_to_dists_1.items():
+        if point_1 in points_to_dists_2:
+            intersections.append(dist_1 + points_to_dists_2[point_1])
+    return intersections
+
+def get_shortest_intersection_path(wire_path_1, wire_path_2):
+    wire_positions_1 = get_wire_positions(wire_path_1)
+    wire_positions_2 = get_wire_positions(wire_path_2)
+    points_to_dists_1 = get_points_to_dists(wire_positions_1)
+    points_to_dists_2 = get_points_to_dists(wire_positions_2)
+    intersection_dists = get_intersections_with_dists(points_to_dists_1, points_to_dists_2)
+    least_dist = None
+    for dist in intersection_dists:
+        if dist == 0:
+            continue
+        if least_dist is None:
+            least_dist = dist
+        else:
+            least_dist = min(least_dist, dist)
+    return least_dist
+
+result = get_shortest_intersection_path(wire_1, wire_2)
+assert 27306 == result
+
+
