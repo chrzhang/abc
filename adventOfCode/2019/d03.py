@@ -96,8 +96,8 @@ shortest_distance = get_shortest_intersection_distance(wire_1, wire_2)
 assert 293 == shortest_distance
 
 
-def get_points_to_dists(some_range):
-    points = [list(r.points()) for r in some_range]
+def get_points_to_dists(ranges):
+    points = [list(r.points()) for r in ranges]
     for point_list in points[:-1]:
         point_list.pop()
     return {x[1]: x[0] for x in list(enumerate(flatten(points)))}
