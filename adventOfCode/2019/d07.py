@@ -28,22 +28,24 @@ def amp_settings():
     return permutations([0, 1, 2, 3, 4])
 
 
-if __name__ == "__main__":
-    with open("inputs/day7_input", "r") as f:
-        (line,) = f.read().strip().split("\n")
-    read_states = tuple([int(x) for x in line.split(",")])
-
+def get_highest_thruster_signal(states):
     highest_thruster_signal = None
     for amp_setting in amp_settings():
         current_input = 0
         current_phase_setting = amp_setting[0]
         for amp_i in range(5):
-            _, outputs = solve([current_phase_setting, current_input], read_states)
+            _, outputs = solve([current_phase_setting, current_input], states)
             output, = outputs
             current_input = output
             if amp_i < 4:
                 current_phase_setting = amp_setting[amp_i + 1]
         if highest_thruster_signal is None or current_input > highest_thruster_signal:
             highest_thruster_signal = current_input
+    return highest_thruster_signal
 
-    assert 34686 == highest_thruster_signal
+
+if __name__ == "__main__":
+    with open("inputs/day7_input", "r") as f:
+        (line,) = f.read().strip().split("\n")
+    read_states = tuple([int(x) for x in line.split(",")])
+    assert 34686 == get_highest_thruster_signal(read_states)
