@@ -3,12 +3,6 @@
 import functools
 from enum import Enum, unique
 
-with open("inputs/day5_input", "r") as f:
-    (line,) = f.read().strip().split("\n")
-
-read_states = tuple([int(x) for x in line.split(",")])
-
-
 @unique
 class OpCode(Enum):
     ADD = "01"
@@ -184,15 +178,18 @@ def solve(input_val, states):
 
 solve_part_1 = functools.partial(solve, 1)
 
+if __name__ == '__main__':
+    with open("inputs/day5_input", "r") as f:
+        (line,) = f.read().strip().split("\n")
+    read_states = tuple([int(x) for x in line.split(",")])
 
-assert [1002, 4, 3, 4, 99], [] == solve_part_1([1002, 4, 3, 4, 33])
-assert [3, 0, 4, 0, 99], [1] == solve_part_1([3, 0, 4, 0, 99])
-assert [1101, 100, -1, 4, 99], [] == solve_part_1([1101, 100, -1, 4, 0])
+    assert [1002, 4, 3, 4, 99], [] == solve_part_1([1002, 4, 3, 4, 33])
+    assert [3, 0, 4, 0, 99], [1] == solve_part_1([3, 0, 4, 0, 99])
+    assert [1101, 100, -1, 4, 99], [] == solve_part_1([1101, 100, -1, 4, 0])
 
-_, outputs = solve_part_1(read_states)
-assert outputs[-1] == 6761139
+    _, outputs = solve_part_1(read_states)
+    assert outputs[-1] == 6761139
 
-
-solve_part_2 = functools.partial(solve, 5)
-_, outputs = solve_part_2(read_states)
-assert outputs == [9217546]
+    solve_part_2 = functools.partial(solve, 5)
+    _, outputs = solve_part_2(read_states)
+    assert outputs == [9217546]
