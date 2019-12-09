@@ -39,7 +39,8 @@ if __name__ == "__main__":
         current_phase_setting = amp_setting[0]
         for amp_i in range(5):
             _, outputs = solve([current_phase_setting, current_input], read_states)
-            current_input = outputs[-1]
+            output, = outputs
+            current_input = output
             if amp_i < 4:
                 current_phase_setting = amp_setting[amp_i + 1]
         if highest_thruster_signal is None or current_input > highest_thruster_signal:
