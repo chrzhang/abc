@@ -87,7 +87,6 @@ def get_200th_vaporized_asteroid(pos_of_monitoring_station, asteroids):
                 pos_of_monitoring_station, detectables
             )
             return detectables[200 - number_of_asteroids_vaporized - 1]
-    raise RuntimeError("Never found 200th vaproized asteroid.")
 
 
 if __name__ == "__main__":
