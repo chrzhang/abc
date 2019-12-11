@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 with open("inputs/day1_input", "r") as f:
     lines = f.read().strip().split("\n")
