@@ -17,6 +17,28 @@ class Asteroid:
     def __str__(self):
         return f"Asteroid @ ({self.x}, {self.y})"
 
+def get_asteroids_detectable_from(asteroid, all_asteroids):
+    other_asteroids = [
+        (a, a.position_relative_to(asteroid))
+        for a in all_asteroids if not a is asteroid
+    ]
+    normalized_positions_to_asteroids = {}
+    for other_asteroid, relative_pos in other_asteroids:
+        normalized_pos = normalize(*relative_pos)
+        if normalized_pos in normalized_positions_to_asteroids:
+            existing_other_asteroid = normalized_positions_to_asteroids[
+                normalized_pos
+            ]
+            if other_asteroid.x < existing_other_asteroid.x:
+                normalized_positions_to_asteroids[
+                    normalized_pos
+                ] = other_asteroid
+        else:
+            normalized_positions_to_asteroids[
+                normalized_pos
+            ] = other_asteroid
+    return normalized_positions_to_asteroids.values()
+
 
 def get_asteroids(read_lines):
     asteroids = []
@@ -33,14 +55,8 @@ if __name__ == "__main__":
     asteroids = get_asteroids(lines)
     max_count_of_detectable_asteroids = None
     for curr_asteroid in asteroids:
-        other_asteroids = [a for a in asteroids if not a is curr_asteroid]
-        relative_positions_of_other_asteroids = [
-            a.position_relative_to(curr_asteroid) for a in other_asteroids
-        ]
-        normalized_relative_positions = [
-            normalize(*p) for p in relative_positions_of_other_asteroids
-        ]
-        count_of_detectable_asteroids = len(set(normalized_relative_positions))
+        detectables = get_asteroids_detectable_from(curr_asteroid, asteroids)
+        count_of_detectable_asteroids = len(detectables)
         if max_count_of_detectable_asteroids is None or count_of_detectable_asteroids > max_count_of_detectable_asteroids:
             max_count_of_detectable_asteroids = count_of_detectable_asteroids
     assert 276 == max_count_of_detectable_asteroids
