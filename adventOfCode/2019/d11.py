@@ -232,24 +232,29 @@ class OutputMode(Enum):
     TURN = auto()
 
 
-if __name__ == "__main__":
+class Solver:
+    def __init__(self):
+        self.curr_pos = (0, 0)
+        self.curr_dir = Direction.UP
+        self.white_panels = set()
+        self.curr_output_mode = OutputMode.COLOR
+        self.panels_painted = set()
 
-    curr_pos = (0, 0)
-    curr_dir = Direction.UP
-    white_panels = set()
-    curr_output_mode = OutputMode.COLOR
-    panels_painted = set()
+    def read_hull(self):
+        return (
+            Color.WHITE.value
+            if self.curr_pos in self.white_panels
+            else Color.BLACK.value
+        )
 
-    def read_hull():
-        return Color.WHITE.value if curr_pos in white_panels else Color.BLACK.value
+    def paint_hull(self, color):
+        self.panels_painted.add(self.curr_pos)
+        if Color(color) is Color.BLACK and self.curr_pos in self.white_panels:
+            self.white_panels.remove(self.curr_pos)
+        elif Color(color) is Color.WHITE and self.curr_pos not in self.white_panels:
+            self.white_panels.add(self.curr_pos)
 
-    def paint_hull(color):
-        panels_painted.add(curr_pos)
-        if Color(color) is Color.BLACK and curr_pos in white_panels:
-            white_panels.remove(curr_pos)
-        elif Color(color) is Color.WHITE and curr_pos not in white_panels:
-            white_panels.add(curr_pos)
-
+    @staticmethod
     def turn(my_dir, turn_dir):
         if my_dir is Direction.UP:
             if turn_dir is TurnDir.RIGHT:
@@ -272,6 +277,7 @@ if __name__ == "__main__":
             elif turn_dir is TurnDir.LEFT:
                 return Direction.DOWN
 
+    @staticmethod
     def move(my_pos, my_dir):
         if my_dir is Direction.UP:
             return (my_pos[0], my_pos[1] - 1)
@@ -282,25 +288,39 @@ if __name__ == "__main__":
         elif my_dir is Direction.LEFT:
             return (my_pos[0] - 1, my_pos[1])
 
-    def turn_bot(turn_dir):
-        global curr_pos, curr_dir
-        curr_dir = turn(curr_dir, TurnDir(turn_dir))
-        curr_pos = move(curr_pos, curr_dir)
+    def turn_bot(self, turn_dir):
+        self.curr_dir = self.turn(self.curr_dir, TurnDir(turn_dir))
+        self.curr_pos = self.move(self.curr_pos, self.curr_dir)
 
-    def output_handler(v):
-        global curr_output_mode
-        if curr_output_mode is OutputMode.COLOR:
-            result = paint_hull(v)
-            curr_output_mode = OutputMode.TURN
-            return result
-        elif curr_output_mode is OutputMode.TURN:
-            result = turn_bot(v)
-            curr_output_mode = OutputMode.COLOR
+    def output_handler(self, v):
+        if self.curr_output_mode is OutputMode.COLOR:
+            self.paint_hull(v)
+            self.curr_output_mode = OutputMode.TURN
+        elif self.curr_output_mode is OutputMode.TURN:
+            self.turn_bot(v)
+            self.curr_output_mode = OutputMode.COLOR
 
+    def run_bot(self, states):
+        solve(states, self.read_hull, self.output_handler)
+
+
+if __name__ == "__main__":
     with open("inputs/day11_input", "r") as f:
         (line,) = f.read().strip().split("\n")
     read_states = tuple([int(x) for x in line.split(",")])
-
-    solve(read_states, read_hull, output_handler)
-
-    assert 1907 == len(panels_painted)
+    def part_1():
+        s = Solver()
+        s.run_bot(read_states)
+        assert 1907 == len(s.panels_painted)
+    def part_2():
+        s = Solver()
+        s.white_panels.add(s.curr_pos)
+        s.run_bot(read_states)
+        board_width = 1 + max([p[0] for p in s.white_panels])
+        board_height = 1 + max([p[1] for p in s.white_panels])
+        board = [[' ' for _ in range(board_width)] for __ in range(board_height)] 
+        for p in s.white_panels:
+            board[p[1]][p[0]] = '@'
+        print('\n'.join([' '.join(r) for r in board]))
+    part_1()
+    part_2()
