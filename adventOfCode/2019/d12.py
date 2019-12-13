@@ -73,13 +73,10 @@ if __name__ == "__main__":
 
     def part1():
         moons = get_moons(read_lines)
-        number_of_time_steps = 1000
-        time_step = 0
-        while time_step < number_of_time_steps:
+        for _ in range(1000):
             apply_gravity_across(moons)
             for moon in moons:
                 moon.apply_velocity()
-            time_step += 1
         assert 7013 == get_total_energy(moons)
 
     def part2():
