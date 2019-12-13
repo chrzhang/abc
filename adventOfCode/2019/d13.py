@@ -219,7 +219,7 @@ class Solver:
     def __init__(self):
         self.curr_x = None
         self.curr_y = None
-        self.outputs = []
+        self.block_count = 0
         self.ball_pos = None
         self.paddle_pos = None
         self.last_output_score = None
@@ -246,10 +246,11 @@ class Solver:
         else:
             tile_type = TileType(v)
             curr_pos = (self.curr_x, self.curr_y)
-            self.outputs.append((self.curr_x, self.curr_y, tile_type))
-            if tile_type is TileType.BALL:
+            if tile_type is TileType.BLOCK:
+                self.block_count += 1
+            elif tile_type is TileType.BALL:
                 self.ball_pos = curr_pos
-            if tile_type is TileType.HORIZONTAL_PADDLE:
+            elif tile_type is TileType.HORIZONTAL_PADDLE:
                 self.paddle_pos = curr_pos
             self.reset_pos()
 
@@ -265,11 +266,7 @@ if __name__ == "__main__":
     def part_1():
         s = Solver()
         s.run_bot(read_states)
-        block_count = 0
-        for x, y, tile_type in s.outputs:
-            if tile_type is TileType.BLOCK:
-                block_count += 1
-        assert 420 == block_count
+        assert 420 == s.block_count
 
     def part_2():
         s = Solver()
