@@ -81,28 +81,28 @@ if __name__ == "__main__":
 
     def part2():
         moons = get_moons(read_lines)
-        x_orig = [(m.x, m.dx) for m in moons]
-        y_orig = [(m.y, m.dy) for m in moons]
-        z_orig = [(m.z, m.dz) for m in moons]
+        orig_state = {
+            coord: [(getattr(m, coord), getattr(m, f"d{coord}")) for m in moons]
+            for coord in "xyz"
+        }
         time_step = 0
-        x_cycle_length = None
-        y_cycle_length = None
-        z_cycle_length = None
-        while True:
+        cycle_lengths = {}
+        while len(cycle_lengths) < 3:
             apply_gravity_across(moons)
             for moon in moons:
                 moon.apply_velocity()
             time_step += 1
             for moon_idx in range(4):
-                if [(m.x, m.dx) for m in moons] == x_orig:
-                    x_cycle_length = x_cycle_length or time_step
-                if [(m.y, m.dy) for m in moons] == y_orig:
-                    y_cycle_length = y_cycle_length or time_step
-                if [(m.z, m.dz) for m in moons] == z_orig:
-                    z_cycle_length = z_cycle_length or time_step
-            if x_cycle_length and y_cycle_length and z_cycle_length:
-                break
-        assert 324618307124784 == lcm([x_cycle_length, y_cycle_length, z_cycle_length])
+                for coord in "xyz":
+                    if coord in cycle_lengths:
+                        continue
+                    dcoord = f"d{coord}"
+                    curr_coord_state = [
+                        (getattr(m, coord), getattr(m, dcoord)) for m in moons
+                    ]
+                    if curr_coord_state == orig_state[coord]:
+                        cycle_lengths[coord] = time_step
+        assert 324618307124784 == lcm(list(cycle_lengths.values()))
 
     part1()
     part2()
