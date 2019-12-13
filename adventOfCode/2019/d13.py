@@ -220,20 +220,38 @@ class Solver:
         self.curr_x = None
         self.curr_y = None
         self.outputs = []
+        self.ball_pos = None
+        self.paddle_pos = None
+        self.last_output_score = None
 
     def input_getter(self):
-        raise RuntimeError
+        if self.paddle_pos[0] < self.ball_pos[0]:
+            return 1
+        elif self.paddle_pos[0] > self.ball_pos[0]:
+            return -1
+        return 0
+
+    def reset_pos(self):
+        self.curr_x = None
+        self.curr_y = None
 
     def output_handler(self, v):
         if self.curr_x is None:
             self.curr_x = v
         elif self.curr_y is None:
             self.curr_y = v
+        elif self.curr_x == -1 and self.curr_y == 0:
+            self.last_output_score = v
+            self.reset_pos()
         else:
             tile_type = TileType(v)
+            curr_pos = (self.curr_x, self.curr_y)
             self.outputs.append((self.curr_x, self.curr_y, tile_type))
-            self.curr_x = None
-            self.curr_y = None
+            if tile_type is TileType.BALL:
+                self.ball_pos = curr_pos
+            if tile_type is TileType.HORIZONTAL_PADDLE:
+                self.paddle_pos = curr_pos
+            self.reset_pos()
 
     def run_bot(self, states):
         solve(states, self.input_getter, self.output_handler)
@@ -253,4 +271,12 @@ if __name__ == "__main__":
                 block_count += 1
         assert 420 == block_count
 
+    def part_2():
+        s = Solver()
+        lread_states = list(read_states)
+        lread_states[0] = 2
+        s.run_bot(lread_states)
+        assert 21651 == s.last_output_score
+
     part_1()
+    part_2()
