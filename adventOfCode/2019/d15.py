@@ -32,10 +32,6 @@ class WritingToImmediateError(Exception):
     pass
 
 
-class OxygenFoundError(Exception):
-    pass
-
-
 def number_of_values(opcode):
     if opcode in (OpCode.ADD, OpCode.MULTIPLY, OpCode.LESS_THAN, OpCode.EQUALS):
         return 4
@@ -249,18 +245,17 @@ def get_state_after_move(prior_state, direction):
         )
 
 
-def get_unvisited_neighbor_states(s, visited, known_walls):
+def get_unvisited_neighbor_states(s, visited, maze):
     unvisited_neighbor_states = []
     for direction in Direction:
         state_after_move, output = get_state_after_move(s, direction)
         assert state_after_move is not s
         if output == OutputType.OXYGEN.value:
-            raise OxygenFoundError
+            maze.oxygen_location = state_after_move.pos
         elif output == OutputType.WALL.value:
-            if known_walls is not None:
-                known_walls.add(state_after_move.pos)
+            maze.walls.add(state_after_move.pos)
             continue
-        elif output == OutputType.EMPTY.value:
+        if output in (OutputType.EMPTY.value, OutputType.OXYGEN.value):
             if state_after_move.pos not in visited:
                 unvisited_neighbor_states.append(state_after_move)
         else:
@@ -268,21 +263,30 @@ def get_unvisited_neighbor_states(s, visited, known_walls):
     return unvisited_neighbor_states
 
 
-def visualize(walls):
-    if walls is None:
-        return
-    min_x = min([wall[0] for wall in walls])
-    max_x = max([wall[0] for wall in walls])
-    min_y = min([wall[1] for wall in walls])
-    max_y = max([wall[1] for wall in walls])
+def visualize(maze):
+    min_x = min([wall[0] for wall in maze.walls])
+    max_x = max([wall[0] for wall in maze.walls])
+    min_y = min([wall[1] for wall in maze.walls])
+    max_y = max([wall[1] for wall in maze.walls])
     for y in range(min_y, max_y + 1):
         row = []
         for x in range(min_x, max_x + 1):
-            if (x, y) in walls:
+            if (x, y) == (0, 0):
+                row.append("S")
+            elif (x, y) == maze.oxygen_location:
+                row.append("X")
+            elif (x, y) in maze.walls:
                 row.append("#")
             else:
                 row.append(" ")
         print(" ".join(row))
+
+
+class Maze:
+    def __init__(self):
+        self.walls = set()
+        self.oxygen_location = None
+        self.oxygen_steps = None
 
 
 if __name__ == "__main__":
@@ -290,7 +294,7 @@ if __name__ == "__main__":
         (line,) = f.read().strip().split("\n")
     read_states = tuple([int(x) for x in line.split(",")])
 
-    def part_1(draw_maze=False):
+    def draw_maze():
         tape = defaultdict(int)
         for idx, e in enumerate(read_states):
             tape[idx] = e
@@ -299,21 +303,22 @@ if __name__ == "__main__":
         visited = {start_pos}
         frontier = [state]
         steps = 1
-        known_walls = set() if draw_maze else None
+        maze = Maze()
+        steps_to_reach_oxygen = None
         while frontier:
             next_frontier = []
             for s in frontier:
-                try:
-                    for unvisited_neighbor_state in get_unvisited_neighbor_states(
-                        s, visited, known_walls
-                    ):
-                        visited.add(unvisited_neighbor_state.pos)
-                        next_frontier.append(unvisited_neighbor_state)
-                except OxygenFoundError:
-                    return steps
+                for unvisited_neighbor_state in get_unvisited_neighbor_states(
+                    s, visited, maze
+                ):
+                    visited.add(unvisited_neighbor_state.pos)
+                    next_frontier.append(unvisited_neighbor_state)
+                    if maze.oxygen_location and maze.oxygen_steps is None:
+                        maze.oxygen_steps = steps
             frontier = next_frontier
             steps += 1
-            if draw_maze:
-                visualize(known_walls)
+        return maze
 
-    assert 380 == part_1(True)
+    maze = draw_maze()
+    visualize(maze)
+    assert 380 == maze.oxygen_steps
