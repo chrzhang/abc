@@ -289,36 +289,55 @@ class Maze:
         self.oxygen_steps = None
 
 
+def draw_maze(states):
+    tape = defaultdict(int)
+    for idx, e in enumerate(states):
+        tape[idx] = e
+    start_pos = (0, 0)
+    state = State(tape, 0, RelativeBase(0), start_pos)
+    visited = {start_pos}
+    frontier = [state]
+    steps = 1
+    maze = Maze()
+    steps_to_reach_oxygen = None
+    while frontier:
+        next_frontier = []
+        for s in frontier:
+            for unvisited_neighbor_state in get_unvisited_neighbor_states(
+                s, visited, maze
+            ):
+                visited.add(unvisited_neighbor_state.pos)
+                next_frontier.append(unvisited_neighbor_state)
+                if maze.oxygen_location and maze.oxygen_steps is None:
+                    maze.oxygen_steps = steps
+        frontier = next_frontier
+        steps += 1
+    return maze
+
+
+def number_of_levels_in_bfs_from_oxygen(maze):
+    frontier = [maze.oxygen_location]
+    visited = set([maze.oxygen_location])
+    levels = 0
+    while frontier:
+        next_frontier = []
+        for loc in frontier:
+            adjacent = [move_pos(loc, direction) for direction in Direction]
+            neighbors = [n for n in adjacent if n not in maze.walls]
+            unvisited_neighbors = [n for n in neighbors if n not in visited]
+            for un in unvisited_neighbors:
+                visited.add(un)
+                next_frontier.append(un)
+        frontier = next_frontier
+        levels += 1
+    return levels - 1
+
+
 if __name__ == "__main__":
     with open("inputs/day15_input", "r") as f:
         (line,) = f.read().strip().split("\n")
     read_states = tuple([int(x) for x in line.split(",")])
-
-    def draw_maze():
-        tape = defaultdict(int)
-        for idx, e in enumerate(read_states):
-            tape[idx] = e
-        start_pos = (0, 0)
-        state = State(tape, 0, RelativeBase(0), start_pos)
-        visited = {start_pos}
-        frontier = [state]
-        steps = 1
-        maze = Maze()
-        steps_to_reach_oxygen = None
-        while frontier:
-            next_frontier = []
-            for s in frontier:
-                for unvisited_neighbor_state in get_unvisited_neighbor_states(
-                    s, visited, maze
-                ):
-                    visited.add(unvisited_neighbor_state.pos)
-                    next_frontier.append(unvisited_neighbor_state)
-                    if maze.oxygen_location and maze.oxygen_steps is None:
-                        maze.oxygen_steps = steps
-            frontier = next_frontier
-            steps += 1
-        return maze
-
-    maze = draw_maze()
+    maze = draw_maze(read_states)
     visualize(maze)
     assert 380 == maze.oxygen_steps
+    assert 410 == number_of_levels_in_bfs_from_oxygen(maze)
