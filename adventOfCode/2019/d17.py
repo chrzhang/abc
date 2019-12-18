@@ -115,15 +115,15 @@ def enact_multiply(modes, states, idx, relative_base):
     states[pos_of_result] = param_1 * param_2
 
 
-def enact_input(modes, states, idx, input_value, relative_base):
+def enact_input(modes, states, idx, input_getter, relative_base):
     if modes.first() == Mode.IMMEDIATE:
         raise WritingToImmediateError
     if modes.first() == Mode.POSITION:
         pos_of_result = states[idx + 1]
-        states[pos_of_result] = input_value
+        states[pos_of_result] = next(input_getter)
     elif modes.first() == Mode.RELATIVE:
         pos_of_result = relative_base.val() + states[idx + 1]
-        states[pos_of_result] = input_value
+        states[pos_of_result] = next(input_getter)
 
 
 def enact_output(modes, states, idx, outputs, relative_base):
@@ -165,14 +165,14 @@ def enact_adjust_relative_base(modes, states, idx, relative_base):
     relative_base.set_val(param_1 + relative_base.val())
 
 
-def enact_opcode(opcode, modes, states, idx, relative_base, outputs, input_value):
+def enact_opcode(opcode, modes, states, idx, relative_base, outputs, input_getter):
     idx_target = None
     if opcode is OpCode.ADD:
         enact_add(modes, states, idx, relative_base)
     elif opcode is OpCode.MULTIPLY:
         enact_multiply(modes, states, idx, relative_base)
     elif opcode is OpCode.INPUT:
-        enact_input(modes, states, idx, input_value, relative_base)
+        enact_input(modes, states, idx, input_getter, relative_base)
     elif opcode is OpCode.OUTPUT:
         enact_output(modes, states, idx, outputs, relative_base)
     elif opcode is OpCode.JUMP_IF_TRUE:
@@ -193,23 +193,18 @@ def enact_opcode(opcode, modes, states, idx, relative_base, outputs, input_value
         return idx_target
 
 
-def solve(input_val, read_states):
+def solve(input_getter, read_states):
     states = defaultdict(int)
     for idx, val in enumerate(read_states):
         states[idx] = val
     relative_base = RelativeBase(0)
     outputs = []
     i = 0
-    input_used = False
     while True:
         opcode, modes = parse_opcode_and_modes(states[i])
         if opcode is OpCode.HALT:
             break
-        if opcode is OpCode.INPUT:
-            if input_used:
-                raise InputMoreThanOnceError
-            input_used = True
-        i = enact_opcode(opcode, modes, states, i, relative_base, outputs, input_val)
+        i = enact_opcode(opcode, modes, states, i, relative_base, outputs, input_getter)
     return states, outputs
 
 
@@ -222,6 +217,11 @@ def get_scaffold_positions(rows):
     return scaffold_positions
 
 
+def draw(rows):
+    for row_idx, r in enumerate(rows):
+        print(r)
+
+
 def get_intersections(scaffold_positions):
     intersections = set()
     for scaffold_row, scaffold_col in scaffold_positions:
@@ -231,13 +231,169 @@ def get_intersections(scaffold_positions):
     return intersections
 
 
-def neighbors(scaffold_x, scaffold_y):
+def neighbors(row, col):
     return [
-        (scaffold_x - 1, scaffold_y),
-        (scaffold_x + 1, scaffold_y),
-        (scaffold_x, scaffold_y - 1),
-        (scaffold_x, scaffold_y + 1),
+        (row - 1, col),
+        (row + 1, col),
+        (row, col - 1),
+        (row, col + 1),
     ]
+
+
+def find_curr_pos(rows):
+    for row_idx, r in enumerate(rows):
+        for col_idx, e in enumerate(r):
+            if e in ["^", "<", ">", "v"]:
+                return (row_idx, col_idx)
+
+
+class Direction(Enum):
+    UP = "^"
+    LEFT = "<"
+    RIGHT = ">"
+    DOWN = "v"
+
+
+def str_turn(direction):
+    return {Direction.LEFT: "L", Direction.RIGHT: "R"}[direction]
+
+
+def find_curr_dir(robot):
+    return Direction(robot)
+
+
+def relative_position(target, source):
+    source_row, source_col = source
+    if target == (source_row - 1, source_col):
+        return Direction.UP
+    if target == (source_row + 1, source_col):
+        return Direction.DOWN
+    if target == (source_row, source_col - 1):
+        return Direction.LEFT
+    if target == (source_row, source_col + 1):
+        return Direction.RIGHT
+
+
+def get_turn(curr_dir, rel_pos):
+    if rel_pos is Direction.UP:
+        if curr_dir is Direction.RIGHT:
+            return Direction.LEFT
+        elif curr_dir is Direction.LEFT:
+            return Direction.RIGHT
+        else:
+            raise RuntimeError
+    elif rel_pos is Direction.RIGHT:
+        if curr_dir is Direction.UP:
+            return Direction.RIGHT
+        elif curr_dir is Direction.DOWN:
+            return Direction.LEFT
+        else:
+            raise RuntimeError
+    elif rel_pos is Direction.LEFT:
+        if curr_dir is Direction.UP:
+            return Direction.LEFT
+        elif curr_dir is Direction.DOWN:
+            return Direction.RIGHT
+        else:
+            raise RuntimeError
+    elif rel_pos is Direction.DOWN:
+        if curr_dir is Direction.RIGHT:
+            return Direction.RIGHT
+        elif curr_dir is Direction.LEFT:
+            return Direction.LEFT
+        else:
+            raise RuntimeError
+
+
+def get_unvisited_neighbor(curr_row, curr_col, rows, last_visited_pos):
+    ns = neighbors(curr_row, curr_col)
+    for n_row, n_col in ns:
+        if (n_row, n_col) == last_visited_pos:
+            continue
+        try:
+            if rows[n_row][n_col] == "#":
+                return (n_row, n_col)
+        except IndexError:
+            pass
+    return None
+
+
+def get_path(rows):
+    path = []
+    curr_row, curr_col = find_curr_pos(rows)
+    curr_dir = find_curr_dir(rows[curr_row][curr_col])
+    last_visited_pos = None
+    while True:
+        unvisited_neighbor = get_unvisited_neighbor(
+            curr_row, curr_col, rows, last_visited_pos
+        )
+        if unvisited_neighbor is None:
+            break
+        rel_pos = relative_position(unvisited_neighbor, (curr_row, curr_col))
+        turn = get_turn(curr_dir, rel_pos)
+        path.append(str_turn(turn))
+        curr_dir = rel_pos
+        step_ctr = 0
+        try:
+            if curr_dir is Direction.UP:
+                while rows[curr_row - 1][curr_col] == "#":
+                    last_visited_pos = (curr_row, curr_col)
+                    step_ctr += 1
+                    curr_row -= 1
+            elif curr_dir is Direction.RIGHT:
+                while rows[curr_row][curr_col + 1] == "#":
+                    last_visited_pos = (curr_row, curr_col)
+                    step_ctr += 1
+                    curr_col += 1
+            elif curr_dir is Direction.LEFT:
+                while rows[curr_row][curr_col - 1] == "#":
+                    last_visited_pos = (curr_row, curr_col)
+                    step_ctr += 1
+                    curr_col -= 1
+            elif curr_dir is Direction.DOWN:
+                while rows[curr_row + 1][curr_col] == "#":
+                    last_visited_pos = (curr_row, curr_col)
+                    step_ctr += 1
+                    curr_row += 1
+        except IndexError:
+            pass
+        path[-1] = path[-1] + str(step_ctr)
+    return path
+
+
+def part_1(rows):
+    scaffold_positions = get_scaffold_positions(rows)
+    intersections = get_intersections(scaffold_positions)
+    total = 0
+    for intersection_row, intersection_col in intersections:
+        total += intersection_row * intersection_col
+    return total
+
+
+def part_2(rows, states):
+    print(" ".join(get_path(rows)))
+    # Figured out these by hand, TODO to automate
+    movement_routine = "A,B,A,C,A,B,C,B,C,A\n"
+    movement_function_A = "L,12,R,4,R,4,L,6\n"
+    movement_function_B = "L,12,R,4,R,4,R,12\n"
+    movement_function_C = "L,10,L,6,R,4\n"
+    newsfeed_option = "n\n"
+    inputs = (
+        movement_routine
+        + movement_function_A
+        + movement_function_B
+        + movement_function_C
+        + newsfeed_option
+    )
+
+    def input_getter():
+        for i in inputs:
+            yield ord(i)
+
+    states = list(states)
+    states[0] = 2
+    _, outputs = solve(input_getter(), states)
+    return outputs[-1]
 
 
 if __name__ == "__main__":
@@ -246,9 +402,6 @@ if __name__ == "__main__":
     read_states = tuple([int(x) for x in line.split(",")])
     _, outputs = solve(None, read_states)
     rows = "".join([chr(n) for n in outputs]).split("\n")
-    scaffold_positions = get_scaffold_positions(rows)
-    intersections = get_intersections(scaffold_positions)
-    total = 0
-    for intersection_row, intersection_col in intersections:
-        total += (intersection_row) * (intersection_col)
-    assert 3292 == total
+    draw(rows)
+    assert 3292 == part_1(rows)
+    assert 651043 == part_2(rows, read_states)
