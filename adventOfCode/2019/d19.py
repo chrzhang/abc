@@ -31,14 +31,17 @@ class WritingToImmediateError(Exception):
     pass
 
 
-def number_of_values(opcode):
-    if opcode in (OpCode.ADD, OpCode.MULTIPLY, OpCode.LESS_THAN, OpCode.EQUALS):
-        return 4
-    if opcode in (OpCode.INPUT, OpCode.OUTPUT, OpCode.ADJUST_REL_BASE):
-        return 2
-    if opcode in (OpCode.JUMP_IF_FALSE, OpCode.JUMP_IF_TRUE):
-        return 3
-    raise UnknownOpCodeError
+NUMBER_OF_VALUES = {
+    OpCode.ADD: 4,
+    OpCode.MULTIPLY: 4,
+    OpCode.LESS_THAN: 4,
+    OpCode.EQUALS: 4,
+    OpCode.INPUT: 2,
+    OpCode.OUTPUT: 2,
+    OpCode.ADJUST_REL_BASE: 2,
+    OpCode.JUMP_IF_FALSE: 3,
+    OpCode.JUMP_IF_TRUE: 3,
+}
 
 
 @unique
@@ -62,6 +65,7 @@ class Modes:
         return self._modes[0]
 
 
+@functools.cache
 def parse_opcode_and_modes(first_value):
     padded = str(first_value).zfill(5)
     opcode = OpCode(padded[-2:])
@@ -184,7 +188,7 @@ def enact_opcode(opcode, modes, states, idx, relative_base, outputs, input_gette
     else:
         raise UnknownOpCodeError
     if idx_target is None:
-        return idx + number_of_values(opcode)
+        return idx + NUMBER_OF_VALUES[opcode]
     else:
         return idx_target
 

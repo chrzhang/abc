@@ -4,6 +4,7 @@ import functools
 from collections import defaultdict
 from enum import Enum, unique
 
+
 @unique
 class OpCode(Enum):
     ADD = "01"
@@ -65,11 +66,13 @@ class Modes:
         return self._modes[0]
 
 
+@functools.cache
 def parse_opcode_and_modes(first_value):
     padded = str(first_value).zfill(5)
     opcode = OpCode(padded[-2:])
     modes = Modes(padded[:3])
     return opcode, modes
+
 
 class RelativeBase:
     def __init__(self, val):
@@ -80,6 +83,7 @@ class RelativeBase:
 
     def val(self):
         return self._val
+
 
 def read_param(mode, param, states, relative_base):
     if mode == Mode.IMMEDIATE:
@@ -160,6 +164,7 @@ def enact_equals(modes, states, idx, relative_base):
 def enact_adjust_relative_base(modes, states, idx, relative_base):
     param_1 = read_param(modes.first(), states[idx + 1], states, relative_base)
     relative_base.set_val(param_1 + relative_base.val())
+
 
 def enact_opcode(opcode, modes, states, idx, relative_base, outputs, input_value):
     idx_target = None
