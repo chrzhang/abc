@@ -94,7 +94,7 @@ def build_adj_list(portals_to_positions, positions_to_portals):
     return adj_list
 
 
-def dijkstra_shortest_path():
+def dijkstra_shortest_path_part1():
     portals_to_positions, positions_to_portals = get_portals()
     adj_list = build_adj_list(portals_to_positions, positions_to_portals)
 
@@ -111,6 +111,8 @@ def dijkstra_shortest_path():
         if curr_portal in visited:
             continue
         visited.add(curr_portal)
+        if curr_portal == DEST:
+            return dist[DEST]
         for neighbor, cost in adj_list[curr_portal].items():
             if neighbor in visited:
                 continue
@@ -118,7 +120,74 @@ def dijkstra_shortest_path():
             if alt < dist[neighbor]:
                 dist[neighbor] = alt
                 heapq.heappush(min_heap, (alt, neighbor))
-    return dist[DEST]
+    return None
 
 
-assert 642 == dijkstra_shortest_path()
+assert 642 == dijkstra_shortest_path_part1()
+
+
+def is_outer_portal(portal_pos):
+    is_on_top_or_bottom = portal_pos[0] in (2, HEIGHT - 3)
+    is_on_left_or_right = portal_pos[1] in (2, WIDTH - 3)
+    return is_on_left_or_right or is_on_top_or_bottom
+
+
+def is_inner_portal(portal_pos):
+    return not is_outer_portal(portal_pos)
+
+
+def get_reachable_neighbors(current_layer, portal, neighbors):
+    def treat_as_portal(portal_name):
+        return portal_name not in ("AA", "ZZ") or current_layer == 0
+
+    for n, dist in neighbors.items():
+        if n[0] == portal[0]:
+            if is_inner_portal(portal[1]):
+                if treat_as_portal(n[0]):
+                    yield (n, (dist, current_layer + 1))
+            elif current_layer > 0:
+                if treat_as_portal(n[0]):
+                    yield (n, (dist, current_layer - 1))
+        else:
+            if treat_as_portal(n[0]):
+                yield (n, (dist, current_layer))
+
+
+def dijkstra_shortest_path_part2():
+    portals_to_positions, positions_to_portals = get_portals()
+    adj_list = build_adj_list(portals_to_positions, positions_to_portals)
+
+    START = ("AA", portals_to_positions["AA"][0], 0)
+    DEST = ("ZZ", portals_to_positions["ZZ"][0], 0)
+
+    dist = defaultdict(lambda: math.inf)
+    dist[START] = 0
+    min_heap = [(0, START)]
+    visited = set()
+    while min_heap:
+        curr_dist, curr_state = heapq.heappop(min_heap)
+        if curr_state in visited:
+            continue
+        visited.add(curr_state)
+        if curr_state == DEST:
+            return dist[DEST]
+        (curr_portal_name, curr_portal_pos, curr_layer) = curr_state
+        curr_portal = (curr_portal_name, curr_portal_pos)
+        neighbor_states = dict(
+            get_reachable_neighbors(curr_layer, curr_portal, adj_list[curr_portal])
+        )
+        for (neighbor_portal_name, neighbor_portal_pos), (
+            cost,
+            layer,
+        ) in neighbor_states.items():
+            if (neighbor_portal_name, neighbor_portal_pos, layer) in visited:
+                continue
+            neighbor = (neighbor_portal_name, neighbor_portal_pos, layer)
+            alt = curr_dist + cost
+            if alt < dist[neighbor]:
+                dist[neighbor] = alt
+                heapq.heappush(min_heap, (alt, neighbor))
+    return None
+
+
+assert 7492 == dijkstra_shortest_path_part2()
