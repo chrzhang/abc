@@ -51,19 +51,85 @@ class Eris:
         return rating
 
 
+class PlutonianEris:
+    def __init__(self, grid):
+        layer = 0
+        self.bugs = set()
+        for row in range(5):
+            for col in range(5):
+                if grid[row][col] == "#":
+                    self.bugs.add((layer, row, col))
+
+    def get_neighbors(self, layer, row, col):
+        neighbors = set()
+        for (dr, dc) in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            if 0 <= row + dr < 5 and 0 <= col + dc < 5:
+                if (row + dr, col + dc) == (2, 2):
+                    if row == 1:
+                        neighbors |= {(layer + 1, 0, c) for c in range(5)}
+                    elif row == 3:
+                        neighbors |= {(layer + 1, 4, c) for c in range(5)}
+                    elif col == 1:
+                        neighbors |= {(layer + 1, r, 0) for r in range(5)}
+                    elif col == 3:
+                        neighbors |= {(layer + 1, r, 4) for r in range(5)}
+                else:
+                    neighbors.add((layer, row + dr, col + dc))
+            else:
+                if row + dr < 0:
+                    neighbors.add((layer - 1, 1, 2))
+                elif row + dr >= 5:
+                    neighbors.add((layer - 1, 3, 2))
+                elif col + dc < 0:
+                    neighbors.add((layer - 1, 2, 1))
+                elif col + dc >= 5:
+                    neighbors.add((layer - 1, 2, 3))
+        return neighbors
+
+    def all_bug_neighbors(self):
+        neighbors = set()
+        for (bug_layer, bug_row, bug_col) in self.bugs:
+            neighbors |= self.get_neighbors(bug_layer, bug_row, bug_col)
+        return neighbors - self.bugs
+
+    def elapse(self):
+        next_bugs = set()
+        for (bug_layer, bug_row, bug_col) in self.bugs:
+            neighbors = self.get_neighbors(bug_layer, bug_row, bug_col)
+            if len([n for n in neighbors if n in self.bugs]) == 1:
+                next_bugs.add((bug_layer, bug_row, bug_col))
+        for (empty_layer, empty_row, empty_col) in self.all_bug_neighbors():
+            neighbors = self.get_neighbors(empty_layer, empty_row, empty_col)
+            if len([n for n in neighbors if n in self.bugs]) in (1, 2):
+                next_bugs.add((empty_layer, empty_row, empty_col))
+        self.bugs = next_bugs
+
+
 if __name__ == "__main__":
     with open("inputs/day24_input", "r") as f:
         grid = f.read().strip().split("\n")
-    e = Eris(grid)
 
-    layouts_so_far = set()
-    while True:
-        e.elapse()
+    def part1():
+        e = Eris(grid)
 
-        serialized = e.serialized()
-        if serialized in layouts_so_far:
-            break
-        layouts_so_far.add(serialized)
+        layouts_so_far = set()
+        while True:
+            e.elapse()
 
-    e = Eris.deserialize(serialized, len(grid), len(grid[0]))
-    assert 18370591 == e.biodiversity_rating()
+            serialized = e.serialized()
+            if serialized in layouts_so_far:
+                break
+            layouts_so_far.add(serialized)
+
+        e = Eris.deserialize(serialized, len(grid), len(grid[0]))
+        return e.biodiversity_rating()
+
+    assert 18370591 == part1()
+
+    def part2():
+        e = PlutonianEris(grid)
+        for _ in range(200):
+            e.elapse()
+        return len(e.bugs)
+
+    assert 2040 == part2()
