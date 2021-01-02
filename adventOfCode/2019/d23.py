@@ -257,7 +257,7 @@ class IntCodeComputer:
                 return
 
 
-def solve(read_states):
+def part_1(read_states):
     COMPUTER_COUNT = 50
     computers = [IntCodeComputer(read_states) for _ in range(COMPUTER_COUNT)]
     message_queues = [deque([i]) for i in range(COMPUTER_COUNT)]
@@ -288,8 +288,66 @@ def solve(read_states):
         curr_computer_i = (curr_computer_i + 1) % COMPUTER_COUNT
 
 
+def part_2(read_states):
+    COMPUTER_COUNT = 50
+    computers = [IntCodeComputer(read_states) for _ in range(COMPUTER_COUNT)]
+    message_queues = [deque([i]) for i in range(COMPUTER_COUNT)]
+    computer_outputs = [[] for _ in range(COMPUTER_COUNT)]
+    last_nat_packet_x = last_nat_packet_y = None
+    last_delivered_nat_packet_y = None
+    curr_computer_i = 0
+    while True:
+        computer = computers[curr_computer_i]
+        assert not computer.halted()
+        queue = message_queues[curr_computer_i]
+        output = computer_outputs[curr_computer_i]
+        computer.crunch()
+
+        if computer.needs_input():
+            input_value = -1
+            if queue:
+                input_value = queue.popleft()
+            computer.set_next_input(input_value)
+
+        elif computer.sent_output():
+            output_val = computer.outputs[-1]
+            output.append(output_val)
+            if len(output) == 3:
+                target, x, y = output
+                if target == 255:
+                    last_nat_packet_x = x
+                    last_nat_packet_y = y
+                else:
+                    message_queues[target].append(x)
+                    message_queues[target].append(y)
+                output[:] = []
+
+        if curr_computer_i == COMPUTER_COUNT - 1:
+            # Run NAT
+            if (
+                not any(message_queues)
+                and all([c.needs_input() for c in computers])
+                and not any(computer_outputs)
+            ):
+                message_queues[0].append(last_nat_packet_x)
+                message_queues[0].append(last_nat_packet_y)
+
+                if (
+                    not (
+                        last_delivered_nat_packet_y is None
+                        or last_delivered_nat_packet_y == 18604
+                    )
+                    and last_nat_packet_y == last_delivered_nat_packet_y
+                ):
+                    return last_delivered_nat_packet_y
+
+                last_delivered_nat_packet_y = last_nat_packet_y
+        curr_computer_i = (curr_computer_i + 1) % COMPUTER_COUNT
+
+
 if __name__ == "__main__":
     with open("inputs/day23_input", "r") as f:
         (line,) = f.read().strip().split("\n")
     read_states = tuple([int(x) for x in line.split(",")])
-    assert 18604 == solve(read_states)
+    assert 18604 == part_1(read_states)
+    assert 11880 == part_2(read_states)
