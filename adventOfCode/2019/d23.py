@@ -295,6 +295,7 @@ def part_2(read_states):
     computer_outputs = [[] for _ in range(COMPUTER_COUNT)]
     last_nat_packet_x = last_nat_packet_y = None
     last_delivered_nat_packet_y = None
+    first_delivered_nat_packet_y = None
     curr_computer_i = 0
     while True:
         computer = computers[curr_computer_i]
@@ -324,22 +325,21 @@ def part_2(read_states):
 
         if curr_computer_i == COMPUTER_COUNT - 1:
             # Run NAT
-            if (
-                not any(message_queues)
-                and all([c.needs_input() for c in computers])
-                and not any(computer_outputs)
-            ):
+            if not any(message_queues) and all([c.needs_input() for c in computers]):
                 message_queues[0].append(last_nat_packet_x)
                 message_queues[0].append(last_nat_packet_y)
 
                 if (
                     not (
                         last_delivered_nat_packet_y is None
-                        or last_delivered_nat_packet_y == 18604
+                        or last_delivered_nat_packet_y == first_delivered_nat_packet_y
                     )
                     and last_nat_packet_y == last_delivered_nat_packet_y
                 ):
                     return last_delivered_nat_packet_y
+
+                if last_delivered_nat_packet_y is None:
+                    first_delivered_nat_packet_y = last_nat_packet_y
 
                 last_delivered_nat_packet_y = last_nat_packet_y
         curr_computer_i = (curr_computer_i + 1) % COMPUTER_COUNT
