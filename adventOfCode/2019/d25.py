@@ -298,6 +298,16 @@ def drop_all_items():
         yield m
 
 
+def feed_inputs(instruction_generator, droid):
+    user_input = ""
+    while True:
+        print(droid.crunch(user_input))
+        try:
+            user_input = next(instruction_generator)
+        except StopIteration:
+            break
+
+
 def powerset_of_items():
     return powerset(
         [
@@ -318,23 +328,8 @@ if __name__ == "__main__":
         (line,) = f.read().strip().split("\n")
     read_states = tuple([int(x) for x in line.split(",")])
     d = Droid(read_states)
-    user_input = ""
-    get_all_items_and_go_to_checkpoint = go_and_fetch_all_items()
-    while True:
-        print(d.crunch(user_input))
-        try:
-            user_input = next(get_all_items_and_go_to_checkpoint)
-        except StopIteration:
-            break
-
-    drop_items = drop_all_items()
-    user_input = ""
-    while True:
-        print(d.crunch(user_input))
-        try:
-            user_input = next(drop_items)
-        except StopIteration:
-            break
+    feed_inputs(go_and_fetch_all_items(), d)
+    feed_inputs(drop_all_items(), d)
 
     for subset in powerset_of_items():
 
@@ -346,22 +341,8 @@ if __name__ == "__main__":
             for m in [f"drop {item}" for item in subset]:
                 yield m
 
-        pick_up = pick_up_subset()
-        user_input = ""
-        while True:
-            print(d.crunch(user_input))
-            try:
-                user_input = next(pick_up)
-            except StopIteration:
-                break
+        feed_inputs(pick_up_subset(), d)
 
         d.crunch("east")
 
-        drop_stuff = put_down_subset()
-        user_input = ""
-        while True:
-            print(d.crunch(user_input))
-            try:
-                user_input = next(drop_stuff)
-            except StopIteration:
-                break
+        feed_inputs(put_down_subset(), d)
